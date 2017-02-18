@@ -1,0 +1,4 @@
+
+mysql -u hsuser -phspass hs < clean_db.sql
+
+mysqldump -u hsuser -phspass hs > dump.sql
