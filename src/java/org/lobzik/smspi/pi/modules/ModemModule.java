@@ -24,6 +24,7 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.lobzik.smspi.pi.AppData;
 import org.lobzik.smspi.pi.BoxCommonData;
+import org.lobzik.smspi.pi.BoxSettingsAPI;
 import org.lobzik.smspi.pi.ConnJDBCAppender;
 import org.lobzik.smspi.pi.event.EventManager;
 import org.lobzik.tools.Tools;
@@ -254,7 +255,7 @@ public class ModemModule extends Thread implements Module {
                 if (modemOkRepliesCount > 10 && modemWriteErrorCount > 3) { //если нормально работал и перестал - значит хана
                     modemOkRepliesCount = 0;
                     String message = "Modem port lost!";
-                    log.fatal (message);
+                    log.fatal(message);
                     HashMap cause = new HashMap();
                     cause.put("cause", message);
                     Event reboot = new Event("modem_and_system_reboot", cause, Event.Type.SYSTEM_EVENT);
@@ -280,10 +281,26 @@ public class ModemModule extends Thread implements Module {
 
         switch (e.getType()) {
             case TIMER_EVENT:
-                if (e.name.equals("internal_sensors_poll")) {
-                    synchronized (this) {
-                        notify(); //TODO вообще паршиво, т.к. тред может ждать ответа от модема, а его пробудят невовремя - нужна синхронизация по иному объекту
+                switch (e.name) {
+                    case "internal_sensors_poll": {
+                        synchronized (this) {
+                            notify(); //TODO вообще паршиво, т.к. тред может ждать ответа от модема, а его пробудят невовремя - нужна синхронизация по иному объекту
+                        }
                     }
+                    break;
+
+                    case "send_test_sms":
+                        String testRecipient = BoxSettingsAPI.get("SMSTestRecipient");
+                        String testText = BoxSettingsAPI.get("SMSTestText");
+                        if (testRecipient != null && testRecipient.length() > 5 && testText != null && testText.length() > 0) {
+                            log.info("Sending TEST SMS ");
+                            testText = testText.replace("%DATE%", System.currentTimeMillis() + " ms");
+                            sendMessage(testRecipient, testText);
+                            
+                        }
+
+                        break;
+
                 }
                 break;
 
@@ -295,7 +312,7 @@ public class ModemModule extends Thread implements Module {
                 }
                 break;
 
- /*           case BEHAVIOR_EVENT:
+            /*           case BEHAVIOR_EVENT:
                 if (e.name.equals("send_sms")) {
                     boolean doSendSms = Tools.parseBoolean(BoxSettingsAPI.get("SMSNotifications"), false);
 //                    Notification n = (Notification) e.data.get("Notification");
