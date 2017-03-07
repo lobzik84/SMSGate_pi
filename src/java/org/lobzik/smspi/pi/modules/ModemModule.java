@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Appender;
 
 import org.apache.log4j.Logger;
@@ -67,6 +68,8 @@ public class ModemModule extends Thread implements Module {
     private static int modemOkRepliesCount = 0;
     private static int modemWriteErrorCount = 0;
 
+    private static final AtomicBoolean modemBusy = new AtomicBoolean(false);
+
     private ModemModule() { //singleton
     }
 
@@ -114,6 +117,7 @@ public class ModemModule extends Thread implements Module {
             serialReader = new ModemSerialReader(serialPort.getInputStream());
             serialReader.start();
             log.debug("Configuring modem");
+            modemBusy.set(true);
             waitForCommand("ATE0\r", outWriter);
             waitForCommand("AT+CMGF=0\r", outWriter);
             //TODO other init
@@ -158,6 +162,7 @@ public class ModemModule extends Thread implements Module {
                     String sSQL = "select * from sms_outbox where status=" + STATUS_NEW;
 
                     List<HashMap> smsToSendList = DBSelect.getRows(sSQL, conn);
+                    modemBusy.set(true);
                     while (!smsToSendList.isEmpty()) {
                         HashMap smsToSend = smsToSendList.remove(0);
                         log.info("Sending SMS id " + smsToSend.get("id"));
@@ -214,12 +219,14 @@ public class ModemModule extends Thread implements Module {
                         }
                     }
                     synchronized (this) {
+                        modemBusy.set(false);
                         try {
                             if (test) {
                                 wait(10000);
                             } else {
                                 wait();//wait for timer 
                             }
+
                         } catch (InterruptedException ie) {
                         }
                     }
@@ -283,8 +290,10 @@ public class ModemModule extends Thread implements Module {
             case TIMER_EVENT:
                 switch (e.name) {
                     case "internal_sensors_poll": {
-                        synchronized (this) {
-                            notify(); //TODO вообще паршиво, т.к. тред может ждать ответа от модема, а его пробудят невовремя - нужна синхронизация по иному объекту
+                        if (!modemBusy.get()) {
+                            synchronized (this) {
+                                notify(); 
+                            }
                         }
                     }
                     break;
@@ -296,7 +305,7 @@ public class ModemModule extends Thread implements Module {
                             log.info("Sending TEST SMS ");
                             testText = testText.replace("%DATE%", System.currentTimeMillis() + " ms");
                             sendMessage(testRecipient, testText);
-                            
+
                         }
 
                         break;
