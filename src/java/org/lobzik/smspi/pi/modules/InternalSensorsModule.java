@@ -12,18 +12,15 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.HashMap;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 
 import org.lobzik.smspi.pi.AppData;
 
 import org.lobzik.smspi.pi.BoxCommonData;
-import org.lobzik.smspi.pi.BoxSettingsAPI;
 import org.lobzik.smspi.pi.ConnJDBCAppender;
 import org.lobzik.smspi.pi.event.Event;
 import org.lobzik.smspi.pi.event.EventManager;
-import org.lobzik.tools.Tools;
 
 /**
  *
