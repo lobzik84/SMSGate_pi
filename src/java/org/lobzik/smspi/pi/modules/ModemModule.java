@@ -56,7 +56,10 @@ public class ModemModule extends Thread implements Module {
     public static final int STATUS_NEW = 0;
     public static final int STATUS_SENT = 1;
     public static final int STATUS_READ = 2;
-    public static final int STATUS_ERROR = -1;
+    public static final int STATUS_ERROR_SENDING = -1;
+    public static final int STATUS_ERROR_TOO_OLD = -2;
+    public static final int STATUS_ERROR_ATTEMPTS_EXCEEDED = -3;
+    public static final int STATUS_SENDING = 3;
 
     private static String lastRecieved = "";
 
@@ -159,15 +162,34 @@ public class ModemModule extends Thread implements Module {
             while (run) {
                 try {
 
-                    String sSQL = "select * from sms_outbox where status=" + STATUS_NEW;
+                    String sSQL = "select * from sms_outbox where status=" + STATUS_NEW + " or status=" + STATUS_ERROR_SENDING;
 
                     List<HashMap> smsToSendList = DBSelect.getRows(sSQL, conn);
                     modemBusy.set(true);
                     while (!smsToSendList.isEmpty()) {
                         HashMap smsToSend = smsToSendList.remove(0);
-                        log.info("Sending SMS id " + smsToSend.get("id"));
-                        smsToSend.put("status", STATUS_ERROR);
-                        DBTools.updateRow("sms_outbox", smsToSend, conn);//сразу ему ставим статус с ошибкой, чтобы если что не гонялось по кругу
+                        log.info("Processing SMS id " + smsToSend.get("id"));
+                        int tries = Tools.parseInt(smsToSend.get("tries_cnt"), 0);
+                        tries++;
+                        if (tries >= BoxSettingsAPI.getInt("MaxAttemptsToSend")) {
+                            log.error("Sending attempts exceeded!");
+                            smsToSend.put("status", STATUS_ERROR_ATTEMPTS_EXCEEDED);
+                            smsToSend.put("tries_cnt", tries);
+                            DBTools.updateRow("sms_outbox", smsToSend, conn);
+                            continue;
+                        }
+                        Date msgDate = (Date) smsToSend.get("date");
+                        if (System.currentTimeMillis() > BoxSettingsAPI.getInt("OutgoingMessageMaxAge")*1000l + msgDate.getTime()) {
+                            log.error("Message too old!");
+                            smsToSend.put("status", STATUS_ERROR_TOO_OLD);
+                            smsToSend.put("tries_cnt", tries);
+                            DBTools.updateRow("sms_outbox", smsToSend, conn);
+                            continue;
+                        }
+
+                        smsToSend.put("status", STATUS_SENDING);
+                        smsToSend.put("tries_cnt", tries);
+                        DBTools.updateRow("sms_outbox", smsToSend, conn);
                         COutgoingMessage outMsg = new COutgoingMessage();
 
                         outMsg.setMessageEncoding(CMessage.MESSAGE_ENCODING_UNICODE);
@@ -191,10 +213,13 @@ public class ModemModule extends Thread implements Module {
 
                         if (lastRecieved.equalsIgnoreCase("OK")) {
                             smsToSend.put("status", STATUS_SENT);
+                            smsToSend.put("date_sent", new Date());
                             log.info("Successfully sent");
                             DBTools.updateRow("sms_outbox", smsToSend, conn);
                         } else {
+                            smsToSend.put("status", STATUS_ERROR_SENDING);
 
+                            DBTools.updateRow("sms_outbox", smsToSend, conn);
                             log.error("Error sending: " + lastRecieved);
                         }
                     }
@@ -292,7 +317,7 @@ public class ModemModule extends Thread implements Module {
                     case "internal_sensors_poll": {
                         if (!modemBusy.get()) {
                             synchronized (this) {
-                                notify(); 
+                                notify();
                             }
                         }
                     }

@@ -153,7 +153,7 @@ public class DisplayModule implements Module {
             g.fillRect(468, 24, 3, 16);
              try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
                 Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_SENT , "cnt", null, conn);
-                Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_ERROR , "cnt", null, conn);
+                Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status in (" + ModemModule.STATUS_ERROR_SENDING + "," + ModemModule.STATUS_ERROR_TOO_OLD + "," + ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED +")" , "cnt", null, conn);
                 g.setColor(fontColor);
                 g.setFont(new Font("Roboto Regular", Font.BOLD, 18));
                 g.drawString("Отправлено: " + msgSent, 312, 140);
