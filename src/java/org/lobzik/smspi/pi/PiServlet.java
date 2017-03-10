@@ -6,8 +6,14 @@
 package org.lobzik.smspi.pi;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -15,6 +21,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
+import org.apache.log4j.Logger;
+import org.lobzik.smspi.pi.event.Event;
+import org.lobzik.smspi.pi.modules.ModemModule;
+import org.lobzik.tools.Tools;
 import org.lobzik.tools.db.mysql.DBSelect;
 import org.lobzik.tools.db.mysql.DBTools;
 
@@ -22,50 +33,139 @@ import org.lobzik.tools.db.mysql.DBTools;
  *
  * @author lobzik
  */
-@WebServlet(name = "PiServlet", urlPatterns = {"/hs", "/hs/*"})
+@WebServlet(name = "AdmServlet", urlPatterns = {"/adm", "/adm/*"})
 public class PiServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    Logger log = Logger.getLogger(this.getClass().getName());
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         response.setContentType("text/html;charset=UTF-8");
+        String localPathInfo = request.getPathInfo();
 
-        Connection conn = null;
-        try {
-            String sSQL = "select max(param1) param1, max(param2) param2, max(param3) param3, max(param4) param4, max(ssd.fdate) as fdate, udate\n"
-                    + "from\n"
-                    + "(select \n"
-                    + "(case when sd.parameter_id = 1 then sd.value_d else null end) as param1,\n"
-                    + "(case when sd.parameter_id = 2 then sd.value_d else null end) as param2,\n"
-                    + "(case when sd.parameter_id = 3 then sd.value_d else null end) as param3,\n"
-                    + "(case when sd.parameter_id = 4 then sd.value_d else null end) as param4,\n"
-                    + "date_format(sd.date,'%Y-%m-%d %H:%i:%s') as fdate,\n"
-                    + "floor(unix_timestamp(sd.date)/5) as udate\n"
-                    + "from sensors_data sd\n"
-                    + "where unix_timestamp(now()) - unix_timestamp(sd.date) <= 24 * 3600\n"
-                    + ") ssd\n"
-                    + "group by ssd.udate\n"
-                    + "order by ssd.udate desc";
-            conn = DBTools.openConnection(BoxCommonData.dataSourceName);
-            List<HashMap> resList = DBSelect.getRows(sSQL, conn);
-            HashMap<String, Object> jspData = new HashMap();
-            jspData.put("resList", resList);
-            RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/temperatures.jsp");
-            request.setAttribute("JspData", jspData);
-            disp.include(request, response);
+        int actionId = getActionId(localPathInfo);
+        HashMap jspData = new HashMap();
+        String baseUrl = request.getContextPath() + request.getServletPath();
+        int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            DBTools.closeConnection(conn);
+        switch (actionId) {
+            case 1:
+                if (loginAdmin < 0) {
+                    if (request.getMethod().equalsIgnoreCase("POST")) {
+                        String adminLogin = request.getParameter("login");
+                        String adminPass = request.getParameter("pass");
+                        if (adminLogin != null && adminPass != null && adminPass.trim().length() > 0 && adminPass.trim().length() > 0) {
+                            try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                                String loginSql = "select * from admins a where a.login = ?";
+                                LinkedList args = new LinkedList();
+                                args.add(adminLogin);
+                                List<HashMap> res = DBSelect.getRows(loginSql, args, conn);
+                                if (res.size() == 1) {
+                                    HashMap h = res.get(0);
+                                    int id = Tools.parseInt(h.get("admin_id"), 0);
+                                    String salt = (String) h.get("salt");
+                                    String dbHash = (String) h.get("hash");
+                                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                                    byte[] hash = digest.digest((adminPass + ":" + salt).getBytes("UTF-8"));
+                                    String saltedHash = DatatypeConverter.printHexBinary(hash);
+                                    if (dbHash.equals(saltedHash)) {
+                                        if (Tools.parseInt(h.get("status"), -1) == 1) {
+                                            loginAdmin = id;
+                                            log.info("Admin login ok! id=" + loginAdmin + ", ip=" + request.getRemoteAddr());
+                                            request.getSession().setAttribute("AdminID", loginAdmin);
+                                            response.sendRedirect(baseUrl + "/main");
+                                        } else {
+                                            log.error("Admin:" + adminLogin + "is not activated");
+                                            RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
+                                            jspData.put("FAIL_LOGIN", 1);
+                                            request.setAttribute("JspData", jspData);
+                                            disp.forward(request, response);
+                                        }
+                                    } else {
+                                        log.error("Incorrect password for admin " + adminLogin);
+                                        RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
+                                        jspData.put("FAIL_LOGIN", 1);
+                                        request.setAttribute("JspData", jspData);
+                                        disp.include(request, response);
+                                    }
+                                } else {
+                                    log.error("Admin with login " + adminLogin + " not found");
+                                    RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
+                                    jspData.put("FAIL_LOGIN", 1);
+                                    request.setAttribute("JspData", jspData);
+                                    disp.include(request, response);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            response.sendRedirect(baseUrl);
+                        }
+                    } else {
+                        RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
+                        disp.include(request, response);
+                    }
+                } else {
+                    log.error("Registration for admin: " + loginAdmin + " is alive");
+                    response.sendRedirect(baseUrl + "/main");
+                }
+                break;
+            case 2:
+                if (loginAdmin > 0) {
+                    log.info("Registration for admin: " + loginAdmin + " is alive");
+                    try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                        Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_SENT, "cnt", null, conn);
+                        Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_ERROR, "cnt", null, conn);
+                        Long msgInbox = DBSelect.getCount("select count(*) as cnt from sms_inbox", "cnt", null, conn);
+                        jspData.put("msgSent", msgSent);
+                        jspData.put("msgErrs", msgErrs);
+                        jspData.put("msgInbox", msgInbox);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/main.jsp");
+                    request.setAttribute("JspData", jspData);
+                    disp.include(request, response);
+                } else {
+                    log.error("No alive registration");
+                    response.sendRedirect(baseUrl);
+                }
+                break;
+            case 3:
+                request.getSession().removeAttribute("AdminID");
+                response.sendRedirect(baseUrl);
+                break;
+            case 4:
+                if (loginAdmin > 0) {
+                    String sms = Tools.getStringValue(request.getParameter("sms"), "");
+                    String recipient = Tools.getStringValue(request.getParameter("recipient"), "");
+                    if (request.getMethod().equalsIgnoreCase("POST") && sms.trim().length() > 0 && recipient.trim().length() > 0) {
+                        HashMap data = new HashMap();
+                        data.put("message", sms);
+                        data.put("recipient", recipient);
+                        Event e = new Event("send_sms", data, Event.Type.USER_ACTION);
+                        AppData.eventManager.newEvent(e);
+                        jspData.put("SMS_SENDED", 1);
+                        RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/main.jsp");
+                        request.setAttribute("JspData", jspData);
+                        disp.include(request, response);
+                    } else {
+                        response.sendRedirect(baseUrl + "/main");
+                    }
+                } else {
+                    response.sendRedirect(baseUrl);
+                }
+
+                break;
+
+            default:
+                if (loginAdmin > 0) {
+                    response.sendRedirect(baseUrl + "/main");
+                } else {
+                    RequestDispatcher disp1 = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
+                    disp1.include(request, response);
+                }
         }
     }
 
@@ -108,4 +208,40 @@ public class PiServlet extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
+    private HashMap getRequestParameters(HttpServletRequest request) {
+        HashMap parameters = new HashMap();
+        Enumeration keys = request.getParameterNames();
+
+        while (keys.hasMoreElements()) {
+            String key = keys.nextElement().toString();
+            String vals[] = request.getParameterValues(key);
+            if (vals.length == 1) {
+                parameters.put(key, vals[0]);
+            } else if (vals.length > 1) {
+                parameters.put(key, vals);
+            }
+        }
+
+        return parameters;
+    }
+
+    private int getActionId(String localPathInfo) {
+        if (localPathInfo == null) {
+            return -1;
+        }
+        localPathInfo = localPathInfo.replace("/", "");
+        if (localPathInfo.startsWith("login")) {
+            return 1;
+        }
+        if (localPathInfo.startsWith("main")) {
+            return 2;
+        }
+        if (localPathInfo.startsWith("logout")) {
+            return 3;
+        }
+        if (localPathInfo.startsWith("sendmsg")) {
+            return 4;
+        }
+        return -1;
+    }
 }
