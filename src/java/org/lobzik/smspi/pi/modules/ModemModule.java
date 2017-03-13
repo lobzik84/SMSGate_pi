@@ -19,11 +19,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Appender;
 
 import org.apache.log4j.Logger;
 import org.lobzik.smspi.pi.AppData;
 import org.lobzik.smspi.pi.BoxCommonData;
+import org.lobzik.smspi.pi.BoxSettingsAPI;
 import org.lobzik.smspi.pi.ConnJDBCAppender;
 import org.lobzik.smspi.pi.event.EventManager;
 import org.lobzik.tools.Tools;
@@ -54,7 +56,10 @@ public class ModemModule extends Thread implements Module {
     public static final int STATUS_NEW = 0;
     public static final int STATUS_SENT = 1;
     public static final int STATUS_READ = 2;
-    public static final int STATUS_ERROR = -1;
+    public static final int STATUS_ERROR_SENDING = -1;
+    public static final int STATUS_ERROR_TOO_OLD = -2;
+    public static final int STATUS_ERROR_ATTEMPTS_EXCEEDED = -3;
+    public static final int STATUS_SENDING = 3;
 
     private static String lastRecieved = "";
 
@@ -65,6 +70,8 @@ public class ModemModule extends Thread implements Module {
 
     private static int modemOkRepliesCount = 0;
     private static int modemWriteErrorCount = 0;
+
+    private static final AtomicBoolean modemBusy = new AtomicBoolean(false);
 
     private ModemModule() { //singleton
     }
@@ -113,6 +120,7 @@ public class ModemModule extends Thread implements Module {
             serialReader = new ModemSerialReader(serialPort.getInputStream());
             serialReader.start();
             log.debug("Configuring modem");
+            modemBusy.set(true);
             waitForCommand("ATE0\r", outWriter);
             waitForCommand("AT+CMGF=0\r", outWriter);
             //TODO other init
@@ -154,14 +162,34 @@ public class ModemModule extends Thread implements Module {
             while (run) {
                 try {
 
-                    String sSQL = "select * from sms_outbox where status=" + STATUS_NEW;
+                    String sSQL = "select * from sms_outbox where status=" + STATUS_NEW + " or status=" + STATUS_ERROR_SENDING;
 
                     List<HashMap> smsToSendList = DBSelect.getRows(sSQL, conn);
+                    modemBusy.set(true);
                     while (!smsToSendList.isEmpty()) {
                         HashMap smsToSend = smsToSendList.remove(0);
-                        log.info("Sending SMS id " + smsToSend.get("id"));
-                        smsToSend.put("status", STATUS_ERROR);
-                        DBTools.updateRow("sms_outbox", smsToSend, conn);//сразу ему ставим статус с ошибкой, чтобы если что не гонялось по кругу
+                        log.info("Processing SMS id " + smsToSend.get("id"));
+                        int tries = Tools.parseInt(smsToSend.get("tries_cnt"), 0);
+                        tries++;
+                        if (tries >= BoxSettingsAPI.getInt("MaxAttemptsToSend")) {
+                            log.error("Sending attempts exceeded!");
+                            smsToSend.put("status", STATUS_ERROR_ATTEMPTS_EXCEEDED);
+                            smsToSend.put("tries_cnt", tries);
+                            DBTools.updateRow("sms_outbox", smsToSend, conn);
+                            continue;
+                        }
+                        Date msgDate = (Date) smsToSend.get("date");
+                        if (System.currentTimeMillis() > BoxSettingsAPI.getInt("OutgoingMessageMaxAge")*1000l + msgDate.getTime()) {
+                            log.error("Message too old!");
+                            smsToSend.put("status", STATUS_ERROR_TOO_OLD);
+                            smsToSend.put("tries_cnt", tries);
+                            DBTools.updateRow("sms_outbox", smsToSend, conn);
+                            continue;
+                        }
+
+                        smsToSend.put("status", STATUS_SENDING);
+                        smsToSend.put("tries_cnt", tries);
+                        DBTools.updateRow("sms_outbox", smsToSend, conn);
                         COutgoingMessage outMsg = new COutgoingMessage();
 
                         outMsg.setMessageEncoding(CMessage.MESSAGE_ENCODING_UNICODE);
@@ -185,10 +213,13 @@ public class ModemModule extends Thread implements Module {
 
                         if (lastRecieved.equalsIgnoreCase("OK")) {
                             smsToSend.put("status", STATUS_SENT);
+                            smsToSend.put("date_sent", new Date());
                             log.info("Successfully sent");
                             DBTools.updateRow("sms_outbox", smsToSend, conn);
                         } else {
+                            smsToSend.put("status", STATUS_ERROR_SENDING);
 
+                            DBTools.updateRow("sms_outbox", smsToSend, conn);
                             log.error("Error sending: " + lastRecieved);
                         }
                     }
@@ -213,12 +244,14 @@ public class ModemModule extends Thread implements Module {
                         }
                     }
                     synchronized (this) {
+                        modemBusy.set(false);
                         try {
                             if (test) {
                                 wait(10000);
                             } else {
                                 wait();//wait for timer 
                             }
+
                         } catch (InterruptedException ie) {
                         }
                     }
@@ -254,7 +287,7 @@ public class ModemModule extends Thread implements Module {
                 if (modemOkRepliesCount > 10 && modemWriteErrorCount > 3) { //если нормально работал и перестал - значит хана
                     modemOkRepliesCount = 0;
                     String message = "Modem port lost!";
-                    log.fatal (message);
+                    log.fatal(message);
                     HashMap cause = new HashMap();
                     cause.put("cause", message);
                     Event reboot = new Event("modem_and_system_reboot", cause, Event.Type.SYSTEM_EVENT);
@@ -280,10 +313,28 @@ public class ModemModule extends Thread implements Module {
 
         switch (e.getType()) {
             case TIMER_EVENT:
-                if (e.name.equals("internal_sensors_poll")) {
-                    synchronized (this) {
-                        notify(); //TODO вообще паршиво, т.к. тред может ждать ответа от модема, а его пробудят невовремя - нужна синхронизация по иному объекту
+                switch (e.name) {
+                    case "internal_sensors_poll": {
+                        if (!modemBusy.get()) {
+                            synchronized (this) {
+                                notify();
+                            }
+                        }
                     }
+                    break;
+
+                    case "send_test_sms":
+                        String testRecipient = BoxSettingsAPI.get("SMSTestRecipient");
+                        String testText = BoxSettingsAPI.get("SMSTestText");
+                        if (testRecipient != null && testRecipient.length() > 5 && testText != null && testText.length() > 0) {
+                            log.info("Sending TEST SMS ");
+                            testText = testText.replace("%DATE%", System.currentTimeMillis() + " ms");
+                            sendMessage(testRecipient, testText);
+
+                        }
+
+                        break;
+
                 }
                 break;
 
@@ -295,7 +346,7 @@ public class ModemModule extends Thread implements Module {
                 }
                 break;
 
- /*           case BEHAVIOR_EVENT:
+            /*           case BEHAVIOR_EVENT:
                 if (e.name.equals("send_sms")) {
                     boolean doSendSms = Tools.parseBoolean(BoxSettingsAPI.get("SMSNotifications"), false);
 //                    Notification n = (Notification) e.data.get("Notification");

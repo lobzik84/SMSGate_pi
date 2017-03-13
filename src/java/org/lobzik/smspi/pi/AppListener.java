@@ -14,6 +14,7 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.lobzik.smspi.pi.modules.DisplayModule;
+import org.lobzik.smspi.pi.modules.InternalSensorsModule;
 
 import org.lobzik.smspi.pi.modules.ModemModule;
 import org.lobzik.smspi.pi.modules.SystemModule;
@@ -40,14 +41,14 @@ public class AppListener implements ServletContextListener {
             log.info("Starting hs app. Modules start!");
             BoxSettingsAPI.initBoxSettings();
             AppData.setGraphicsWorkDir(new File(sce.getServletContext().getRealPath("img")));
-            
+            InternalSensorsModule.getInstance().start();
             ModemModule.getInstance().start();
 
             TimerModule.getInstance().start();
 
             SystemModule.getInstance().start();
             DisplayModule.getInstance().start();
-
+            
         } catch (Throwable ex) {
             ex.printStackTrace();
         }
@@ -61,6 +62,8 @@ public class AppListener implements ServletContextListener {
 
             TimerModule.finish();
             ModemModule.finish();
+            InternalSensorsModule.finish();
+
             AppData.eventManager.finish();
 
             BasicConfigurator.resetConfiguration();
