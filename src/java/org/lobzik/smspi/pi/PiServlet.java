@@ -6,11 +6,10 @@
 package org.lobzik.smspi.pi;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Connection;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -42,15 +41,15 @@ public class PiServlet extends HttpServlet {
             throws ServletException, IOException {
 
         response.setContentType("text/html;charset=UTF-8");
-        String localPathInfo = request.getPathInfo();
+        String localPathInfo = Tools.getStringValue(request.getPathInfo(), "");
+        localPathInfo = localPathInfo.replace("/", "");
 
-        int actionId = getActionId(localPathInfo);
         HashMap jspData = new HashMap();
         String baseUrl = request.getContextPath() + request.getServletPath();
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
 
-        switch (actionId) {
-            case 1:
+        switch (localPathInfo) {
+            case "login":
                 if (loginAdmin < 0) {
                     if (request.getMethod().equalsIgnoreCase("POST")) {
                         String adminLogin = request.getParameter("login");
@@ -111,14 +110,16 @@ public class PiServlet extends HttpServlet {
                     response.sendRedirect(baseUrl + "/main");
                 }
                 break;
-            case 2:
+            case "main":
                 if (loginAdmin > 0) {
                     log.info("Registration for admin: " + loginAdmin + " is alive");
                     try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
                         Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_SENT, "cnt", null, conn);
-                        Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_ERROR, "cnt", null, conn);
+                        Long msgSentDaily = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_SENT + " and date_sent > concat (current_date, ' 00:00:00') and date_sent < concat (current_date ,' 23:59:59')", "cnt", null, conn);
+                        Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status in (" + ModemModule.STATUS_ERROR_SENDING + ", " + ModemModule.STATUS_ERROR_TOO_OLD + ", " + ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED + ")", "cnt", null, conn);
                         Long msgInbox = DBSelect.getCount("select count(*) as cnt from sms_inbox", "cnt", null, conn);
                         jspData.put("msgSent", msgSent);
+                        jspData.put("msgSentDaily", msgSentDaily);
                         jspData.put("msgErrs", msgErrs);
                         jspData.put("msgInbox", msgInbox);
                     } catch (Exception e) {
@@ -132,11 +133,11 @@ public class PiServlet extends HttpServlet {
                     response.sendRedirect(baseUrl);
                 }
                 break;
-            case 3:
+            case "logout":
                 request.getSession().removeAttribute("AdminID");
                 response.sendRedirect(baseUrl);
                 break;
-            case 4:
+            case "sendmsg":
                 if (loginAdmin > 0) {
                     String sms = Tools.getStringValue(request.getParameter("sms"), "");
                     String recipient = Tools.getStringValue(request.getParameter("recipient"), "");
@@ -146,10 +147,7 @@ public class PiServlet extends HttpServlet {
                         data.put("recipient", recipient);
                         Event e = new Event("send_sms", data, Event.Type.USER_ACTION);
                         AppData.eventManager.newEvent(e);
-                        jspData.put("SMS_SENDED", 1);
-                        RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/main.jsp");
-                        request.setAttribute("JspData", jspData);
-                        disp.include(request, response);
+                        response.sendRedirect(baseUrl + "/main");
                     } else {
                         response.sendRedirect(baseUrl + "/main");
                     }
@@ -158,7 +156,77 @@ public class PiServlet extends HttpServlet {
                 }
 
                 break;
-
+            case "addapp":
+                if (loginAdmin > 0) {
+                    HashMap reqData = getRequestParameters(request);
+                    if (reqData.containsKey("REG_ME") && Tools.parseInt(reqData.get("REG_ME"), -1) > 0 && Tools.getStringValue(reqData.get("name"), "").trim().length() > 0 && Tools.getStringValue(reqData.get("public_key"), "").trim().length() > 0) {
+                        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                            int newUserId = DBTools.insertRow("users", reqData, conn);
+                            response.sendRedirect(baseUrl + "/addapp");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        List<HashMap> appList = new ArrayList<>();
+                        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                            String appListSQL = "select*from users\n"
+                                    + "order by id";
+                            appList = DBSelect.getRows(appListSQL, conn);
+                            jspData.put("APP_LIST", appList);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/add_apl.jsp");
+                        request.setAttribute("JspData", jspData);
+                        disp.include(request, response);
+                    }
+                } else {
+                    response.sendRedirect(baseUrl);
+                }
+                break;
+            case "addadm":
+                if (loginAdmin > 0) {
+                    if (loginAdmin == 1) {
+                        HashMap reqData = getRequestParameters(request);
+                        if (reqData.containsKey("ADD_ME") && Tools.parseInt(reqData.get("ADD_ME"), -1) > 0 && Tools.getStringValue(reqData.get("login"), "").trim().length() > 0 && Tools.getStringValue(reqData.get("password"), "").trim().length() > 0) {
+                            try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                                String password = Tools.getStringValue(reqData.get("password"), "");
+                                String salt = getSalt();
+                                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                                byte[] hash = digest.digest((password + ":" + salt).getBytes("UTF-8"));
+                                String saltedHash = DatatypeConverter.printHexBinary(hash);
+                                reqData.put("salt", salt);
+                                reqData.put("hash", saltedHash);
+                                reqData.put("status", 1);
+                                int newAdminId = DBTools.insertRow("admins", reqData, conn);
+                                response.sendRedirect(baseUrl + "/addadm");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            List<HashMap> admList = new ArrayList<>();
+                            try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                                String appListSQL = "select*from admins\n"
+                                        + "order by admin_id";
+                                admList = DBSelect.getRows(appListSQL, conn);
+                                jspData.put("ADM_LIST", admList);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/admins.jsp");
+                            request.setAttribute("JspData", jspData);
+                            disp.include(request, response);
+                        }
+                    } else {
+                        RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/admins.jsp");
+                        jspData.put("NOT_ROOT_ADMIN", 1);
+                        request.setAttribute("JspData", jspData);
+                        disp.include(request, response);
+                    }
+                } else {
+                    response.sendRedirect(baseUrl);
+                }
+                break;
             default:
                 if (loginAdmin > 0) {
                     response.sendRedirect(baseUrl + "/main");
@@ -225,23 +293,18 @@ public class PiServlet extends HttpServlet {
         return parameters;
     }
 
-    private int getActionId(String localPathInfo) {
-        if (localPathInfo == null) {
-            return -1;
+    /*
+    *Метод генерирует "соль" для рассчета хэш суммы "засоленого" пароля
+     */
+    private String getSalt() {
+        String sourse = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
+        char[] sourseArray = sourse.toCharArray();
+        StringBuilder saltBuilder = new StringBuilder();
+        for (int i = 0; i < 15; ++i) {
+            int randomIndex = new SecureRandom().nextInt(63);
+            saltBuilder.append(sourseArray[randomIndex]);
         }
-        localPathInfo = localPathInfo.replace("/", "");
-        if (localPathInfo.startsWith("login")) {
-            return 1;
-        }
-        if (localPathInfo.startsWith("main")) {
-            return 2;
-        }
-        if (localPathInfo.startsWith("logout")) {
-            return 3;
-        }
-        if (localPathInfo.startsWith("sendmsg")) {
-            return 4;
-        }
-        return -1;
+        return saltBuilder.toString();
     }
+
 }
