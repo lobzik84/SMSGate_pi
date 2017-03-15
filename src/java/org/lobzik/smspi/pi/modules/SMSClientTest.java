@@ -30,7 +30,8 @@ public class SMSClientTest {
     static String publicKeyString = "844af8350323d29b7bf760245eec4298491e9c144c813493e2d315669de4c5f67ac6eb2117c539d3334db9bd64322d5950fd6160fe4d328d5c3db23f9bc7d84d82847fce176223b9d514a33067096e80f832f00661798d44949ce5fc01d48bbe1e216e236f05af2f7b692d1bbf9fba5e1dfc4c7a3c438a42b7a0a598b2390f33";
     static String text = "Это тест отправки sms:" + System.currentTimeMillis();
     static String recipient = "+79263357107";
-
+    static final String CHARSET = "UTF-8";
+    
     public static void main(String[] args) {
         new Thread() {
             @Override
@@ -50,7 +51,7 @@ public class SMSClientTest {
                     // creating digest
                     Signature digest = Signature.getInstance("SHA256withRSA");
                     digest.initSign(privateKey);
-                    digest.update(message.toString().getBytes());
+                    digest.update(message.toString().getBytes(CHARSET));
                     byte[] digestRaw = digest.sign();
                     String digestHex = DatatypeConverter.printHexBinary(digestRaw);
 
@@ -65,7 +66,7 @@ public class SMSClientTest {
                     URLConnection conn = url.openConnection();
                     conn.setDoInput(true);
                     conn.setDoOutput(true);
-                    OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream());
+                    OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream(), CHARSET);
                     out.write(requestJson.toString());
                     out.close();
 
