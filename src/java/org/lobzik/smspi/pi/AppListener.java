@@ -13,6 +13,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.lobzik.smspi.pi.modules.ChartModule;
 import org.lobzik.smspi.pi.modules.DisplayModule;
 import org.lobzik.smspi.pi.modules.InternalSensorsModule;
 
@@ -48,7 +49,8 @@ public class AppListener implements ServletContextListener {
 
             SystemModule.getInstance().start();
             DisplayModule.getInstance().start();
-            
+            ChartModule.getInstance().start();
+
         } catch (Throwable ex) {
             ex.printStackTrace();
         }

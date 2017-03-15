@@ -29,8 +29,9 @@
 <h4>Принятых сообщений: <%= msgInbox%></h4>
 <h5>Отправка сообщения:</h5>
 <form action="<%= baseUrl + "sendmsg"%>" method="post">
-    SMS to:<input type="text" name="recipient" /><br>
-    Text:<input type="text" name="sms" /><input type="submit" value="Send" name="submit" />
+    Phone:<input type="text" name="recipient" /><br>
+    Text:<textarea name="sms" rows = "5"></textarea><br> 
+    <input type="submit" value="Send" name="submit" />
 </form> <br> <br>
 
 </body>

@@ -13,11 +13,17 @@
     ArrayList<HashMap> appList = new ArrayList<HashMap>();
     if (JspData != null) {
         appList = (ArrayList<HashMap>) Tools.isNull(JspData.get("APP_LIST"), new ArrayList<HashMap>());
+        for (HashMap hm : appList) {
+            String fullPublicKey = Tools.getStringValue(hm.get("public_key"), "");
+            String shortPublicKey = fullPublicKey.substring(0, 5) + "..." + fullPublicKey.substring((fullPublicKey.length() - 5));
+            hm.put("shortPublicKey", shortPublicKey);
+        }
     }
+
 %>
 <jsp:include page="header.jsp" />
 <br>
-<h3>Зарегестрированные пользователи шлюза</h3>
+<h3>Зарегестрированные пользователи шлюза</h3>v
 <table border ="1" >
     <thead>
         <tr>
@@ -35,17 +41,23 @@
     <tbody>
         <%for (HashMap hm : appList) {
                 int id = Tools.parseInt(hm.get("id"), -1);
-                String publicKey = Tools.getStringValue(hm.get("public_key"), "");
+                String fullPublicKey = Tools.getStringValue(hm.get("public_key"), "");
+                String shortPublicKey = Tools.getStringValue(hm.get("shortPublicKey"), "");
                 String name = Tools.getStringValue(hm.get("name"), "");
         %>
         <tr>
             <td><%= id%></td>
-            <td><%= publicKey%></td>
+            <td><p><%= shortPublicKey%></p>
+                <p class = "key-hover">
+                    <%= fullPublicKey%>
+                </p>
+            </td>
             <td><%= name%></td>
         </tr>
         <%}%>
     </tbody>
 </table>
+
 <br>
 <br>
 <h3>Добавить нового пользователя</h3>
