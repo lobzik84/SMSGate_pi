@@ -6,29 +6,36 @@
     HashMap data = (HashMap) request.getAttribute("JspData");
     String baseUrl = request.getContextPath() + request.getServletPath() + "/";
     boolean isFailLogin = false;
-    if (data != null){
+    if (data != null) {
         isFailLogin = Tools.parseInt(data.get("FAIL_LOGIN"), -1) > 0;
     }
 %>
-<html>
+<html lang="ru">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Login to SMS-gate</title>
+        <title>Login to SMS-gate</title>        
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css?v=1.0">
     </head>
-    <body>
-        <h1>SMS-gate</h1>
-        <h2>Admin login</h2>
-        </br>
-        <%if (isFailLogin){%>
-        <h2 style = "color: red">Вы ввели неправильные логин или пароль</h2>
-        <%}%>
-        </br>
-        <b>Login: </b>
-        <form action="<%= baseUrl + "login"%>" method="post">
-            <input type="text" name="login"/>
-            </br>
-            <input type="password" name="pass"/>
-            <input type="submit" value="OK" name="submit" />
-        </form><br> <br>
+    <body class="lbc">
+        <div class="login__block">
+            <div class="login__title">
+                sms-gate
+            </div>
+            <div class="login__form">
+                <h2 class="mb-25">Войти в систему</h2>
+                <form action="<%= baseUrl + "login"%>" method="post">
+                    <label class="login__label">Логин</label>
+                    <input class="login__input mb-20" type="text" name="login"/>
+                    <label class="login__label">Пароль</label>
+                    <input class="login__input" type="password" name="pass"/>
+                    
+                    <%if (isFailLogin) {%>
+                        <div class="login__label_wrong">Неверный логин или пароль!</div>
+                    <%}%>
+                    
+                    <input class="login__input_button" type="submit" value="Войти" name="submit" />
+                </form>
+            </div>
+        </div>
     </body>
 </html>
