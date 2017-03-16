@@ -2,7 +2,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <jsp:useBean id="JspData" class="java.util.HashMap" scope="request"/>
 <!DOCTYPE html>
-<!DOCTYPE html>
 <%
     String baseUrl = request.getContextPath() + request.getServletPath() + "/";
     int adminId = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
@@ -10,36 +9,36 @@
         return;
     }
 %>
-<html>
+<html lang="ru">
     <head>
-        <style type = "text/css">
-            table {
-                width: 500px;
-            }
-            
-            .key-hover { 
-                display: none; 
-                position: relative;
-                top: 0;
-                left: 0;
-                z-index: 99;
-                border: 1px solid #333;
-                background: #eee;
-                width: 300px;
-                word-wrap: break-word;
-            }
-            p:hover + .key-hover { display: block; }
-        </style>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>SMS-Gate Admin profile</title>
+        <title>SMS-Gate Admin profile</title>        
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css?v=1.0">
     </head>
-    <body>
-        <h1>SMS-Gate Admin profile</h1>
-        <h2>AdminId: <%= adminId%><%= adminId == 1 ? "(root)" : ""%></h2>
-        <br>
-
-        <a  href="<%= baseUrl + "main"%>">Главная</a>&nbsp;
-        <a  href="<%= baseUrl + "addapp"%>">Пользователи шлюза</a>&nbsp;
-        <a  href="<%= baseUrl + "addadm"%>">Администраторы</a>&nbsp;
-        <a  href="<%= baseUrl + "logout"%>">Выйти</a>
+    <body class="abc">
+        <header class="header">
+            <a class="header__logo" href="<%= baseUrl + "main"%>">smsity</a>
+            <nav class="nav">
+                <ul class="nav__list">
+                    <li class="nav__item nav__item_active">
+                        <a class="nav__link" href="<%= baseUrl + "main"%>">Главная</a>
+                    </li>
+                    <li class="nav__item">
+                        <a class="nav__link" href="<%= baseUrl + "addapp"%>">Пользователи шлюза</a>
+                    </li>
+                    <li class="nav__item">
+                        <a class="nav__link" href="<%= baseUrl + "addadm"%>">Администраторы</a>
+                    </li>
+                </ul>
+            </nav>
+                    <div class="header__right">
+                <div class="header__user">
+                    <p class="header__user_id">AdminId: <%= adminId%><%= adminId == 1 ? "(root)" : ""%></p>
+                    <a class="header__user_logout" href="<%= baseUrl + "logout"%>">Выйти</a>
+                </div>
+                <div class="header__dbm">
+                    000 dBm
+                </div>
+            </div>
+        </header>
 
