@@ -28,7 +28,6 @@
     <h2>Зарегестрированные пользователи шлюза</h2>
 
     <input class="btn blbc white mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
-    <input class=" mt-20 fl-r" type="text" name="search" placeholder="Найти" />
 
     <form action="<%= baseUrl + "addapp"%>" method="post">
         <div class="inline-b">
