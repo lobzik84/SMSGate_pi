@@ -7,7 +7,8 @@
 <%@ page import="java.util.*"%>
 <%@ page import="org.lobzik.smspi.pi.*"%>
 <%
-//response.sendRedirect(request.getContextPath()+"/adm");
+response.sendRedirect(request.getContextPath()+"/adm");
+    String baseUrl = request.getContextPath();
 %>
 <!DOCTYPE html>
 <html>
@@ -87,7 +88,7 @@
     </body>
 
     <script type="text/javascript">
-        $.getJSON("http://localhost:8888/smspi/HighchartsJsonServlet", function (data) {
+        $.getJSON("<%= baseUrl + "/HighchartsJsonServlet"%>", function (data) {
             //data.data1.push([1483218000000, 10]);
             //data.data2.push([1483218000000, 5]);
             Highcharts.stockChart('container', {
@@ -111,7 +112,7 @@
                             units: [[
                                     'hour', // unit name
                                     [1] // allowed multiples
-                                ],[
+                                ], [
                                     'day', // unit name
                                     [1] // allowed multiples
                                 ], [
@@ -130,7 +131,7 @@
                             units: [[
                                     'hour', // unit name
                                     [1] // allowed multiples
-                                ],[
+                                ], [
                                     'day', // unit name
                                     [1] // allowed multiples
                                 ], [

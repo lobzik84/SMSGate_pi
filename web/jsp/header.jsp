@@ -14,11 +14,11 @@
         <title>SMS-Gate Admin profile</title>        
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css?v=1.0">
-        
-        
- <script src="js/jquery-3.1.1.min.js"></script>
-        <script src="js/highstock.js"></script>
-        <script src="js/exporting.js"></script>
+
+
+        <script src="<%=request.getContextPath()%>/js/jquery-3.1.1.min.js"></script>
+        <script src="<%=request.getContextPath()%>/js/highstock.js"></script>
+        <script src="<%=request.getContextPath()%>/js/exporting.js"></script>
     </head>
     <body class="abc">
         <header class="header">
@@ -36,7 +36,7 @@
                     </li>
                 </ul>
             </nav>
-                    <div class="header__right">
+            <div class="header__right">
                 <div class="header__user">
                     <p class="header__user_id">AdminId: <%= adminId%><%= adminId == 1 ? "(root)" : ""%></p>
                     <a class="header__user_logout" href="<%= baseUrl + "logout"%>">Выйти</a>

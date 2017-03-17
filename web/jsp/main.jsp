@@ -6,7 +6,7 @@
     if (adminId < 0) {
         return;
     }
-    
+
     String baseUrl = request.getContextPath() + request.getServletPath() + "/";
 
     int msgSent = 0;
@@ -34,5 +34,64 @@
     <input type="submit" value="Send" name="submit" />
 </form> <br> <br>
 
+<div id="container" style="height: 400px; width: 800px;"></div>
 </body>
+
+<script type="text/javascript">
+    $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet"%>", function (data) {
+        Highcharts.stockChart('container', {
+            chart: {
+                alignTicks: false
+            },
+            rangeSelector: {
+                selected: 1
+            },
+            title: {
+                text: 'Диаграмма отправки/приема СМС'
+            },
+            series: [{
+                    type: 'column',
+                    name: 'Колличество отправленных СМС',
+                    data: data.data1,
+                    dataGrouping: {
+                        approximation: "sum",
+                        enabled: true,
+                        forced: true,
+                        units: [[
+                                'hour', // unit name
+                                [1] // allowed multiples
+                            ], [
+                                'day', // unit name
+                                [1] // allowed multiples
+                            ], [
+                                'month',
+                                [1]
+                            ]]
+                    }
+                },
+                {type: 'column',
+                    name: 'Колличество принятых СМС',
+                    data: data.data2,
+                    dataGrouping: {
+                        approximation: "sum",
+                        enabled: true,
+                        forced: true,
+                        units: [[
+                                'hour', // unit name
+                                [1] // allowed multiples
+                            ], [
+                                'day', // unit name
+                                [1] // allowed multiples
+                            ], [
+                                'month',
+                                [1]
+                            ]]
+                    }
+                }]
+        });
+    });
+
+
+</script>
 </html>
+
