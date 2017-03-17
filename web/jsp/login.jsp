@@ -12,14 +12,14 @@
 %>
 <html lang="ru">
     <head>
-        <title>Login to SMS-gate</title>        
+        <title>Login to SMS-gate</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css?v=1.0">
     </head>
     <body class="lbc">
         <div class="login__block">
             <div class="login__title">
-                sms-gate
+                smsity
             </div>
             <div class="login__form">
                 <h2 class="mb-25">Войти в систему</h2>
