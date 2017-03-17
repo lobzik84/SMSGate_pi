@@ -88,8 +88,8 @@
 
     <script type="text/javascript">
         $.getJSON("http://localhost:8888/smspi/HighchartsJsonServlet", function (data) {
-            data.data1.push([1483218000000, 10]);
-            data.data2.push([1483218000000, 5]);
+            //data.data1.push([1483218000000, 10]);
+            //data.data2.push([1483218000000, 5]);
             Highcharts.stockChart('container', {
                 chart: {
                     alignTicks: false
