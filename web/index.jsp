@@ -6,8 +6,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*"%>
 <%@ page import="org.lobzik.smspi.pi.*"%>
-<% 
-response.sendRedirect(request.getContextPath()+"/adm");
+<%
+//response.sendRedirect(request.getContextPath()+"/adm");
 %>
 <!DOCTYPE html>
 <html>
@@ -88,6 +88,8 @@ response.sendRedirect(request.getContextPath()+"/adm");
 
     <script type="text/javascript">
         $.getJSON("http://localhost:8888/smspi/HighchartsJsonServlet", function (data) {
+            data.data1.push([1483218000000, 10]);
+            data.data2.push([1483218000000, 5]);
             Highcharts.stockChart('container', {
                 chart: {
                     alignTicks: false
@@ -102,28 +104,40 @@ response.sendRedirect(request.getContextPath()+"/adm");
                         type: 'column',
                         name: 'Колличество отправленных СМС',
                         data: data.data1,
-                        /*dataGrouping: {
-                         units: [[
-                         'week', // unit name
-                         [1] // allowed multiples
-                         ], [
-                         'month',
-                         [1, 2, 3, 4, 6]
-                         ]]
-                         }*/
+                        dataGrouping: {
+                            approximation: "sum",
+                            enabled: true,
+                            forced: true,
+                            units: [[
+                                    'hour', // unit name
+                                    [1] // allowed multiples
+                                ],[
+                                    'day', // unit name
+                                    [1] // allowed multiples
+                                ], [
+                                    'month',
+                                    [1]
+                                ]]
+                        }
                     },
                     {type: 'column',
                         name: 'Колличество принятых СМС',
                         data: data.data2,
-                        /*dataGrouping: {
-                         units: [[
-                         'week', // unit name
-                         [1] // allowed multiples
-                         ], [
-                         'month',
-                         [1, 2, 3, 4, 6]
-                         ]]
-                         }*/
+                        dataGrouping: {
+                            approximation: "sum",
+                            enabled: true,
+                            forced: true,
+                            units: [[
+                                    'hour', // unit name
+                                    [1] // allowed multiples
+                                ],[
+                                    'day', // unit name
+                                    [1] // allowed multiples
+                                ], [
+                                    'month',
+                                    [1]
+                                ]]
+                        }
                     }]
             });
         });
