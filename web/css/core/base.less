@@ -6,9 +6,43 @@ h2 {
     font-size: 17px;
 }
 input {
+    .os-r;
     .rounded-corners(3px);
+    font-size: 14px;
+    padding: 7px;
     border: 1px solid @gray;
     &:focus {
         border: 1px solid @blue;
+    }
+}
+textarea {
+    .os-r;
+    .rounded-corners(3px);
+    .block;
+    .os-r;
+    resize: vertical;
+    width: 612px;
+    height: 19px;
+    max-height: 300px;
+    font-size: 14px;
+    padding: 7px;
+    border: 1px solid @gray;
+    &:focus {
+        border: 1px solid @blue;
+    }
+}
+.label {
+    .os-sb;
+    .bold;
+    .block;
+    .mb-10;
+    font-size: 14px;
+    &_wrong {
+        .os-sb;
+        .bold;
+        .red;
+        .ta-c;
+        .mt-20;
+        font-size: 14px;
     }
 }

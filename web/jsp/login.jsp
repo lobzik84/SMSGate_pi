@@ -24,13 +24,13 @@
             <div class="login__form">
                 <h2 class="mb-25">Войти в систему</h2>
                 <form action="<%= baseUrl + "login"%>" method="post">
-                    <label class="login__label">Логин</label>
+                    <label class="label">Логин</label>
                     <input class="login__input mb-20" type="text" name="login"/>
-                    <label class="login__label">Пароль</label>
+                    <label class="label">Пароль</label>
                     <input class="login__input" type="password" name="pass"/>
                     
                     <%if (isFailLogin) {%>
-                        <div class="login__label_wrong">Неверный логин или пароль!</div>
+                        <div class="label_wrong">Неверный логин или пароль!</div>
                     <%}%>
                     
                     <input class="login__input_button" type="submit" value="Войти" name="submit" />

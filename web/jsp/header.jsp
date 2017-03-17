@@ -14,6 +14,11 @@
         <title>SMS-Gate Admin profile</title>        
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css?v=1.0">
+        
+        
+ <script src="js/jquery-3.1.1.min.js"></script>
+        <script src="js/highstock.js"></script>
+        <script src="js/exporting.js"></script>
     </head>
     <body class="abc">
         <header class="header">
