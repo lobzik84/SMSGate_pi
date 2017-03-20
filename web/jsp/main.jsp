@@ -71,7 +71,7 @@
         <tbody>
             <%for (HashMap hm : logData) {
                     String moduleName = Tools.getStringValue(hm.get("module_name"), "");
-                    String dated = Tools.getStringValue(hm.get("dated"), "");
+                    String dated = Tools.getFormatedDate((java.util.Date) hm.get("dated"), "dd.MM.yyyy HH:mm:SS");
                     String level = Tools.getStringValue(hm.get("level"), "");
                     String message = Tools.getStringValue(hm.get("message"), "");
             %>
