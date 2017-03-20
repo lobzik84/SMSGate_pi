@@ -122,6 +122,11 @@ public class PiServlet extends HttpServlet {
                         jspData.put("msgSentDaily", msgSentDaily);
                         jspData.put("msgErrs", msgErrs);
                         jspData.put("msgInbox", msgInbox);
+                        String logSql = "select * from logs\n"
+                                + "order by dated desc\n"
+                                + "limit 100";
+                        List<HashMap> logData = DBSelect.getRows(logSql, null, conn);
+                        jspData.put("logData", logData);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
