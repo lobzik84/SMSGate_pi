@@ -76,11 +76,15 @@
                             <%= fullPublicKey%>
                         </p>
                     </td>
+                    <td><a onClick="confirm('Удалить пользователя?')" href="<%= baseUrl + "addapp?removeApp=1&id=" + id%>">Удалить</a></td>
                 </tr>
                 <%}%>
             </tbody>
         </table>
     </div>
 </div>
+<script type="text/javascript">
+
+</script>
 </body>
 </html>

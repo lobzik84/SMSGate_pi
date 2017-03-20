@@ -180,6 +180,16 @@ public class PiServlet extends HttpServlet {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                    } else if (reqData.containsKey("removeApp") && Tools.parseInt(reqData.get("removeApp"), -1) > 0 && reqData.containsKey("id") && Tools.parseInt(reqData.get("id"), -1) > 0) {
+                        int removeId = Tools.parseInt(reqData.get("id"), -1);
+                        HashMap removeData = new HashMap();
+                        removeData.put("id", removeId);
+                        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                            DBTools.deleteRow("users", removeData, conn);
+                            response.sendRedirect(baseUrl + "/addapp");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         List<HashMap> appList = new ArrayList<>();
                         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
@@ -214,6 +224,16 @@ public class PiServlet extends HttpServlet {
                                 reqData.put("hash", saltedHash);
                                 reqData.put("status", 1);
                                 int newAdminId = DBTools.insertRow("admins", reqData, conn);
+                                response.sendRedirect(baseUrl + "/addadm");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else if (reqData.containsKey("removeAdm") && Tools.parseInt(reqData.get("removeAdm"), -1) > 0 && reqData.containsKey("id") && Tools.parseInt(reqData.get("id"), -1) > 0) {
+                            int removeId = Tools.parseInt(reqData.get("id"), -1);
+                            HashMap removeData = new HashMap();
+                            removeData.put("admin_id", removeId);
+                            try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                                DBTools.deleteRow("admins", removeData, conn);
                                 response.sendRedirect(baseUrl + "/addadm");
                             } catch (Exception e) {
                                 e.printStackTrace();

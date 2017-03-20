@@ -120,7 +120,7 @@
                         String telNo = Tools.getStringValue(hm.get("tel_no"), "");
                         String type = Tools.getStringValue(hm.get("type"), "");
                         String date = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:SS");
-                        String status = Tools.getStringValue(hm.get("status"), "");                       
+                        String status = Tools.getStringValue(hm.get("status"), "");
                 %>
                 <tr>
                     <td><%= id%></td>
@@ -152,6 +152,26 @@
 </div>
 <script type="text/javascript">
     $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet"%>", function (data) {
+        
+        Highcharts.setOptions({
+            lang: {
+                loading: 'Загрузка...',
+                months: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+                weekdays: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
+                shortMonths: ['Янв', 'Фев', 'Март', 'Апр', 'Май', 'Июнь', 'Июль', 'Авг', 'Сент', 'Окт', 'Нояб', 'Дек'],
+                exportButtonTitle: "Экспорт",
+                printButtonTitle: "Печать",
+                rangeSelectorFrom: "С",
+                rangeSelectorTo: "По",
+                rangeSelectorZoom: "Период",
+                downloadPNG: 'Скачать PNG',
+                downloadJPEG: 'Скачать JPEG',
+                downloadPDF: 'Скачать PDF',
+                downloadSVG: 'Скачать SVG',
+                printChart: 'Напечатать график'
+            }
+        });
+        
         Highcharts.stockChart('container', {
             chart: {
                 alignTicks: false
