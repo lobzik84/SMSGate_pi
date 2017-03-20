@@ -51,7 +51,52 @@
         </div>
     </div>
 
-    <div class="content__block inline-b fl-l w-60">
+    <div class="content__block content__block_right">
+        <h2>Сообщения: </h2>
+        <table class="">
+            <thead>
+                <tr>
+                    <td class="">
+                        id
+                    </td>
+                    <td class="">
+                        Message
+                    </td>
+                    <td class="">
+                        Tel_no
+                    </td>
+                    <td class="">
+                        Type
+                    </td>
+                    <td class="">
+                        Date
+                    </td>
+                    <td class="">
+                        Status
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <%for (HashMap hm : messageList) {
+                        int id = Tools.parseInt(hm.get("id"), -1);
+                        String message = Tools.getStringValue(hm.get("message"), "");
+                        String telNo = Tools.getStringValue(hm.get("tel_no"), "");
+                        String type = Tools.getStringValue(hm.get("type"), "");
+                        String date = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:SS");
+                        String status = Tools.getStringValue(hm.get("status"), "");
+                %>
+                <tr>
+                    <td><%= id%></td>
+                    <td><%= message%></td>
+                    <td><%= telNo%></td>
+                    <td><%= type%></td>
+                    <td><%= date%></td>
+                    <td><%= status%></td>
+                </tr>
+                <%}%>
+            </tbody>
+        </table>
+        <br><br><br>
         <h2>Лог шлюза:</h2>
         <table class="">
             <thead>
@@ -87,55 +132,8 @@
             </tbody>
         </table>
     </div>
-
-    <div class="content__block inline-b fl-l w-60">
-        <h2>Сообщения: </h2>
-        <table class="">
-            <thead>
-                <tr>
-                    <td class="">
-                        id
-                    </td>
-                    <td class="">
-                        Message
-                    </td>
-                    <td class="">
-                        Tel_no
-                    </td>
-                    <td class="">
-                        Type
-                    </td>
-                    <td class="">
-                        Date
-                    </td>
-                    <td class="">
-                        Status
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
-                <%for (HashMap hm : messageList) {
-                        int id = Tools.parseInt(hm.get("id"), -1);
-                        String message = Tools.getStringValue(hm.get("message"), "");
-                        String telNo = Tools.getStringValue(hm.get("tel_no"), "");
-                        String type = Tools.getStringValue(hm.get("type"), "");
-                        String date = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:SS");
-                        String status = Tools.getStringValue(hm.get("status"), "");                       
-                %>
-                <tr>
-                    <td><%= id%></td>
-                    <td><%= message%></td>
-                    <td><%= telNo%></td>
-                    <td><%= type%></td>
-                    <td><%= date%></td>
-                    <td><%= status%></td>
-                </tr>
-                <%}%>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="content__block inline-b fl-r w-25">
+    <div class="content__padding"></div>
+    <div class="content__block content__block_left">
         <h2>Отправить сообщение:</h2>
         <form action="<%= baseUrl + "sendmsg"%>" method="post">
             <label>Phone:</label>

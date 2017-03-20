@@ -915,11 +915,13 @@ textarea:focus {
 }
 .content__layout {
   width: 90%;
+  position: relative;
   margin: auto;
 }
 .content__block {
   background: #ffffff;
   padding: 20px;
+  vertical-align: top;
   margin: auto;
 }
 .content__table {
@@ -927,6 +929,11 @@ textarea:focus {
   padding: 20px;
   width: 100%;
   margin: auto;
+}
+.content__padding {
+  float: left;
+  width: 30px;
+  margin-left: -15px;
 }
 .table {
   width: 100%;
