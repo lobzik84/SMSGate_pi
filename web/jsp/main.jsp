@@ -29,61 +29,77 @@
 
 <jsp:include page="header.jsp" />
 
-<div class="content__top">
-    <div id="container" class="inline-b" style="height: 400px; width: 800px;"></div>
+<div class="content__layout">
+    <div class="content__top mb-30">
+        <div id="container" class="chart"></div><!--
+        --><div class="chart__total">
 
-    <div class="inline-b wbc">
-        <h4>Отправленных сообщений всего: <%= msgSent%></h4>
-        <h4>Отправленных сообщений за сегодня: <%= msgSentDaily%></h4>
-        <h4>Ошибок: <%= msgErrs%></h4>
-        <h4>Принятых сообщений: <%= msgInbox%></h4>
+            <p class="chart__total_label">Отправлено за сегодня:</p>
+            <p class="chart__total_num"><%= msgSentDaily%></p>
+
+            <p class="chart__total_label">Отправлено всего:</p>
+            <p class="chart__total_num"><%= msgSent%></p>
+
+            <p class="chart__total_label">Принято всего:</p>
+            <p class="chart__total_num"><%= msgInbox%></p>
+
+            <p class="chart__total_label">Ошибок:</p> 
+            <p class="chart__total_num"><%= msgErrs%></p>
+
+        </div>
     </div>
-</div>
 
-<div class="content wbc">
-    <h5>Отправка сообщения:</h5>
-    <form action="<%= baseUrl + "sendmsg"%>" method="post">
-        Phone:<input type="text" name="recipient" /><br>
-        Text:<textarea name="sms" rows = "5"></textarea><br> 
-        <input type="submit" value="Send" name="submit" />
-    </form>
-</div>
+    <div class="content__block inline-b fl-l w-60">
+        <h2>Лог шлюза:</h2>
+        <table class="">
+            <thead>
+                <tr>
+                    <td class="">
+                        Module_name
+                    </td>
+                    <td class="">
+                        Dated
+                    </td>
+                    <td class="">
+                        Level
+                    </td>
+                    <td class="">
+                        Message
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <%for (HashMap hm : logData) {
+                        String moduleName = Tools.getStringValue(hm.get("module_name"), "");
+                        String dated = Tools.getFormatedDate((java.util.Date) hm.get("dated"), "dd.MM.yyyy HH:mm:SS");
+                        String level = Tools.getStringValue(hm.get("level"), "");
+                        String message = Tools.getStringValue(hm.get("message"), "");
+                %>
+                <tr>
+                    <td><%= moduleName%></td>
+                    <td><%= dated%></td>
+                    <td><%= level%></td>
+                    <td><%= message%></td>
+                </tr>
+                <%}%>
+            </tbody>
+        </table>
+    </div>
 
-<div class="content wbc">
-    <h5>Лог шлюза:</h5>
-    <table class="table mt-20">
-        <thead>
-            <tr>
-                <td class="w-10">
-                    Module_name
-                </td>
-                <td class="w-60">
-                    Dated
-                </td>
-                <td class="w-30">
-                    Level
-                </td>
-                <td class="w-30">
-                    Message
-                </td>
-            </tr>
-        </thead>
-        <tbody>
-            <%for (HashMap hm : logData) {
-                    String moduleName = Tools.getStringValue(hm.get("module_name"), "");
-                    String dated = Tools.getFormatedDate((java.util.Date) hm.get("dated"), "dd.MM.yyyy HH:mm:SS");
-                    String level = Tools.getStringValue(hm.get("level"), "");
-                    String message = Tools.getStringValue(hm.get("message"), "");
-            %>
-            <tr>
-                <td><%= moduleName%></td>
-                <td><%= dated%></td>
-                <td><%= level%></td>
-                <td><%= message%></td>
-            </tr>
-            <%}%>
-        </tbody>
-    </table>
+    <div class="content__block inline-b fl-r w-25">
+        <h2>Отправить сообщение:</h2>
+        <form action="<%= baseUrl + "sendmsg"%>" method="post">
+            <label>Phone:</label>
+            <input type="text" name="recipient" />
+            
+            <label>Text:</label>
+            <span>Тестовое сообщение</span>
+            <textarea name="sms"></textarea>
+
+            <input class="btn blbc white" type="submit" value="Отправить" name="submit" />
+        </form>
+    </div>
+
 </div>
 <script type="text/javascript">
     $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet"%>", function (data) {
@@ -95,11 +111,11 @@
                 selected: 1
             },
             title: {
-                text: 'Диаграмма отправки/приема СМС'
+                text: 'Количество SMS'
             },
             series: [{
                     type: 'column',
-                    name: 'Колличество отправленных СМС',
+                    name: 'Отправлено',
                     data: data.data1,
                     dataGrouping: {
                         approximation: "sum",
@@ -118,7 +134,7 @@
                     }
                 },
                 {type: 'column',
-                    name: 'Колличество принятых СМС',
+                    name: 'Принято',
                     data: data.data2,
                     dataGrouping: {
                         approximation: "sum",

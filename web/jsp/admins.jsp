@@ -19,59 +19,61 @@
 %>
 <jsp:include page="header.jsp" />
 
-<div class="content__table">
+<div class="content__layout">
+    <div class="content__table">
 
-    <h2>Администраторы шлюза</h2>
+        <h2>Администраторы шлюза</h2>
 
-    <%if (isRoot) {%>
+        <%if (isRoot) {%>
 
-    <input class="btn blbc white mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
+        <input class="btn blbc white mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
 
-    <form action="<%= baseUrl + "addadm"%>" method="post">
-        <div class="inline-b">
-            <label class="label mt-10">Login:</label>
-            <input type="text" name="login" />
-        </div>
-        <div class="inline-b ml-10 mr-10 va-t">
-            <label class="label mt-10">Password:</label>
-            <input type="text" name="password"/>
-        </div>
-        <input hidden type="text" name="ADD_ME" value="1"/>
+        <form action="<%= baseUrl + "addadm"%>" method="post">
+            <div class="inline-b">
+                <label class="label mt-10">Login:</label>
+                <input type="text" name="login" />
+            </div>
+            <div class="inline-b ml-10 mr-10 va-t">
+                <label class="label mt-10">Password:</label>
+                <input type="text" name="password"/>
+            </div>
+            <input hidden type="text" name="ADD_ME" value="1"/>
 
-        <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
-    </form>
+            <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
+        </form>
 
-    <table class="table mt-20">
-        <thead>
-            <tr>
-                <td class="w-10">
-                    ID
-                </td>
-                <td class="w-60">
-                    login
-                </td>
-                <td class="w-30">
-                    status
-                </td>
-            </tr>
-        </thead>
-        <tbody>
-            <%for (HashMap hm : admList) {
-                    int id = Tools.parseInt(hm.get("admin_id"), -1);
-                    String login = Tools.getStringValue(hm.get("login"), "");
-                    int status = Tools.parseInt(hm.get("status"), -1);
-            %>
-            <tr>
-                <td><%= id%></td>
-                <td><%= login%></td>
-                <td><%= status%></td>
-            </tr>
-            <%}%>
-        </tbody>
-    </table>
+        <table class="table mt-20">
+            <thead>
+                <tr>
+                    <td class="w-10">
+                        ID
+                    </td>
+                    <td class="w-60">
+                        login
+                    </td>
+                    <td class="w-30">
+                        status
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <%for (HashMap hm : admList) {
+                        int id = Tools.parseInt(hm.get("admin_id"), -1);
+                        String login = Tools.getStringValue(hm.get("login"), "");
+                        int status = Tools.parseInt(hm.get("status"), -1);
+                %>
+                <tr>
+                    <td><%= id%></td>
+                    <td><%= login%></td>
+                    <td><%= status%></td>
+                </tr>
+                <%}%>
+            </tbody>
+        </table>
+    </div>
+    <%} else {%>
+    <h2>У вас нет прав на добавление администратора. Только root Администратор может добавлять новых администраторов</h2>
+    <%}%>
 </div>
-<%} else {%>
-<h2>У вас нет прав на добавление администратора. Только root Администратор может добавлять новых администраторов</h2>
-<%}%>
 </body>
 </html>
