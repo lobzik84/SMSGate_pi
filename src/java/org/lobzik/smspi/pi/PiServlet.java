@@ -127,6 +127,7 @@ public class PiServlet extends HttpServlet {
                                 + "limit 100";
                         List<HashMap> logData = DBSelect.getRows(logSql, null, conn);
                         jspData.put("logData", logData);
+                        jspData.put("head_url", "main");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -178,6 +179,7 @@ public class PiServlet extends HttpServlet {
                                     + "order by id";
                             appList = DBSelect.getRows(appListSQL, conn);
                             jspData.put("APP_LIST", appList);
+                            jspData.put("head_url", "addapp");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -215,6 +217,7 @@ public class PiServlet extends HttpServlet {
                                         + "order by admin_id";
                                 admList = DBSelect.getRows(appListSQL, conn);
                                 jspData.put("ADM_LIST", admList);
+                                jspData.put("head_url", "addadm");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

@@ -8,6 +8,7 @@
     if (adminId < 0) {
         return;
     }
+    String headUrl = Tools.getStringValue(JspData.get("head_url"), "");
 %>
 <html lang="ru">
     <head>
@@ -25,13 +26,13 @@
             <a class="header__logo" href="<%= baseUrl + "main"%>">smsity</a>
             <nav class="nav">
                 <ul class="nav__list">
-                    <li class="nav__item nav__item_active">
+                    <li class="nav__item <%= headUrl.equals("main")? "nav__item_active" : ""%> ">
                         <a class="nav__link" href="<%= baseUrl + "main"%>">Главная</a>
                     </li>
-                    <li class="nav__item">
+                    <li class="nav__item <%= headUrl.equals("addapp")? "nav__item_active" : ""%> ">
                         <a class="nav__link" href="<%= baseUrl + "addapp"%>">Пользователи шлюза</a>
                     </li>
-                    <li class="nav__item">
+                    <li class="nav__item <%= headUrl.equals("addadm")? "nav__item_active" : ""%> ">
                         <a class="nav__link" href="<%= baseUrl + "addadm"%>">Администраторы</a>
                     </li>
                 </ul>
