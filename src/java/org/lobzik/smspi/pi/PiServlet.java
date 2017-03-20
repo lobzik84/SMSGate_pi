@@ -128,6 +128,14 @@ public class PiServlet extends HttpServlet {
                         List<HashMap> logData = DBSelect.getRows(logSql, null, conn);
                         jspData.put("logData", logData);
                         jspData.put("head_url", "main");
+                        String messageListSql = "select a.* from \n"
+                                + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status from sms_inbox si\n"
+                                + "union \n"
+                                + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status from sms_outbox so) a\n"
+                                + "order by a.date desc\n"
+                                + "limit 100";
+                        List<HashMap> messageList = DBSelect.getRows(messageListSql, null, conn);
+                        jspData.put("messageList", messageList);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

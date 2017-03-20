@@ -18,12 +18,14 @@
     int msgErrs = 0;
     int msgInbox = 0;
     List<HashMap> logData = null;
+    List<HashMap> messageList = null;
     if (JspData != null) {
         msgSent = Tools.parseInt(JspData.get("msgSent"), -1);
         msgErrs = Tools.parseInt(JspData.get("msgErrs"), -1);
         msgInbox = Tools.parseInt(JspData.get("msgInbox"), -1);
         msgSentDaily = Tools.parseInt(JspData.get("msgSentDaily"), -1);
         logData = (ArrayList<HashMap>) Tools.isNull(JspData.get("logData"), new ArrayList<HashMap>());
+        messageList = (ArrayList<HashMap>) Tools.isNull(JspData.get("messageList"), new ArrayList<HashMap>());
     }
 %>
 
@@ -86,12 +88,59 @@
         </table>
     </div>
 
+    <div class="content__block inline-b fl-l w-60">
+        <h2>Сообщения: </h2>
+        <table class="">
+            <thead>
+                <tr>
+                    <td class="">
+                        id
+                    </td>
+                    <td class="">
+                        Message
+                    </td>
+                    <td class="">
+                        Tel_no
+                    </td>
+                    <td class="">
+                        Type
+                    </td>
+                    <td class="">
+                        Date
+                    </td>
+                    <td class="">
+                        Status
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <%for (HashMap hm : messageList) {
+                        int id = Tools.parseInt(hm.get("id"), -1);
+                        String message = Tools.getStringValue(hm.get("message"), "");
+                        String telNo = Tools.getStringValue(hm.get("tel_no"), "");
+                        String type = Tools.getStringValue(hm.get("type"), "");
+                        String date = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:SS");
+                        String status = Tools.getStringValue(hm.get("status"), "");                       
+                %>
+                <tr>
+                    <td><%= id%></td>
+                    <td><%= message%></td>
+                    <td><%= telNo%></td>
+                    <td><%= type%></td>
+                    <td><%= date%></td>
+                    <td><%= status%></td>
+                </tr>
+                <%}%>
+            </tbody>
+        </table>
+    </div>
+
     <div class="content__block inline-b fl-r w-25">
         <h2>Отправить сообщение:</h2>
         <form action="<%= baseUrl + "sendmsg"%>" method="post">
             <label>Phone:</label>
             <input type="text" name="recipient" />
-            
+
             <label>Text:</label>
             <span>Тестовое сообщение</span>
             <textarea name="sms"></textarea>
