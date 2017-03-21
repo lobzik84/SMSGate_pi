@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -265,23 +266,80 @@ public class PiServlet extends HttpServlet {
                 break;
             case "msgs":
                 if (loginAdmin > 0) {
-                    List<HashMap> msgsList = new ArrayList<>();
-                    try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                        String msgsListSQL = "select a.* from \n"
-                                + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status from sms_inbox si\n"
-                                + "union \n"
-                                + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status from sms_outbox so) a\n"
-                                + "order by a.date desc\n"
-                                + "limit 100";
-                        msgsList = DBSelect.getRows(msgsListSQL, conn);
-                        jspData.put("MSGS_LIST", msgsList);
-                        jspData.put("head_url", "msgs");
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    HashMap reqData = getRequestParameters(request);
+                    if (reqData.containsKey("FLTR_DATA") && Tools.parseInt(reqData.get("FLTR_DATA"), -1) == 1) {
+                        String whereString = "where 1=1 ";
+                        HashMap filterList = new HashMap();
+
+                        Date from = Tools.parseDate((String) reqData.get("date_from"));
+                        Date to = Tools.parseDate((String) reqData.get("date_to"));
+                        if (from != null) {
+                            String fromS = Tools.getFormatedDate(from, "dd.MM.yyyy");
+                            whereString += " and a.date >= str_to_date('" + fromS + " 00:00:00','%d.%m.%Y %H:%i:%s')";
+                            filterList.put("date_from", fromS);
+                        } else {
+                            filterList.put("date_from", " ");
+                        }
+                        if (to != null) {
+                            String toS = Tools.getFormatedDate(to, "dd.MM.yyyy");
+                            whereString += " and a.date <= str_to_date('" + toS + " 23:59:59','%d.%m.%Y %H:%i:%s')";
+                            filterList.put("date_to", toS);
+                        } else {
+                            filterList.put("date_to", " ");
+                        }
+
+                        String searchText = Tools.getStringValue(reqData.get("search_text"), "");
+                        String telNo = Tools.getStringValue(reqData.get("tel_no"), "");
+
+                        if (searchText.trim().length() > 0) {
+                            whereString += " and a.message like ('%" + searchText + "%')";
+                            filterList.put("search_text", searchText);
+                        }
+
+                        if (telNo.trim().length() > 0) {
+                            whereString += " and a.tel_no like ('%" + telNo + "%')";
+                            filterList.put("tel_no", telNo);
+                        }
+
+                        jspData.put("FILTER_LIST", filterList);
+
+                        List<HashMap> msgsList = new ArrayList<>();
+                        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                            String msgsListSQL = "select a.* from \n"
+                                    + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status from sms_inbox si\n"
+                                    + "union \n"
+                                    + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status from sms_outbox so) a\n"
+                                    + whereString + "\n"
+                                    +"order by a.date desc\n";
+                            msgsList = DBSelect.getRows(msgsListSQL, conn);
+                            jspData.put("MSGS_LIST", msgsList);
+                            jspData.put("head_url", "msgs");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/msgs.jsp");
+                        request.setAttribute("JspData", jspData);
+                        disp.include(request, response);
+
+                    } else {
+                        List<HashMap> msgsList = new ArrayList<>();
+                        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                            String msgsListSQL = "select a.* from \n"
+                                    + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status from sms_inbox si\n"
+                                    + "union \n"
+                                    + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status from sms_outbox so) a\n"
+                                    + "order by a.date desc\n"
+                                    + "limit 200";
+                            msgsList = DBSelect.getRows(msgsListSQL, conn);
+                            jspData.put("MSGS_LIST", msgsList);
+                            jspData.put("head_url", "msgs");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/msgs.jsp");
+                        request.setAttribute("JspData", jspData);
+                        disp.include(request, response);
                     }
-                    RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/msgs.jsp");
-                    request.setAttribute("JspData", jspData);
-                    disp.include(request, response);
                 } else {
                     response.sendRedirect(baseUrl);
                 }
