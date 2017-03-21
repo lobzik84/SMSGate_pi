@@ -263,6 +263,29 @@ public class PiServlet extends HttpServlet {
                     response.sendRedirect(baseUrl);
                 }
                 break;
+            case "msgs":
+                if (loginAdmin > 0) {
+                    List<HashMap> msgsList = new ArrayList<>();
+                    try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                        String msgsListSQL = "select a.* from \n"
+                                + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status from sms_inbox si\n"
+                                + "union \n"
+                                + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status from sms_outbox so) a\n"
+                                + "order by a.date desc\n"
+                                + "limit 100";
+                        msgsList = DBSelect.getRows(msgsListSQL, conn);
+                        jspData.put("MSGS_LIST", msgsList);
+                        jspData.put("head_url", "msgs");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/msgs.jsp");
+                    request.setAttribute("JspData", jspData);
+                    disp.include(request, response);
+                } else {
+                    response.sendRedirect(baseUrl);
+                }
+                break;
             default:
                 if (loginAdmin > 0) {
                     response.sendRedirect(baseUrl + "/main");

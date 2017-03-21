@@ -20,20 +20,25 @@
         <script src="<%=request.getContextPath()%>/js/jquery-3.1.1.min.js"></script>
         <script src="<%=request.getContextPath()%>/js/highstock.js"></script>
         <script src="<%=request.getContextPath()%>/js/exporting.js"></script>
+        <script src="<%=request.getContextPath()%>/js/jquery-ui.js"></script>
+        <script src="<%=request.getContextPath()%>/js/jquery.ui.datepicker-ru.js"></script>
     </head>
     <body class="abc">
         <header class="header">
             <a class="header__logo" href="<%= baseUrl + "main"%>">smsity</a>
             <nav class="nav">
                 <ul class="nav__list">
-                    <li class="nav__item <%= headUrl.equals("main")? "nav__item_active" : ""%> ">
+                    <li class="nav__item <%= headUrl.equals("main") ? "nav__item_active" : ""%> ">
                         <a class="nav__link" href="<%= baseUrl + "main"%>">Главная</a>
                     </li>
-                    <li class="nav__item <%= headUrl.equals("addapp")? "nav__item_active" : ""%> ">
+                    <li class="nav__item <%= headUrl.equals("addapp") ? "nav__item_active" : ""%> ">
                         <a class="nav__link" href="<%= baseUrl + "addapp"%>">Пользователи шлюза</a>
                     </li>
-                    <li class="nav__item <%= headUrl.equals("addadm")? "nav__item_active" : ""%> ">
+                    <li class="nav__item <%= headUrl.equals("addadm") ? "nav__item_active" : ""%> ">
                         <a class="nav__link" href="<%= baseUrl + "addadm"%>">Администраторы</a>
+                    </li>
+                    <li class="nav__item <%= headUrl.equals("msgs") ? "nav__item_active" : ""%> ">
+                        <a class="nav__link" href="<%= baseUrl + "msgs"%>">Сообщения</a>
                     </li>
                 </ul>
             </nav>
