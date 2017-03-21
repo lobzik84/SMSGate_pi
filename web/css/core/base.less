@@ -17,6 +17,12 @@ input[type="text"] {
         border: 1px solid @blue;
     }
 }
+.input_phone {
+    .os-sb;
+    width: calc(~"100% - 14px");
+    height: 35px;
+    font-size: 23px;
+} 
 textarea {
     .os-r;
     .rounded-corners(3px);
@@ -34,11 +40,10 @@ textarea {
     }
 }
 .textarea__message {
-    .w-90;
+    width: calc(~"100% - 14px");
     height: 160px;
     resize: none;
     font-size: 22px;
-    
 }
 .label {
     .os-sb;
@@ -64,4 +69,13 @@ textarea {
             border-bottom: 1px dashed rgba(33, 150, 243, 1);
         }
     }
+}
+
+.counter {
+    .absolute;
+    .os-r;
+    bottom: 85px;
+    right: 30px;
+    font-size: 13px;
+    color: #6890cc;
 }

@@ -51,26 +51,26 @@
         </div>
     </div>
     <div class="content__block content__block_left">
-        <h2>Сообщения: </h2>
-        <table class="">
+        <h2>Сообщения</h2>
+        <table class="table__messages">
             <thead>
                 <tr>
-                    <td class="">
+                    <td class="w-5">
                         id
                     </td>
-                    <td class="">
+                    <td class="w-30">
                         Message
                     </td>
-                    <td class="">
+                    <td class="w-20">
                         Tel_no
                     </td>
-                    <td class="">
+                    <td class="w-10">
                         Type
                     </td>
-                    <td class="">
+                    <td class="w-15">
                         Date
                     </td>
-                    <td class="">
+                    <td class="w-5">
                         Status
                     </td>
                 </tr>
@@ -85,71 +85,50 @@
                         String status = Tools.getStringValue(hm.get("status"), "");
                 %>
                 <tr>
-                    <td><%= id%></td>
-                    <td><%= message%></td>
-                    <td><%= telNo%></td>
-                    <td><%= type%></td>
-                    <td><%= date%></td>
-                    <td><%= status%></td>
+                    <td class="w-5"><%= id%></td>
+                    <td class="w-30"><%= message%></td>
+                    <td class="w-20"><%= telNo%></td>
+                    <td class="w-10"><%= type%></td>
+                    <td class="w-15"><%= date%></td>
+                    <td class="w-5"><%= status%></td>
                 </tr>
                 <%}%>
             </tbody>
         </table>
-        <br><br><br>
-        <h2>Лог шлюза:</h2>
-        <table class="">
-            <thead>
-                <tr>
-                    <td class="">
-                        Module_name
-                    </td>
-                    <td class="">
-                        Dated
-                    </td>
-                    <td class="">
-                        Level
-                    </td>
-                    <td class="">
-                        Message
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
-                <%for (HashMap hm : logData) {
-                        String moduleName = Tools.getStringValue(hm.get("module_name"), "");
-                        String dated = Tools.getFormatedDate((java.util.Date) hm.get("dated"), "dd.MM.yyyy HH:mm:SS");
-                        String level = Tools.getStringValue(hm.get("level"), "");
-                        String message = Tools.getStringValue(hm.get("message"), "");
-                %>
-                <tr>
-                    <td><%= moduleName%></td>
-                    <td><%= dated%></td>
-                    <td><%= level%></td>
-                    <td><%= message%></td>
-                </tr>
-                <%}%>
-            </tbody>
-        </table>
+
+        <div class="log">
+            <%for (HashMap hm : logData) {
+                    String moduleName = Tools.getStringValue(hm.get("module_name"), "");
+                    String dated = Tools.getFormatedDate((java.util.Date) hm.get("dated"), "dd.MM.yyyy HH:mm:SS");
+                    String level = Tools.getStringValue(hm.get("level"), "");
+                    String message = Tools.getStringValue(hm.get("message"), "");
+            %>
+            <div class="log__row">
+                <p class="log__date"><%= dated%></p>
+                <p class="log__name_<%= level%>"><%= moduleName%> <%= level%>:</p>
+                <p class="log__message"><%= message%></p>
+            </div>
+            <%}%>
+        </div>
+
     </div>
 
     <div class="content__padding"></div>
 
     <div class="content__block content__block_right">
         <h2>Отправить сообщение:</h2>
-        <form action="<%= baseUrl + "sendmsg"%>" method="post">
-            
+        <form class="block w-100" action="<%= baseUrl + "sendmsg"%>" method="post">
             <label class="label lgray mt-20">Номер телефона</label>
-            <input class="w-90" type="text" name="recipient" />
-
+            <input class="input_phone" type="text" name="recipient" placeholder="+7 (___) ___-__-__"/>
             <label class="label lgray mt-20">Текст</label>
             <label class="label label_blue">Тестовое сообщение</label>
-            <textarea class="textarea__message" name="sms" rows="5"></textarea>
-
+            <span class="counter">70</span>
+            <textarea class="textarea__message" name="sms"></textarea>
             <input class="btn blbc white mt-20" type="submit" value="Отправить" name="submit" />
         </form>
     </div>
 </div>
-        
+
 <script type="text/javascript">
     $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet"%>", function (data) {
 

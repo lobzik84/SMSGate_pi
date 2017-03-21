@@ -32,3 +32,43 @@
         .pl-20;
     }
 }
+.table__messages {
+    .mt-20;
+    .w-100;
+    thead, tbody { 
+        .block;
+    }
+    thead {
+        tr {
+            .lbc;
+            .ttu;
+            .os-b;
+            font-size: 12px;
+            height: 23px;
+            line-height: 23px;
+        }
+        td {
+            padding-left: 3px; 
+        }
+    }
+    tbody {
+        height: 200px;
+        overflow-y: auto;
+        
+        font-size: 14px;
+        tr {
+            &:hover {
+                background-color: rgba(33, 150, 243, 0.1);
+            }
+        }
+        td {
+            .os-r;
+            line-height: 21px;
+            padding: 3px;
+            border-bottom: 1px solid @gray;
+            &:first-child {
+                .os-sb;
+            }
+        }
+    }
+}
