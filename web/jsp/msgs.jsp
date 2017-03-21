@@ -14,57 +14,64 @@
     if (JspData != null) {
         msgsList = (ArrayList<HashMap>) Tools.isNull(JspData.get("MSGS_LIST"), new ArrayList<HashMap>());
     }
-    HashMap filterList = new HashMap();
-    String searchText = " ";
-    String telNo = " ";
-    String dateFrom = " ";
-    String dateTo = " ";
+
+    HashMap filterList = (HashMap) Tools.isNull(JspData.get("FILTER_LIST"), new HashMap());
+    String searchText = "";
+    String telNo = "";
+    String dateFrom = "";
+    String dateTo = "";
+
+    if (filterList.size() > 0) {
+        if (dateFrom != null && dateFrom.trim().length() > 0) {
+            dateFrom = Tools.getStringValue(filterList.get("date_from"), "");
+        }
+        if (dateTo != null && dateTo.trim().length() > 0) {
+            dateTo = Tools.getStringValue(filterList.get("date_to"), "");
+        }
+        if (searchText != null && searchText.trim().length() > 0) {
+            searchText = Tools.getStringValue(filterList.get("search_text"), "");
+        }
+        if (telNo != null && telNo.trim().length() > 0) {
+            telNo = Tools.getStringValue(filterList.get("tel_no"), "");;
+        }
+    }
 
 %>
 <jsp:include page="header.jsp" />
 
 <div class="content__layout">
-    
-    <form id="filters_form" action="<%=baseUrl + "msgs"%>" method="POST">
-        <% if (/*filterList.size() > 0*/true) {%>
-        <%if (dateFrom != null && dateTo != null) {
-            if (dateFrom.length() > 0 && dateTo.length() > 0) {%>
-        <div class="">
-            <label class="">Дата:</label>
-            <label class="" for="date_from">С</label>
-            <input id="date_from" name="date_from" class="" value="<%=dateFrom%>"/>
-            <br/>
-            <label class="" for="date_to">До</label>
-            <input id="date_to" name="date_to" class="" value="<%=dateTo%>"/>
-        </div>
-        <%}
-        }%>
 
-        <%if (searchText != null && searchText.trim().length() > 0) {%>
-        <div class="">
-            <label class="" for="SearchText">Текст в сообщении:</label>
-            <input class="" type = "text" id="SearchText" name="search_text" value="<%=searchText%>"/>
-        </div>
-        <%}%>
-
-        <%if (telNo != null && telNo.trim().length() > 0) {%>
-        <div class="">
-            <label class="" for="SearchText">Номер телефона:</label>
-            <input class="" type = "text" id="SearchText" name="search_text" value="<%=searchText%>"/>
-        </div>
-        <%}%>
-
-        <div class="">
-            <input id="analytics-submit--true" class="" type="submit" name="filter_submit" value="Построить"/>
-        </div>
-        <% }%>
-
-    </form>
-        
     <div class="content__table">
+        <form id="filters_form" action="<%=baseUrl + "msgs"%>" method="POST">
+            <div class="">
+                <label class="">Дата:</label></br>
+                <label class="" for="date_from">С</label>
+                <input id="date_from" name="date_from" class="" value="<%=dateFrom%>"/>
+                <br/>
+                <label class="" for="date_to">До</label>
+                <input id="date_to" name="date_to" class="" value="<%=dateTo%>"/>
+            </div>
+
+            <div class="">
+                <label class="" for="SearchText">Текст в сообщении:</label>
+                <input class="" type = "text" id="SearchText" name="search_text" value="<%=searchText%>"/>
+            </div>
+
+            <div class="">
+                <label class="" for="TelNo">Номер телефона:</label>
+                <input class="" type = "text" id="SearchText" name="tel_no" value="<%=searchText%>"/>
+            </div>
+
+            <input hidden type="text" name="FLTR_DATA" value="1"/>
+
+            <div class="">
+                <input id="analytics-submit--true" class="" type="submit" name="filter_submit" value="Фильтровать"/>
+            </div>
+        </form>
+        <a onClick="confirm('Сбросить фильтры?')" href="<%= baseUrl + "msgs"%>">Сбросить фильтры</a>
 
         <h2>Сообщения</h2>
-        
+
         <table class="">
             <thead>
                 <tr>
@@ -110,7 +117,7 @@
         </table>
     </div>
 </div>
-            
+
 <script type="text/javascript">
     $(document).ready(function () {
         $('#date_from').datepicker({
