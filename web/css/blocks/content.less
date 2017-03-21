@@ -10,20 +10,28 @@
     .p-20;
     .va-t;
     margin: auto;
-    
+    &_left {
+        .absolute;
+        left: 0; 
+        right: 30%; 
+        margin-right: 20px;
+    }
+    &_right {
+        .absolute;
+        left: 70%; 
+        right: 0; 
+        margin-left: 15px;
+    }
 }
-
 .content__table {
     .wbc;
     .p-20;
     .w-100;
     margin: auto;
 }
-.content__block_left {
-    
-}
 .content__padding {
-    .fl-l;
-    width: 30px;
+    .absolute;
+    width: 30px; 
+    left: 70%; 
     margin-left: -15px;
 }

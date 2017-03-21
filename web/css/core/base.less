@@ -33,10 +33,17 @@ textarea {
         border: 1px solid @blue;
     }
 }
+.textarea__message {
+    .w-90;
+    height: 160px;
+    resize: none;
+    font-size: 22px;
+    
+}
 .label {
     .os-sb;
     .bold;
-    .block;
+    .inline-b;
     .mb-10;
     font-size: 14px;
     &_wrong {
@@ -46,5 +53,15 @@ textarea {
         .ta-c;
         .mt-20;
         font-size: 14px;
+    }
+    &_blue {
+        .blue;
+        .pointer;
+        .fl-r;
+        .mt-20;
+        border-bottom: 1px dashed rgba(33, 150, 243, 0.5);
+        &:hover {
+            border-bottom: 1px dashed rgba(33, 150, 243, 1);
+        }
     }
 }

@@ -50,8 +50,7 @@
 
         </div>
     </div>
-
-    <div class="content__block content__block_right">
+    <div class="content__block content__block_left">
         <h2>Сообщения: </h2>
         <table class="">
             <thead>
@@ -133,71 +132,27 @@
         </table>
     </div>
 
-    <div class="content__block inline-b fl-l w-60">
-        <h2>Сообщения: </h2>
-        <table class="">
-            <thead>
-                <tr>
-                    <td class="">
-                        id
-                    </td>
-                    <td class="">
-                        Message
-                    </td>
-                    <td class="">
-                        Tel_no
-                    </td>
-                    <td class="">
-                        Type
-                    </td>
-                    <td class="">
-                        Date
-                    </td>
-                    <td class="">
-                        Status
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
-                <%for (HashMap hm : messageList) {
-                        int id = Tools.parseInt(hm.get("id"), -1);
-                        String message = Tools.getStringValue(hm.get("message"), "");
-                        String telNo = Tools.getStringValue(hm.get("tel_no"), "");
-                        String type = Tools.getStringValue(hm.get("type"), "");
-                        String date = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:SS");
-                        String status = Tools.getStringValue(hm.get("status"), "");
-                %>
-                <tr>
-                    <td><%= id%></td>
-                    <td><%= message%></td>
-                    <td><%= telNo%></td>
-                    <td><%= type%></td>
-                    <td><%= date%></td>
-                    <td><%= status%></td>
-                </tr>
-                <%}%>
-            </tbody>
-        </table>
-    </div>
+    <div class="content__padding"></div>
 
-    <div class="content__block inline-b fl-r w-25">
+    <div class="content__block content__block_right">
         <h2>Отправить сообщение:</h2>
         <form action="<%= baseUrl + "sendmsg"%>" method="post">
-            <label>Phone:</label>
-            <input type="text" name="recipient" />
+            
+            <label class="label lgray mt-20">Номер телефона</label>
+            <input class="w-90" type="text" name="recipient" />
 
-            <label>Text:</label>
-            <span>Тестовое сообщение</span>
-            <textarea name="sms"></textarea>
+            <label class="label lgray mt-20">Текст</label>
+            <label class="label label_blue">Тестовое сообщение</label>
+            <textarea class="textarea__message" name="sms" rows="5"></textarea>
 
-            <input class="btn blbc white" type="submit" value="Отправить" name="submit" />
+            <input class="btn blbc white mt-20" type="submit" value="Отправить" name="submit" />
         </form>
     </div>
-
 </div>
+        
 <script type="text/javascript">
     $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet"%>", function (data) {
-        
+
         Highcharts.setOptions({
             lang: {
                 loading: 'Загрузка...',
@@ -216,7 +171,7 @@
                 printChart: 'Напечатать график'
             }
         });
-        
+
         Highcharts.stockChart('container', {
             chart: {
                 alignTicks: false
