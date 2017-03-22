@@ -157,6 +157,8 @@ public class PiServlet extends HttpServlet {
                 if (loginAdmin > 0) {
                     String sms = Tools.getStringValue(request.getParameter("sms"), "");
                     String recipient = Tools.getStringValue(request.getParameter("recipient"), "");
+                    sms = Tools.replaceTags(sms);
+                    recipient = Tools.replaceTags(recipient);
                     if (request.getMethod().equalsIgnoreCase("POST") && sms.trim().length() > 0 && recipient.trim().length() > 0) {
                         HashMap data = new HashMap();
                         data.put("message", sms);
@@ -177,7 +179,7 @@ public class PiServlet extends HttpServlet {
                     HashMap reqData = getRequestParameters(request);
                     if (reqData.containsKey("REG_ME") && Tools.parseInt(reqData.get("REG_ME"), -1) > 0 && Tools.getStringValue(reqData.get("name"), "").trim().length() > 0 && Tools.getStringValue(reqData.get("public_key"), "").trim().length() > 0) {
                         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                            int newUserId = DBTools.insertRow("users", reqData, conn);
+                            int newUserId = DBTools.insertRow("users", Tools.replaceTags(reqData), conn);
                             response.sendRedirect(baseUrl + "/addapp");
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -187,7 +189,7 @@ public class PiServlet extends HttpServlet {
                         HashMap removeData = new HashMap();
                         removeData.put("id", removeId);
                         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                            DBTools.deleteRow("users", removeData, conn);
+                            DBTools.deleteRow("users", Tools.replaceTags(removeData), conn);
                             response.sendRedirect(baseUrl + "/addapp");
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -214,7 +216,7 @@ public class PiServlet extends HttpServlet {
             case "addadm":
                 if (loginAdmin > 0) {
                     if (loginAdmin == 1) {
-                        HashMap reqData = getRequestParameters(request);
+                        HashMap reqData = Tools.replaceTags(getRequestParameters(request));
                         if (reqData.containsKey("ADD_ME") && Tools.parseInt(reqData.get("ADD_ME"), -1) > 0 && Tools.getStringValue(reqData.get("login"), "").trim().length() > 0 && Tools.getStringValue(reqData.get("password"), "").trim().length() > 0) {
                             try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
                                 String password = Tools.getStringValue(reqData.get("password"), "");
@@ -267,23 +269,26 @@ public class PiServlet extends HttpServlet {
                 break;
             case "msgs":
                 if (loginAdmin > 0) {
-                    HashMap reqData = getRequestParameters(request);
+                    HashMap reqData = Tools.replaceTags(getRequestParameters(request));
                     if (reqData.containsKey("FLTR_DATA") && Tools.parseInt(reqData.get("FLTR_DATA"), -1) == 1) {
                         String whereString = "where 1=1 ";
                         HashMap filterList = new HashMap();
+                        LinkedList args = new LinkedList();
 
                         Date from = Tools.parseDate((String) reqData.get("date_from"));
                         Date to = Tools.parseDate((String) reqData.get("date_to"));
                         if (from != null) {
                             String fromS = Tools.getFormatedDate(from, "dd.MM.yyyy");
-                            whereString += " and a.date >= str_to_date('" + fromS + " 00:00:00','%d.%m.%Y %H:%i:%s')";
+                            whereString += " and a.date >= str_to_date(?,'%d.%m.%Y %H:%i:%s')";
+                            args.add(fromS + " 00:00:00");
                             filterList.put("date_from", fromS);
                         } else {
                             filterList.put("date_from", " ");
                         }
                         if (to != null) {
                             String toS = Tools.getFormatedDate(to, "dd.MM.yyyy");
-                            whereString += " and a.date <= str_to_date('" + toS + " 23:59:59','%d.%m.%Y %H:%i:%s')";
+                            whereString += " and a.date <= str_to_date(? ,'%d.%m.%Y %H:%i:%s')";
+                            args.add( toS + " 23:59:59");
                             filterList.put("date_to", toS);
                         } else {
                             filterList.put("date_to", " ");
@@ -293,12 +298,14 @@ public class PiServlet extends HttpServlet {
                         String telNo = Tools.getStringValue(reqData.get("tel_no"), "");
 
                         if (searchText.trim().length() > 0) {
-                            whereString += " and a.message like ('%" + searchText + "%')";
+                            whereString += " and a.message like (?)";
+                            args.add("%" + searchText + "%");
                             filterList.put("search_text", searchText);
                         }
 
                         if (telNo.trim().length() > 0) {
-                            whereString += " and a.tel_no like ('%" + telNo + "%')";
+                            whereString += " and a.tel_no like (?)";
+                            args.add("%" + telNo + "%");
                             filterList.put("tel_no", telNo);
                         }
 
@@ -311,8 +318,8 @@ public class PiServlet extends HttpServlet {
                                     + "union \n"
                                     + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status from sms_outbox so) a\n"
                                     + whereString + "\n"
-                                    +"order by a.date desc\n";
-                            msgsList = DBSelect.getRows(msgsListSQL, conn);
+                                    + "order by a.date desc\n";
+                            msgsList = DBSelect.getRows(msgsListSQL, args, conn);
                             jspData.put("MSGS_LIST", msgsList);
                             jspData.put("head_url", "msgs");
                         } catch (Exception e) {
