@@ -8,7 +8,7 @@
     if (adminId < 0) {
         return;
     }
-    
+
     String baseUrl = request.getContextPath() + request.getServletPath() + "/";
 
     ArrayList<HashMap> msgsList = null;
@@ -29,57 +29,50 @@
 <jsp:include page="header.jsp" />
 
 <div class="content__layout">
-
     <div class="content__table">
+
+        <h2 class="mb-20">Сообщения</h2>
+
         <form id="filters_form" action="<%=baseUrl + "msgs"%>" method="POST">
-            <div class="">
-                <label class="">Дата:</label></br>
-                <label class="" for="date_from">С</label>
-                <input id="date_from" name="date_from" class="" value="<%=dateFrom%>"/>
-                <br/>
-                <label class="" for="date_to">До</label>
-                <input id="date_to" name="date_to" class="" value="<%=dateTo%>"/>
-            </div>
+            <div class="inline-b mb-15">
+                <label class="label" for="date_from">С</label>
+                <input id="date_from" name="date_from" value="<%=dateFrom%>"/>
 
-            <div class="">
-                <label class="" for="SearchText">Текст в сообщении:</label>
-                <input class="" type = "text" id="SearchText" name="search_text" value="<%=searchText%>"/>
+                <label class="label" for="date_to">До</label>
+                <input id="date_to" name="date_to" value="<%=dateTo%>"/>
             </div>
+            <div class="inline-b mb-15">
+                <label class="label" for="SearchText">Текст в сообщении:</label>
+                <input type = "text" id="SearchText" name="search_text" value="<%=searchText%>"/>
 
-            <div class="">
-                <label class="" for="TelNo">Номер телефона:</label>
-                <input class="" type = "text" id="SearchText" name="tel_no" value="<%=telNo%>"/>
+                <label class="label" for="TelNo">Номер телефона:</label>
+                <input type = "text" id="SearchText" name="tel_no" value="<%=telNo%>"/>
             </div>
-
             <input hidden type="text" name="FLTR_DATA" value="1"/>
-
-            <div class="">
-                <input id="analytics-submit--true" class="" type="submit" name="filter_submit" value="Фильтровать"/>
-            </div>
+            <br>
+            <input id="analytics-submit--true" class="btn blbc white mr-15" type="submit" name="filter_submit" value="Фильтровать"/>
+            <a class="btn p-9 lbc black tdn inline-b" onclick="return confirm('Сбросить фильтры?');" href="<%= baseUrl + "msgs"%>">Сбросить фильтры</a>
         </form>
-        <a onClick="confirm('Сбросить фильтры?')" href="<%= baseUrl + "msgs"%>">Сбросить фильтры</a>
 
-        <h2>Сообщения</h2>
-
-        <table class="">
+        <table class="table mt-20">
             <thead>
                 <tr>
-                    <td class="">
+                    <td class="w-10">
                         id
                     </td>
-                    <td class="">
+                    <td class="w-35">
                         Message
                     </td>
-                    <td class="">
-                        Tel_no
+                    <td class="w-15">
+                        Phone
                     </td>
-                    <td class="">
+                    <td class="w-15">
                         Type
                     </td>
-                    <td class="">
+                    <td class="w-15">
                         Date
                     </td>
-                    <td class="">
+                    <td class="w-10">
                         Status
                     </td>
                 </tr>
@@ -95,7 +88,7 @@
                 %>
                 <tr>
                     <td><%= id%></td>
-                    <td><%= curMessage%></td>
+                    <td class="<%= curType%>"><%= curMessage%></td>
                     <td><%= curTelNo%></td>
                     <td><%= curType%></td>
                     <td><%= curDate%></td>

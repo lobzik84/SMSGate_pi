@@ -775,7 +775,7 @@ textarea:focus {
 .label {
   font-family: 'opensans-semibold', Arial, Helvetica, sans-serif;
   font-weight: bold;
-  display: inline-block;
+  display: block;
   margin-bottom: 10px;
   font-size: 14px;
 }
@@ -949,6 +949,7 @@ textarea:focus {
 .content__layout {
   width: 90%;
   position: relative;
+  margin-bottom: 30px;
   margin: auto;
 }
 .content__block {
@@ -981,6 +982,11 @@ textarea:focus {
   left: 70%;
   margin-left: -15px;
 }
+.content__top {
+  margin-bottom: 30px;
+  background: #ffffff;
+  height: 400px;
+}
 .table {
   width: 100%;
   word-break: break-word;
@@ -1010,40 +1016,20 @@ textarea:focus {
 }
 .table td {
   padding-left: 20px;
+  vertical-align: middle;
+}
+.table .inbox {
+  text-align: right;
 }
 .table__messages {
   margin-top: 20px;
   width: 100%;
 }
-.table__messages thead,
 .table__messages tbody {
   display: block;
-}
-.table__messages thead {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
-}
-.table__messages thead tr {
-  background: #e9ebee;
-  text-transform: uppercase;
-  font-family: 'opensans-bold', Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  height: 23px;
-  line-height: 23px;
-}
-.table__messages thead td {
-  padding: 3px;
-}
-.table__messages tbody {
-  height: 200px;
+  height: 223px;
   overflow-y: auto;
   font-size: 14px;
-}
-.table__messages tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
 }
 .table__messages tbody tr:hover {
   background-color: rgba(33, 150, 243, 0.1);
@@ -1076,6 +1062,31 @@ textarea:focus {
   opacity: 0.8;
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=80);
   filter: alpha(opacity=80);
+}
+.btn_delete {
+  display: block;
+  cursor: pointer;
+  vertical-align: middle;
+  width: 20px;
+  height: 20px;
+  background: url('/smspi/img/delete.png') no-repeat center center;
+  background-size: 20px;
+}
+.btn_delete:hover {
+  -moz-opacity: 0.8;
+  -khtml-opacity: 0.8;
+  -webkit-opacity: 0.8;
+  opacity: 0.8;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=80);
+  filter: alpha(opacity=80);
+}
+.btn_hide {
+  background: #2196f3;
+  color: #ffffff;
+}
+.btn_on {
+  background: #e9ebee;
+  color: #000000;
 }
 .log {
   margin-top: 25px;

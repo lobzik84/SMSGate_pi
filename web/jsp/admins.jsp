@@ -26,9 +26,9 @@
 
         <%if (isRoot) {%>
 
-        <input class="btn blbc white mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
+        <input class="btn btn_hide mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
 
-        <form action="<%= baseUrl + "addadm"%>" method="post">
+        <form class="form_hide none" action="<%= baseUrl + "addadm"%>" method="post">
             <div class="inline-b">
                 <label class="label mt-10">Login:</label>
                 <input type="text" name="login" />
@@ -51,8 +51,11 @@
                     <td class="w-60">
                         login
                     </td>
-                    <td class="w-30">
+                    <td class="w-20">
                         status
+                    </td>
+                    <td class="w-10">
+                        delete
                     </td>
                 </tr>
             </thead>
@@ -66,7 +69,9 @@
                     <td><%= id%></td>
                     <td><%= login%></td>
                     <td><%= status%></td>
-                    <td><a onclick="return confirm('Удалить администратора?');" href="<%= baseUrl + "addadm?removeAdm=1&id=" + id%>">Удалить</a></td>
+                    <td>
+                        <a class="btn_delete" onclick="return confirm('Удалить администратора?');" href="<%= baseUrl + "addadm?removeAdm=1&id=" + id%>"></a>
+                    </td>
                 </tr>
                 <%}%>
             </tbody>

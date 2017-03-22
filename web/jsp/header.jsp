@@ -22,6 +22,8 @@
         <script src="<%=request.getContextPath()%>/js/exporting.js"></script>
         <script src="<%=request.getContextPath()%>/js/jquery-ui.js"></script>
         <script src="<%=request.getContextPath()%>/js/jquery.ui.datepicker-ru.js"></script>
+        <script src="<%=request.getContextPath()%>/js/x.js"></script>
+        
     </head>
     <body class="abc">
         <header class="header">

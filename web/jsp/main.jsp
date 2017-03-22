@@ -50,7 +50,7 @@
 <jsp:include page="header.jsp" />
 
 <div class="content__layout">
-    <div class="content__top mb-30">
+    <div class="content__top">
         <div id="container" class="chart"></div><!--
         --><div class="chart__total">
 
@@ -72,26 +72,6 @@
         <h2>Сообщения</h2>
         <table class="table__messages">
             <thead>
-                <tr>
-                    <td class="w-5">
-                        id
-                    </td>
-                    <td class="w-20">
-                        Message
-                    </td>
-                    <td class="w-15">
-                        Phone
-                    </td>
-                    <td class="w-10">
-                        Type
-                    </td>
-                    <td class="w-10">
-                        Date
-                    </td>
-                    <td class="w-5">
-                        Status
-                    </td>
-                </tr>
             </thead>
             <tbody>
                 <%for (HashMap hm : messageList) {
@@ -138,7 +118,7 @@
         <form class="block w-100" action="<%= baseUrl + "sendmsg"%>" method="post">
             <label class="label lgray mt-20">Номер телефона</label>
             <input class="input_phone" type="text" name="recipient" placeholder="+7 (___) ___-__-__"/>
-            <label class="label lgray mt-20">Текст</label>
+            <label class="label fl-l lgray mt-20">Текст</label>
             <label class="label label_blue">Тестовое сообщение</label>
             <span class="counter">70</span>
             <textarea class="textarea__message" name="sms"></textarea>

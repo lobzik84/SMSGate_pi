@@ -28,9 +28,9 @@
 
         <h2>Зарегестрированные пользователи шлюза</h2>
 
-        <input class="btn blbc white mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
+        <input class="btn btn_hide mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
 
-        <form action="<%= baseUrl + "addapp"%>" method="post">
+        <form class="form_hide none" action="<%= baseUrl + "addapp"%>" method="post">
             <div class="inline-b">
                 <label class="label mt-10">Name:</label>
                 <input type="text" name="name" />
@@ -53,8 +53,11 @@
                     <td class="w-30">
                         name
                     </td>
-                    <td class="w-60">
+                    <td class="w-50">
                         public_key
+                    </td>
+                     <td class="w-10">
+                        delete
                     </td>
                 </tr>
             </thead>
@@ -76,7 +79,9 @@
                             <%= fullPublicKey%>
                         </p>
                     </td>
-                    <td><a onclick="return confirm('Удалить пользователя?');" href="<%= baseUrl + "addapp?removeApp=1&id=" + id%>">Удалить</a></td>
+                    <td>
+                        <a class="btn_delete" onclick="return confirm('Удалить пользователя?');" href="<%= baseUrl + "addapp?removeApp=1&id=" + id%>"></a>
+                    </td>
                 </tr>
                 <%}%>
                 </tbody>
