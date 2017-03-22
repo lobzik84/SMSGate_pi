@@ -768,7 +768,7 @@ textarea:focus {
 }
 .textarea__message {
   width: calc(100% - 14px);
-  height: 160px;
+  height: 159px;
   resize: none;
   font-size: 22px;
 }
@@ -1019,6 +1019,11 @@ textarea:focus {
 .table__messages tbody {
   display: block;
 }
+.table__messages thead {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
 .table__messages thead tr {
   background: #e9ebee;
   text-transform: uppercase;
@@ -1028,12 +1033,17 @@ textarea:focus {
   line-height: 23px;
 }
 .table__messages thead td {
-  padding-left: 3px;
+  padding: 3px;
 }
 .table__messages tbody {
   height: 200px;
   overflow-y: auto;
   font-size: 14px;
+}
+.table__messages tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 .table__messages tbody tr:hover {
   background-color: rgba(33, 150, 243, 0.1);
@@ -1068,7 +1078,7 @@ textarea:focus {
   filter: alpha(opacity=80);
 }
 .log {
-  margin-top: 30px;
+  margin-top: 25px;
   font-family: 'opensans-regular', Arial, Helvetica, sans-serif;
   width: 100%;
   height: 100px;

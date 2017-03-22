@@ -58,16 +58,16 @@
                     <td class="w-5">
                         id
                     </td>
-                    <td class="w-30">
+                    <td class="w-20">
                         Message
                     </td>
-                    <td class="w-20">
-                        Tel_no
+                    <td class="w-15">
+                        Phone
                     </td>
                     <td class="w-10">
                         Type
                     </td>
-                    <td class="w-15">
+                    <td class="w-10">
                         Date
                     </td>
                     <td class="w-5">

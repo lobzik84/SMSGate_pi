@@ -39,6 +39,9 @@
         .block;
     }
     thead {
+        display: table;
+        width:100%;
+        table-layout: fixed;
         tr {
             .lbc;
             .ttu;
@@ -48,15 +51,17 @@
             line-height: 23px;
         }
         td {
-            padding-left: 3px; 
+            padding: 3px; 
         }
     }
     tbody {
         height: 200px;
         overflow-y: auto;
-        
         font-size: 14px;
         tr {
+            display: table;
+            width:100%;
+            table-layout: fixed;
             &:hover {
                 background-color: rgba(33, 150, 243, 0.1);
             }
