@@ -8,33 +8,22 @@
     if (adminId < 0) {
         return;
     }
+    
     String baseUrl = request.getContextPath() + request.getServletPath() + "/";
 
-    ArrayList<HashMap> msgsList = new ArrayList<HashMap>();
+    ArrayList<HashMap> msgsList = null;
     if (JspData != null) {
         msgsList = (ArrayList<HashMap>) Tools.isNull(JspData.get("MSGS_LIST"), new ArrayList<HashMap>());
+    } else {
+        return;
     }
 
     HashMap filterList = (HashMap) Tools.isNull(JspData.get("FILTER_LIST"), new HashMap());
-    String searchText = "";
-    String telNo = "";
-    String dateFrom = "";
-    String dateTo = "";
+    String searchText = Tools.getStringValue(filterList.get("search_text"), "");
+    String telNo = Tools.getStringValue(filterList.get("tel_no"), "");
+    String dateFrom = Tools.getStringValue(filterList.get("date_from"), "");
+    String dateTo = Tools.getStringValue(filterList.get("date_to"), "");
 
-    if (filterList.size() > 0) {
-        if (dateFrom != null && dateFrom.trim().length() > 0) {
-            dateFrom = Tools.getStringValue(filterList.get("date_from"), "");
-        }
-        if (dateTo != null && dateTo.trim().length() > 0) {
-            dateTo = Tools.getStringValue(filterList.get("date_to"), "");
-        }
-        if (searchText != null && searchText.trim().length() > 0) {
-            searchText = Tools.getStringValue(filterList.get("search_text"), "");
-        }
-        if (telNo != null && telNo.trim().length() > 0) {
-            telNo = Tools.getStringValue(filterList.get("tel_no"), "");;
-        }
-    }
 
 %>
 <jsp:include page="header.jsp" />
@@ -59,7 +48,7 @@
 
             <div class="">
                 <label class="" for="TelNo">Номер телефона:</label>
-                <input class="" type = "text" id="SearchText" name="tel_no" value="<%=searchText%>"/>
+                <input class="" type = "text" id="SearchText" name="tel_no" value="<%=telNo%>"/>
             </div>
 
             <input hidden type="text" name="FLTR_DATA" value="1"/>

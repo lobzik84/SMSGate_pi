@@ -42,6 +42,7 @@ public class PiServlet extends HttpServlet {
             throws ServletException, IOException {
 
         response.setContentType("text/html;charset=UTF-8");
+        request.setCharacterEncoding("UTF-8");
         String localPathInfo = Tools.getStringValue(request.getPathInfo(), "");
         localPathInfo = localPathInfo.replace("/", "");
 
