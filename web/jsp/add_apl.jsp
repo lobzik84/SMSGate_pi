@@ -37,7 +37,7 @@
             </div>
             <div class="inline-b ml-10 mr-10 va-t">
                 <label class="label mt-10">PublicKey:</label>
-                <textarea type="text" name="public_key"></textarea>
+                <textarea  name="public_key"></textarea>
             </div>
             <input hidden type="text" name="REG_ME" value="1"/>
 
@@ -76,15 +76,14 @@
                             <%= fullPublicKey%>
                         </p>
                     </td>
-                    <td><a onClick="confirm('Удалить пользователя?')" href="<%= baseUrl + "addapp?removeApp=1&id=" + id%>">Удалить</a></td>
+                    <td><a onclick="return confirm('Удалить пользователя?');" href="<%= baseUrl + "addapp?removeApp=1&id=" + id%>">Удалить</a></td>
                 </tr>
                 <%}%>
-            </tbody>
+                </tbody>
         </table>
     </div>
 </div>
 <script type="text/javascript">
-
 </script>
 </body>
 </html>

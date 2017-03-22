@@ -66,7 +66,7 @@
                     <td><%= id%></td>
                     <td><%= login%></td>
                     <td><%= status%></td>
-                    <td><a onClick="confirm('Удалить администратора?')" href="<%= baseUrl + "addadm?removeAdm=1&id=" + id%>">Удалить</a></td>
+                    <td><a onclick="return confirm('Удалить администратора?');" href="<%= baseUrl + "addadm?removeAdm=1&id=" + id%>">Удалить</a></td>
                 </tr>
                 <%}%>
             </tbody>
