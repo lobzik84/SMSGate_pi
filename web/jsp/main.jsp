@@ -3,6 +3,7 @@
 <%@page import="java.util.List"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="org.lobzik.tools.Tools"%>
+<%@page import="org.lobzik.smspi.pi.modules.ModemModule"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <jsp:useBean id="JspData" class="java.util.HashMap" scope="request"/>
 <%
@@ -27,6 +28,23 @@
         logData = (ArrayList<HashMap>) Tools.isNull(JspData.get("logData"), new ArrayList<HashMap>());
         messageList = (ArrayList<HashMap>) Tools.isNull(JspData.get("messageList"), new ArrayList<HashMap>());
     }
+
+    HashMap msgStringStatuses = new HashMap();
+    HashMap msgCssClassStatuses = new HashMap();
+    msgStringStatuses.put(ModemModule.STATUS_NEW, "Новое");
+    msgCssClassStatuses.put(ModemModule.STATUS_NEW, "new");
+    msgStringStatuses.put(ModemModule.STATUS_SENT, "Отправлено");
+    msgCssClassStatuses.put(ModemModule.STATUS_SENT, "sent");
+    msgStringStatuses.put(ModemModule.STATUS_READ, "Прочитано");
+    msgCssClassStatuses.put(ModemModule.STATUS_READ, "read");
+    msgStringStatuses.put(ModemModule.STATUS_ERROR_SENDING, "Ошибка отправления");
+    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_SENDING, "error");
+    msgStringStatuses.put(ModemModule.STATUS_ERROR_TOO_OLD, "Слишком старая");
+    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_TOO_OLD, "sad_pedobear");
+    msgStringStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "Превышено колличество попыток отправки");
+    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "exceeded");
+    msgStringStatuses.put(ModemModule.STATUS_SENDING, "Отправляется");
+    msgCssClassStatuses.put(ModemModule.STATUS_SENDING, "sending");
 %>
 
 <jsp:include page="header.jsp" />
@@ -82,7 +100,7 @@
                         String telNo = Tools.getStringValue(hm.get("tel_no"), "");
                         String type = Tools.getStringValue(hm.get("type"), "");
                         String date = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:SS");
-                        String status = Tools.getStringValue(hm.get("status"), "");
+                        int status = Tools.parseInt(hm.get("status"), -5);
                 %>
                 <tr>
                     <td class="w-5"><%= id%></td>
@@ -90,7 +108,7 @@
                     <td class="w-20"><%= telNo%></td>
                     <td class="w-10"><%= type%></td>
                     <td class="w-15"><%= date%></td>
-                    <td class="w-5"><%= status%></td>
+                    <td class="w-5 <%= Tools.getStringValue(msgCssClassStatuses.get(status), "")%>"><%= Tools.getStringValue(msgStringStatuses.get(status), "")%></td>
                 </tr>
                 <%}%>
             </tbody>
