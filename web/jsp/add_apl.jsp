@@ -72,10 +72,10 @@
                     <td><%= id%></td>
                     <td><%= name%></td>
                     <td>
-                        <p>
+                        <p class="publicKey_copy" title="Скопировать" data-key="">
                             <%= shortPublicKey%>
                         </p>
-                        <p>
+                        <p class="publicKey_full none">
                             <%= fullPublicKey%>
                         </p>
                     </td>
@@ -88,7 +88,5 @@
         </table>
     </div>
 </div>
-<script type="text/javascript">
-</script>
 </body>
 </html>

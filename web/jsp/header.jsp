@@ -15,15 +15,14 @@
         <title>SMS-Gate Admin profile</title>        
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css?v=1.0">
-
-
+<!--        <script type="text/javascript" src="<%=request.getContextPath()%>/js/min/main.min.js"></script>-->
         <script src="<%=request.getContextPath()%>/js/jquery-3.1.1.min.js"></script>
         <script src="<%=request.getContextPath()%>/js/highstock.js"></script>
         <script src="<%=request.getContextPath()%>/js/exporting.js"></script>
         <script src="<%=request.getContextPath()%>/js/jquery-ui.js"></script>
         <script src="<%=request.getContextPath()%>/js/jquery.ui.datepicker-ru.js"></script>
-        <script src="<%=request.getContextPath()%>/js/x.js"></script>
-        
+        <script src="<%=request.getContextPath()%>/js/main.js"></script>
+
     </head>
     <body class="abc">
         <header class="header">
@@ -34,7 +33,7 @@
                         <a class="nav__link" href="<%= baseUrl + "main"%>">Главная</a>
                     </li>
                     <li class="nav__item <%= headUrl.equals("addapp") ? "nav__item_active" : ""%> ">
-                        <a class="nav__link" href="<%= baseUrl + "addapp"%>">Пользователи шлюза</a>
+                        <a class="nav__link" href="<%= baseUrl + "addapp"%>">Пользователи</a>
                     </li>
                     <li class="nav__item <%= headUrl.equals("addadm") ? "nav__item_active" : ""%> ">
                         <a class="nav__link" href="<%= baseUrl + "addadm"%>">Администраторы</a>
@@ -46,11 +45,11 @@
             </nav>
             <div class="header__right">
                 <div class="header__user">
-                    <p class="header__user_id">AdminId: <%= adminId%><%= adminId == 1 ? "(root)" : ""%></p>
+                    <p class="header__user_id"><%= adminId%><%= adminId == 1 ? "(root)" : ""%></p>
                     <a class="header__user_logout" href="<%= baseUrl + "logout"%>">Выйти</a>
                 </div>
                 <div class="header__dbm">
-                    000 dBm
+                    - 88 dBm
                 </div>
             </div>
         </header>

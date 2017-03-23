@@ -23,13 +23,16 @@ input[type="text"] {
     height: 35px;
     font-size: 23px;
 } 
+.input_date {
+    width: 95px;
+}
 textarea {
     .os-r;
     .rounded-corners(3px);
     .block;
     .os-r;
     resize: vertical;
-    width: 612px;
+    width: 590px;
     height: 19px;
     max-height: 300px;
     font-size: 14px;
@@ -44,6 +47,12 @@ textarea {
     height: 159px;
     resize: none;
     font-size: 22px;
+}
+.textarea__text {
+    .inline-b;
+    .va-t;
+    width: 230px;
+    max-height: 150px;
 }
 .label {
     .os-sb;
@@ -70,6 +79,15 @@ textarea {
         }
     }
 }
+.label_inline {
+    .os-sb;
+    .bold;
+    .inline-b;
+    .mb-10;
+    .mr-5;
+    font-size: 14px;
+    line-height: 18px;    
+}
 .counter {
     .absolute;
     .os-r;
@@ -77,4 +95,16 @@ textarea {
     right: 30px;
     font-size: 13px;
     color: #6890cc;
+}
+.publicKey_copy {
+    .blue-logo;
+    .pointer;
+    .inline-b;
+    border-bottom: 1px dashed @blue-logo;
+    &:hover {
+        border-bottom: 1px solid @blue-logo;
+    }
+}
+.publicKey_full {
+    .mt-10;
 }

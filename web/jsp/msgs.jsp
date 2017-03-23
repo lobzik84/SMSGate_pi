@@ -34,24 +34,30 @@
         <h2 class="mb-20">Сообщения</h2>
 
         <form id="filters_form" action="<%=baseUrl + "msgs"%>" method="POST">
-            <div class="inline-b mb-15">
-                <label class="label" for="date_from">С</label>
-                <input id="date_from" name="date_from" value="<%=dateFrom%>"/>
-
-                <label class="label" for="date_to">До</label>
-                <input id="date_to" name="date_to" value="<%=dateTo%>"/>
+            <div class="inline-b va-t">
+                <div class="inline-b mb-15">
+                    <label class="label_inline" for="date_from">С</label>
+                    <input id="date_from" class="input_date" name="date_from" value="<%=dateFrom%>"/>
+                </div>
+                <div class="inline-b mb-15 ml-15">
+                    <label class="label_inline" for="date_to">До</label>
+                    <input id="date_to" class="input_date" name="date_to" value="<%=dateTo%>"/>
+                </div>
             </div>
-            <div class="inline-b mb-15">
-                <label class="label" for="SearchText">Текст в сообщении:</label>
-                <input type = "text" id="SearchText" name="search_text" value="<%=searchText%>"/>
-
-                <label class="label" for="TelNo">Номер телефона:</label>
-                <input type = "text" id="SearchText" name="tel_no" value="<%=telNo%>"/>
+            <div class="inline-b va-t ml-15">
+                <div class="inline-b mb-15">
+                    <label class="label_inline" for="SearchText">Текст в<br>сообщении</label>
+                    <textarea id="SearchText" class="textarea__text" type="text" name="search_text" value="<%=searchText%>"></textarea>
+                </div>
+                <div class="inline-b mb-15 ml-15">
+                    <label class="label_inline" for="TelNo">Номер<br>телефона</label>
+                    <input id="SearchText" class="inline-b va-t" type="text" name="tel_no" value="<%=telNo%>"/>
+                </div>
             </div>
             <input hidden type="text" name="FLTR_DATA" value="1"/>
             <br>
             <input id="analytics-submit--true" class="btn blbc white mr-15" type="submit" name="filter_submit" value="Фильтровать"/>
-            <a class="btn p-9 lbc black tdn inline-b" onclick="return confirm('Сбросить фильтры?');" href="<%= baseUrl + "msgs"%>">Сбросить фильтры</a>
+            <a class="btn_a" onclick="return confirm('Сбросить фильтры?');" href="<%= baseUrl + "msgs"%>">Сбросить фильтры</a>
         </form>
 
         <table class="table mt-20">
@@ -88,7 +94,11 @@
                 %>
                 <tr>
                     <td><%= id%></td>
-                    <td class="<%= curType%>"><%= curMessage%></td>
+                    <td>
+                        <p class="<%= curType%>">
+                            <%= curMessage%>
+                        </p>
+                    </td>
                     <td><%= curTelNo%></td>
                     <td><%= curType%></td>
                     <td><%= curDate%></td>
@@ -99,27 +109,5 @@
         </table>
     </div>
 </div>
-
-<script type="text/javascript">
-    $(document).ready(function () {
-        $('#date_from').datepicker({
-            onClose: function (selectedDate) {
-                $('#date_to').datepicker("option", "minDate", selectedDate);
-            }
-        });
-        $('#date_to').datepicker({
-            onClose: function (selectedDate) {
-                $('#date_from').datepicker("option", "maxDate", selectedDate);
-            }
-        });
-
-    <%if (!dateFrom.isEmpty()) {%>
-        $('#date_to').datepicker("option", "minDate", '<%=dateFrom%>');
-    <%}%>
-    <%if (!dateTo.isEmpty()) {%>
-        $('#date_from').datepicker("option", "maxDate", '<%=dateTo%>');
-    <%}%>
-    });
-</script>
 </body>
 </html>

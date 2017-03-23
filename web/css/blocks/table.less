@@ -1,6 +1,7 @@
 .table {
     width: 100%;
-    word-break: break-word;
+   // word-break: break-word;
+    word-break: break-all;
     thead {
         tr {
             .lbc;
@@ -30,11 +31,15 @@
     }
     td {
         .pl-20;
-        .va-m;
+        .va-t;
     }
-    .inbox {
-        .ta-r;
-    }    
+    .inbox, .outbox {
+        .w-85;
+    }
+    .outbox {
+        .block;
+        .fl-r;
+    }
 }
 .table__messages {
     .mt-20;

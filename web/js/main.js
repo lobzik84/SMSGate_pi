@@ -27,4 +27,31 @@ $(function () {
         $('.form_hide').toggleClass('block');
     });
 
+    $('.publicKey_copy').click(function () {
+        $(this).siblings('.publicKey_full').toggleClass('block');
+    });
+
+    $('#date_from').datepicker({
+        onClose: function (selectedDate) {
+            $('#date_to').datepicker("option", "minDate", selectedDate);
+        }
+    });
+
+    $('#date_to').datepicker({
+        onClose: function (selectedDate) {
+            $('#date_from').datepicker("option", "maxDate", selectedDate);
+        }
+    });
+
+    if ($('.input_date')[0]) {
+        var dateMin = $('#date_from').val();
+        var dateMax = $('#date_to').val()
+        if (dateMin.length !== 0) {
+            $('#date_to').datepicker("option", "minDate", 'dateMin');
+        }
+        if (dateMax.length !== 0) {
+            $('#date_from').datepicker("option", "maxDate", 'dateMax');
+        }
+    }
+
 });
