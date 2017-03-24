@@ -1,5 +1,5 @@
 $(function () {
-
+    
     $('.label_blue').click(function () {
         $('.textarea__message').val('Это тест');
         var current = $('.textarea__message').val().length;

@@ -8,16 +8,16 @@ var paths = {
     scripts: [
         'web/js/**/**/*.js',
         'web/js/**/*.js',        
-        '!web/js/*.js',
-        '!web/js/min/*.js',
+        'web/js/*.js',
     ]
 };
 var orders = {
     scripts: [
         'libs/jquery/*.js',
-        'libs/**/*.js',
+        'libs/jquery-ui/*.js',
         'libs/*.js',
-        'plugins/*.js',
+        'plugins/highstock/*.js',
+        'plugins/exporting/*.js',
         'src/*.js'
     ]
 };

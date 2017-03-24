@@ -15,14 +15,7 @@
         <title>SMS-Gate Admin profile</title>        
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css?v=1.0">
-<!--        <script type="text/javascript" src="<%=request.getContextPath()%>/js/min/main.min.js"></script>-->
-        <script src="<%=request.getContextPath()%>/js/jquery-3.1.1.min.js"></script>
-        <script src="<%=request.getContextPath()%>/js/highstock.js"></script>
-        <script src="<%=request.getContextPath()%>/js/exporting.js"></script>
-        <script src="<%=request.getContextPath()%>/js/jquery-ui.js"></script>
-        <script src="<%=request.getContextPath()%>/js/jquery.ui.datepicker-ru.js"></script>
-        <script src="<%=request.getContextPath()%>/js/main.js"></script>
-
+        <script type="text/javascript" src="<%=request.getContextPath()%>/js/min/main.min.js"></script>
     </head>
     <body class="abc">
         <header class="header">
