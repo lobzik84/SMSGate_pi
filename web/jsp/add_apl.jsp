@@ -11,15 +11,17 @@
     String baseUrl = request.getContextPath() + request.getServletPath() + "/";
 
     ArrayList<HashMap> appList = new ArrayList<HashMap>();
+
     if (JspData != null) {
         appList = (ArrayList<HashMap>) Tools.isNull(JspData.get("APP_LIST"), new ArrayList<HashMap>());
         for (HashMap hm : appList) {
             String fullPublicKey = Tools.getStringValue(hm.get("public_key"), "");
-            String shortPublicKey = fullPublicKey.substring(0, 5) + "..." + fullPublicKey.substring((fullPublicKey.length() - 5));
-            hm.put("shortPublicKey", shortPublicKey);
+            if (fullPublicKey.length() > 12) {
+                String shortPublicKey = fullPublicKey.substring(0, 5) + "..." + fullPublicKey.substring((fullPublicKey.length() - 5));
+                hm.put("shortPublicKey", shortPublicKey);
+            }
         }
     }
-
 %>
 <jsp:include page="header.jsp" />
 
@@ -56,7 +58,7 @@
                     <td class="w-50">
                         public_key
                     </td>
-                     <td class="w-10">
+                    <td class="w-10">
                         delete
                     </td>
                 </tr>
@@ -73,7 +75,7 @@
                     <td><%= name%></td>
                     <td>
                         <p class="publicKey_copy" title="Скопировать" data-key="">
-                            <%= shortPublicKey%>
+                            <%= shortPublicKey.length() > 0 ? shortPublicKey : fullPublicKey%>
                         </p>
                         <p class="publicKey_full none">
                             <%= fullPublicKey%>
@@ -84,7 +86,7 @@
                     </td>
                 </tr>
                 <%}%>
-                </tbody>
+            </tbody>
         </table>
     </div>
 </div>
