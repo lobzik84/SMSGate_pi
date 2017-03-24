@@ -22,7 +22,7 @@
 <div class="content__layout">
     <div class="content__table">
 
-        <h2>Администраторы шлюза</h2>
+        <p class="title">Администраторы шлюза</p>
 
         <%if (isRoot) {%>
 
@@ -30,11 +30,11 @@
 
         <form class="form_hide none" action="<%= baseUrl + "addadm"%>" method="post">
             <div class="inline-b">
-                <label class="label mt-10">Login:</label>
+                <label class="label mt-10">Login</label>
                 <input type="text" name="login" />
             </div>
             <div class="inline-b ml-10 mr-10 va-t">
-                <label class="label mt-10">Password:</label>
+                <label class="label mt-10">Password</label>
                 <input type="text" name="password"/>
             </div>
             <input hidden type="text" name="ADD_ME" value="1"/>

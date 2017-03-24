@@ -31,7 +31,7 @@
 <div class="content__layout">
     <div class="content__table">
 
-        <h2 class="mb-20">Сообщения</h2>
+        <p class="title mb-20">Сообщения</p>
 
         <form id="filters_form" action="<%=baseUrl + "msgs"%>" method="POST">
             <div class="inline-b va-t">

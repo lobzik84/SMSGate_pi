@@ -1,5 +1,5 @@
 $(function () {
-    
+
     $('.label_blue').click(function () {
         $('.textarea__message').val('Это тест');
         var current = $('.textarea__message').val().length;
@@ -52,6 +52,18 @@ $(function () {
         if (dateMax.length !== 0) {
             $('#date_from').datepicker("option", "maxDate", 'dateMax');
         }
+    }
+
+    if ($('.textarea__key')[0]) {
+        $('.label_wrong').hide();
+        $('.textarea__key').keyup(function () {
+            if (this.value.length > 256) {
+                this.value = this.value.substr(0, 257);
+                $('.label_wrong').show();
+            } else {
+                $('.label_wrong').hide();
+            }
+        });
     }
 
 });

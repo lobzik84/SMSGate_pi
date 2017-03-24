@@ -49,7 +49,7 @@
 
 <jsp:include page="header.jsp" />
 
-<div class="content__layout">
+<div class="content__layout content__layout_main">
     <div class="content__top">
         <div id="container" class="chart"></div><!--
         --><div class="chart__total">
@@ -69,7 +69,7 @@
         </div>
     </div>
     <div class="content__block content__block_left">
-        <h2>Сообщения</h2>
+        <p class="title">Сообщения</p>
         <table class="table__messages">
             <thead>
             </thead>
@@ -114,7 +114,7 @@
     <div class="content__padding"></div>
 
     <div class="content__block content__block_right">
-        <h2>Отправить сообщение:</h2>
+        <p class="title">Отправить сообщение</p>
         <form class="block w-100" action="<%= baseUrl + "sendmsg"%>" method="post">
             <label class="label lgray mt-20">Номер телефона</label>
             <input class="input_phone" type="text" name="recipient" placeholder="+7 (___) ___-__-__"/>

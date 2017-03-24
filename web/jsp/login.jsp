@@ -22,7 +22,7 @@
                 smsity
             </div>
             <div class="login__form">
-                <h2 class="mb-25">Войти в систему</h2>
+                <p class="title mb-25">Войти в систему</p>
                 <form action="<%= baseUrl + "login"%>" method="post">
                     <label class="label">Логин</label>
                     <input class="login__input mb-20" type="text" name="login"/>
