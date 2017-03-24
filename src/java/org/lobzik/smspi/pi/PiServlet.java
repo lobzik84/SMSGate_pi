@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.log4j.Logger;
+import org.lobzik.home_sapiens.entity.Measurement;
+import org.lobzik.home_sapiens.entity.Parameter;
 import org.lobzik.smspi.pi.event.Event;
 import org.lobzik.smspi.pi.modules.ModemModule;
 import org.lobzik.tools.Tools;
@@ -47,6 +49,13 @@ public class PiServlet extends HttpServlet {
         localPathInfo = localPathInfo.replace("/", "");
 
         HashMap jspData = new HashMap();
+        Parameter p = AppData.parametersStorage.getParameterByAlias("MODEM_RSSI");
+        Measurement m = AppData.measurementsCache.getLastMeasurement(p);
+        int rssi = -101;//сигнал сети, дБ. <100 нет фишек, 100<rssi<90 одна фишка, 90<rssi<80 две фишки, 80<rssi<70 три фишки, >70 четыре фишки        
+        if (m != null) {
+            rssi = (int) (double) m.getDoubleValue();
+        } 
+        jspData.put("RSSI", rssi);
         String baseUrl = request.getContextPath() + request.getServletPath();
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
 

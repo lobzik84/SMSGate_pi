@@ -9,6 +9,17 @@
         return;
     }
     String headUrl = Tools.getStringValue(JspData.get("head_url"), "");
+    int rssi = Tools.parseInt(JspData.get("RSSI"),-1);
+    int signalLevel = -1;
+    if (rssi < -100 && rssi >= -90){
+        signalLevel = 1;
+    } else if (rssi < -90 && rssi >= -80){
+        signalLevel = 2;
+    } else if (rssi < -80 && rssi >= -70){
+        signalLevel = 3;
+    } else if (rssi < -70){
+        signalLevel = 4;
+    }
 %>
 <html lang="ru">
     <head>
@@ -42,7 +53,7 @@
                     <a class="header__user_logout" href="<%= baseUrl + "logout"%>">Выйти</a>
                 </div>
                 <div class="header__dbm">
-                    - 88 dBm
+                    <p class="<%= signalLevel%>"><%= rssi%></p>
                 </div>
             </div>
         </header>
