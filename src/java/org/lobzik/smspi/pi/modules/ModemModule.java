@@ -38,6 +38,8 @@ import org.lobzik.tools.sms.COutgoingMessage;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.lobzik.home_sapiens.entity.Measurement;
+import org.lobzik.home_sapiens.entity.Parameter;
 /**
  *
  * @author lobzik
@@ -77,6 +79,9 @@ public class ModemModule extends Thread implements Module {
 
     private static final AtomicBoolean modemBusy = new AtomicBoolean(false);
 
+    public static final String regex = "[0-9\\.]+ *р\\.";//будет в настройках
+    public static final String replacer = "р.";//будет в настройках
+    
     private ModemModule() { //singleton
     }
 
@@ -150,7 +155,22 @@ public class ModemModule extends Thread implements Module {
                 AppData.eventManager.newEvent(event);
             }
             log.debug("Operator is " + operator);
+            
+            int operatorparamId = AppData.parametersStorage.resolveAlias("MODEM_OPERATOR");
+            if (operatorparamId > 0) {
+                Parameter p = AppData.parametersStorage.getParameter(operatorparamId);
+                Measurement m = new Measurement(p, operator);
+                if (!test) {
+                    HashMap eventData = new HashMap();
+                    eventData.put("parameter", p);
+                    eventData.put("measurement", m);
+                    event = new Event("operator_detected", eventData, Event.Type.PARAMETER_UPDATED);
 
+                    AppData.eventManager.newEvent(event);
+                }
+            }
+            
+            
             recievedLines.clear();
             waitForCommand("AT+CREG=2\r", outWriter);
             waitForCommand("AT+CREG?\r", outWriter);
@@ -160,11 +180,40 @@ public class ModemModule extends Thread implements Module {
                 AppData.eventManager.newEvent(event);
             }
             log.debug("Cell ID is " + cellId);
+            int cellIdparamId = AppData.parametersStorage.resolveAlias("MODEM_CELLID");
+            if (cellIdparamId > 0) {
+                Parameter p = AppData.parametersStorage.getParameter(cellIdparamId);
+                Measurement m = new Measurement(p, cellId.toString());
+                if (!test) {
+                    HashMap eventData = new HashMap();
+                    eventData.put("parameter", p);
+                    eventData.put("measurement", m);
+                    event = new Event("Cell ID updated", eventData, Event.Type.PARAMETER_UPDATED);
 
+                    AppData.eventManager.newEvent(event);
+                }
+            }
+                    
             waitForCommand("AT+CSCA?\r", outWriter);
             smscNumber = parseCSCAReply(recievedLines);
             log.debug("SMSC is " + smscNumber);
 
+            String myNumber = checkNumber();
+            int myNumberparamId = AppData.parametersStorage.resolveAlias("MODEM_NUMBER");
+            if (myNumberparamId > 0 && myNumber.length()==11) {
+                Parameter p = AppData.parametersStorage.getParameter(myNumberparamId);
+                Measurement m = new Measurement(p, cellId.toString());
+                if (!test) {
+                    HashMap eventData = new HashMap();
+                    eventData.put("parameter", p);
+                    eventData.put("measurement", m);
+                    event = new Event("Mobile number updated", eventData, Event.Type.PARAMETER_UPDATED);
+
+                    AppData.eventManager.newEvent(event);
+                }
+            }
+                        
+            
             while (run) {
                 try {
 
@@ -234,6 +283,21 @@ public class ModemModule extends Thread implements Module {
                     waitForCommand("AT+CSQ\r", outWriter);
                     int db = parseCSQReply(recievedLines);
                     log.debug("RSSI = " + db + " dBm");
+                    
+                    int paramId = AppData.parametersStorage.resolveAlias("MODEM_RSSI");
+                    if (paramId > 0) {
+                        Parameter p = AppData.parametersStorage.getParameter(paramId);
+                        Measurement m = new Measurement(p, Tools.parseDouble(db + "", null));
+                        if (!test) {
+                            HashMap eventData = new HashMap();
+                            eventData.put("parameter", p);
+                            eventData.put("measurement", m);
+                            event = new Event("RSSI updated", eventData, Event.Type.PARAMETER_UPDATED);
+
+                            AppData.eventManager.newEvent(event);
+                        }
+                    }
+                    
                     HashMap rssiData = new HashMap();
                     rssiData.put("RSSI", db);
                     event = new Event("modem_mode_updated", rssiData, Event.Type.SYSTEM_EVENT);
@@ -341,6 +405,23 @@ public class ModemModule extends Thread implements Module {
 
                         break;
 
+                        case "check_balance":
+                            Double myBalabce = checkBalance();
+                            int myNumberparamId = AppData.parametersStorage.resolveAlias("MODEM_BALANCE");
+                            if (myNumberparamId > 0 && myBalabce>=0) {
+                                Parameter p = AppData.parametersStorage.getParameter(myNumberparamId);
+                                Measurement m = new Measurement(p, myBalabce);
+                                if (!test) {
+                                    HashMap eventData = new HashMap();
+                                    eventData.put("parameter", p);
+                                    eventData.put("measurement", m);
+                                    Event event = new Event("Balance updated", eventData, Event.Type.PARAMETER_UPDATED);
+
+                                    AppData.eventManager.newEvent(event);
+                                }
+                            }
+
+                        break;
                 }
                 break;
 
@@ -627,22 +708,31 @@ public class ModemModule extends Thread implements Module {
 
     }
     
-    public String checkBalance() {
-        String myNumber = "";
+    public Double checkBalance() {
+        Double balance = -1D;
         try {
             log.debug("Checking number");
             waitForCommand("AT^USSDMODE=0\r", outWriter);
             recievedLines.clear();
             waitForCommand("AT+CUSD=1,\"*100#\",15\r", outWriter); //MEGAFON-specific!!
             waitForCommand(null, outWriter, 4 * MODEM_TIMEOUT);
-            myNumber = parseUSSDUCS2numReply(recievedLines);
+            String balanceString = parseUSSDUCS2numReply(recievedLines);
 
-            
-            log.debug("Recieved number " + myNumber);
-        }
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(balanceString);
+            if (matcher.find()) {
+                String sVal = matcher.group(0);
+                System.out.println(sVal);
+                sVal = sVal.replaceAll(replacer, "").trim();
+                System.out.println(sVal);
+                balance = Tools.parseDouble(sVal, 0);
+            }
+
+                log.debug("Recieved number " + balanceString);
+            }
         catch (Exception eee)
         {}
-        return myNumber;
+        return balance;
 
     }
         private String parseUSSDUCS2numReply(Queue<String> replyLines) {

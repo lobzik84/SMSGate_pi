@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context antiResourceLocking="true" path="/smspi">
-  <Resource auth="Container" defaultTransactionIsolation="READ_COMMITTED" driverClassName="com.mysql.jdbc.Driver" factory="org.apache.commons.dbcp2.BasicDataSourceFactory" maxActive="25" maxIdle="8" name="jdbc/hs" password="hspass" type="javax.sql.DataSource" url="jdbc:mysql://192.168.11.222:3306/hs?useUnicode=true&amp;characterEncoding=utf8" username="hsuser" validationQuery="Select 1"/>
+  <Resource auth="Container" defaultTransactionIsolation="READ_COMMITTED" driverClassName="com.mysql.jdbc.Driver" factory="org.apache.commons.dbcp2.BasicDataSourceFactory" maxActive="25" maxIdle="8" name="jdbc/hs" password="hspass" type="javax.sql.DataSource" url="jdbc:mysql://192.168.11.22:3306/hs?useUnicode=true&amp;characterEncoding=utf8" username="hsuser" validationQuery="Select 1"/>
 </Context>

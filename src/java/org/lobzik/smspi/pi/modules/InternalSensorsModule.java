@@ -12,8 +12,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.HashMap;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
+import org.lobzik.home_sapiens.entity.Measurement;
+import org.lobzik.home_sapiens.entity.Parameter;
 
 import org.lobzik.smspi.pi.AppData;
 
@@ -21,6 +24,7 @@ import org.lobzik.smspi.pi.BoxCommonData;
 import org.lobzik.smspi.pi.ConnJDBCAppender;
 import org.lobzik.smspi.pi.event.Event;
 import org.lobzik.smspi.pi.event.EventManager;
+import org.lobzik.tools.Tools;
 
 /**
  *
@@ -111,7 +115,7 @@ public class InternalSensorsModule extends Thread implements Module {
         run = false;
     }
 
-    /*private void parseUartReply(String data) {
+    private void parseUartReply(String data) {
         try {
             if (data.contains("DS18B20")) {
                 String val = data.substring(data.lastIndexOf(":") + 1, data.length());
@@ -127,6 +131,7 @@ public class InternalSensorsModule extends Thread implements Module {
                 Parameter doorP = AppData.parametersStorage.getParameterByAlias("DOOR_SENSOR");
                 Parameter wetP = AppData.parametersStorage.getParameterByAlias("WET_SENSOR");
                 if (paramName.equals("433_RX")) {
+                    /*
                     Measurement m = null;
                     HashMap eventData = new HashMap();
                     String door433Addresses = BoxSettingsAPI.get("DoorSensorAddress433");
@@ -154,7 +159,7 @@ public class InternalSensorsModule extends Thread implements Module {
                         eventData.put("measurement", m);
                         Event e = new Event("433 recieved", eventData, Event.Type.PARAMETER_UPDATED);
                         AppData.eventManager.newEvent(e);
-                    }
+                    }*/
                 } else {
                     int paramId = AppData.parametersStorage.resolveAlias(paramName);
 
@@ -201,7 +206,7 @@ public class InternalSensorsModule extends Thread implements Module {
             log.error(e.getMessage());
             e.printStackTrace();
         }
-    }*/
+    }
 
     private void connect(String portName) throws Exception {
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
@@ -219,7 +224,7 @@ public class InternalSensorsModule extends Thread implements Module {
         String decodedString;
         while ((decodedString = in.readLine()) != null && run) {
             log.debug("UART: " + decodedString);
-            //parseUartReply(decodedString);
+            parseUartReply(decodedString);
         }
         in.close();
         serialWriter.finish();
