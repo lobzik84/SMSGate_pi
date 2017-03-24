@@ -178,11 +178,16 @@ public class PiServlet extends HttpServlet {
                 if (loginAdmin > 0) {
                     HashMap reqData = getRequestParameters(request);
                     if (reqData.containsKey("REG_ME") && Tools.parseInt(reqData.get("REG_ME"), -1) > 0 && Tools.getStringValue(reqData.get("name"), "").trim().length() > 0 && Tools.getStringValue(reqData.get("public_key"), "").trim().length() > 0) {
-                        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                            int newUserId = DBTools.insertRow("users", Tools.replaceTags(reqData), conn);
+                        String publicKey = Tools.getStringValue(reqData.get("public_key"), "");
+                        if (publicKey.length() <= 256) {
+                            try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                                int newUserId = DBTools.insertRow("users", Tools.replaceTags(reqData), conn);
+                                response.sendRedirect(baseUrl + "/addapp");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
                             response.sendRedirect(baseUrl + "/addapp");
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
                     } else if (reqData.containsKey("removeApp") && Tools.parseInt(reqData.get("removeApp"), -1) > 0 && reqData.containsKey("id") && Tools.parseInt(reqData.get("id"), -1) > 0) {
                         int removeId = Tools.parseInt(reqData.get("id"), -1);
@@ -288,7 +293,7 @@ public class PiServlet extends HttpServlet {
                         if (to != null) {
                             String toS = Tools.getFormatedDate(to, "dd.MM.yyyy");
                             whereString += " and a.date <= str_to_date(? ,'%d.%m.%Y %H:%i:%s')";
-                            args.add( toS + " 23:59:59");
+                            args.add(toS + " 23:59:59");
                             filterList.put("date_to", toS);
                         } else {
                             filterList.put("date_to", " ");
