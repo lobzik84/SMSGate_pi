@@ -29,11 +29,11 @@
 <jsp:include page="header.jsp" />
 
 <div class="content__layout">
-    <div class="content__table">
+    <div class="content__block">
 
         <p class="title mb-20">Сообщения</p>
 
-        <form id="filters_form" action="<%=baseUrl + "msgs"%>" method="POST">
+        <form id="filters_form" class="mb-30" action="<%=baseUrl + "msgs"%>" method="POST">
             <div class="inline-b va-t">
                 <div class="inline-b mb-15">
                     <label class="label_inline" for="date_from">С</label>
@@ -60,53 +60,30 @@
             <a class="btn_a" onclick="return confirm('Сбросить фильтры?');" href="<%= baseUrl + "msgs"%>">Сбросить фильтры</a>
         </form>
 
-        <table class="table mt-20">
-            <thead>
-                <tr>
-                    <td class="w-10">
-                        id
-                    </td>
-                    <td class="w-35">
-                        Message
-                    </td>
-                    <td class="w-15">
-                        Phone
-                    </td>
-                    <td class="w-15">
-                        Type
-                    </td>
-                    <td class="w-15">
-                        Date
-                    </td>
-                    <td class="w-10">
-                        Status
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
-                <%for (HashMap hm : msgsList) {
-                        int id = Tools.parseInt(hm.get("id"), -1);
-                        String curMessage = Tools.getStringValue(hm.get("message"), "");
-                        String curTelNo = Tools.getStringValue(hm.get("tel_no"), "");
-                        String curType = Tools.getStringValue(hm.get("type"), "");
-                        String curDate = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:SS");
-                        String curStatus = Tools.getStringValue(hm.get("status"), "");
-                %>
-                <tr>
-                    <td><%= id%></td>
-                    <td>
-                        <p class="<%= curType%>">
-                            <%= curMessage%>
-                        </p>
-                    </td>
-                    <td><%= curTelNo%></td>
-                    <td><%= curType%></td>
-                    <td><%= curDate%></td>
-                    <td><%= curStatus%></td>
-                </tr>
-                <%}%>
-            </tbody>
-        </table>
+        <div class="content__messages">
+            
+            <%for (HashMap hm : msgsList) {
+                    int id = Tools.parseInt(hm.get("id"), -1);
+                    String curMessage = Tools.getStringValue(hm.get("message"), "");
+                    String curTelNo = Tools.getStringValue(hm.get("tel_no"), "");
+                    String curType = Tools.getStringValue(hm.get("type"), "");
+                    String curDate = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:SS");
+                    String curStatus = Tools.getStringValue(hm.get("status"), "");
+            %>
+
+            <div class="message message__<%= curType%>">
+                <div class="message__block message__block_<%= curType%>">
+                    <p class="message__phone"><%= curTelNo%></p>
+                    <p class="message__text"><%= curMessage%></p>
+                    <p class="message__date"> <span class="message__icon message__icon_<%= curType%>"></span><%= curDate%> <span class="message__status">1</span></p>
+                </div>
+            </div>
+
+            <%
+                }
+            %>
+
+        </div>
     </div>
 </div>
 </body>

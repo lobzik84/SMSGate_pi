@@ -66,4 +66,45 @@ $(function () {
         });
     }
 
+    function signalPoint() {
+        var dBmValue = $('.counter_dBm').text();
+        dBmValue = dBmValue.toString();
+        if (dBmValue < -100) {
+            $('.min').addClass('dBm_opacity');
+            $('.low').addClass('dBm_opacity');
+            $('.middle').addClass('dBm_opacity');
+            $('.good').addClass('dBm_opacity');
+        }
+        if (dBmValue < -90 && dBmValue >= -100) {
+            $('.min').removeClass('dBm_opacity');
+            $('.low').addClass('dBm_opacity');
+            $('.middle').addClass('dBm_opacity');
+            $('.good').addClass('dBm_opacity');
+        }
+        if (dBmValue < -80 && dBmValue >= -90) {
+            $('.min').removeClass('dBm_opacity');
+            $('.low').removeClass('dBm_opacity');
+            $('.middle').addClass('dBm_opacity');
+            $('.good').addClass('dBm_opacity');
+        }
+        if (dBmValue < -70 && dBmValue >= -80) {
+            $('.min').removeClass('dBm_opacity');
+            $('.low').removeClass('dBm_opacity');
+            $('.middle').removeClass('dBm_opacity');
+            $('.good').addClass('dBm_opacity');
+        }
+        if (dBmValue >= -70) {
+            $('.min').removeClass('dBm_opacity');
+            $('.low').removeClass('dBm_opacity');
+            $('.middle').removeClass('dBm_opacity');
+            $('.good').removeClass('dBm_opacity');
+        }
+    }
+    
+    signalPoint();
+    
+    $('.counter_dBm').bind("DOMSubtreeModified", function () {
+        signalPoint();
+    });
+
 });

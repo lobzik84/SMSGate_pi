@@ -9,17 +9,7 @@
         return;
     }
     String headUrl = Tools.getStringValue(JspData.get("head_url"), "");
-    int rssi = Tools.parseInt(JspData.get("RSSI"),-1);
-    int signalLevel = -1;
-    if (rssi < -100 && rssi >= -90){
-        signalLevel = 1;
-    } else if (rssi < -90 && rssi >= -80){
-        signalLevel = 2;
-    } else if (rssi < -80 && rssi >= -70){
-        signalLevel = 3;
-    } else if (rssi < -70){
-        signalLevel = 4;
-    }
+    int rssi = Tools.parseInt(JspData.get("RSSI"), -1);
 %>
 <html lang="ru">
     <head>
@@ -53,8 +43,17 @@
                     <a class="header__user_logout" href="<%= baseUrl + "logout"%>">Выйти</a>
                 </div>
                 <div class="header__dbm">
-                    <p class="<%= signalLevel%>"><%= rssi%></p>
+                    <?xml version="1.0" standalone="no"?>
+                    <svg class="dBm_svg" width="19" height="16" viewBox="0 0 19 16" xmlns="http://www.w3.org/2000/svg" version="1.1">
+                    <style>
+                        svg { -webkit-background-clip: text; }
+                    </style>
+                    <rect class="min" width="4" height="4" x="0" y="12" fill="#ffffff" />
+                    <rect class="low" width="4" height="8" x="5" y="8" fill="#ffffff" />
+                    <rect class="middle" width="4" height="12" x="10" y="4" fill="#ffffff" />
+                    <rect class="good" width="4" height="16" x="15" y="0" fill="#ffffff" />
+                    </svg>
+                    <p class="counter_dBm"><%=rssi%></p> dBm
                 </div>
             </div>
         </header>
-
