@@ -1,3 +1,4 @@
+<%@page import="org.lobzik.smspi.pi.modules.ModemModule"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="org.lobzik.tools.Tools"%>
@@ -24,6 +25,22 @@
     String dateFrom = Tools.getStringValue(filterList.get("date_from"), "");
     String dateTo = Tools.getStringValue(filterList.get("date_to"), "");
 
+    HashMap msgStringStatuses = new HashMap();
+    HashMap msgCssClassStatuses = new HashMap();
+    msgStringStatuses.put(ModemModule.STATUS_NEW, "Новое");
+    msgCssClassStatuses.put(ModemModule.STATUS_NEW, "new");
+    msgStringStatuses.put(ModemModule.STATUS_SENT, "Отправлено");
+    msgCssClassStatuses.put(ModemModule.STATUS_SENT, "sent");
+    msgStringStatuses.put(ModemModule.STATUS_READ, "Прочитано");
+    msgCssClassStatuses.put(ModemModule.STATUS_READ, "read");
+    msgStringStatuses.put(ModemModule.STATUS_ERROR_SENDING, "Ошибка отправления");
+    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_SENDING, "error");
+    msgStringStatuses.put(ModemModule.STATUS_ERROR_TOO_OLD, "Слишком старая");
+    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_TOO_OLD, "sad_pedobear");
+    msgStringStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "Превышено колличество попыток отправки");
+    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "exceeded");
+    msgStringStatuses.put(ModemModule.STATUS_SENDING, "Отправляется");
+    msgCssClassStatuses.put(ModemModule.STATUS_SENDING, "sending");
 %>
 
 <jsp:include page="header.jsp" />
@@ -68,7 +85,7 @@
                     String curTelNo = Tools.getStringValue(hm.get("tel_no"), "");
                     String curType = Tools.getStringValue(hm.get("type"), "");
                     String curDate = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:SS");
-                    String curStatus = Tools.getStringValue(hm.get("status"), "");
+                    int curStatus = Tools.parseInt(hm.get("status"), -1);
             %>
 
             <div class="message message__<%= curType%>">
@@ -78,7 +95,7 @@
                     <p class="message__date"> 
                         <span class="message__icon message__icon_<%= curType%>"></span>
                         <%= curDate%> 
-                        <span class="message__status message__status_<%= curStatus%>"></span></p>
+                        <span class="message__status message__status_<%= Tools.getStringValue(msgCssClassStatuses.get(curStatus), "")%>"></span></p>
                 </div>
             </div>
 
