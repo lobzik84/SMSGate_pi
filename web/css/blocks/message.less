@@ -1,0 +1,53 @@
+.message {
+    .w-100;
+    .relative;
+    border-bottom: 2px solid @white;
+    min-height: 114px;
+}
+
+.message__block {
+    .ta-l;
+    .os-r;
+    .inline-b;
+    width: 46%;
+    font-size: 14px;
+    line-height: 21px;
+    padding: 10px;
+    &_outbox {
+        .absolute;
+        right: 0px;
+    }
+    &_inbox {
+        background-color: rgba(77, 182, 172, 0.2);;
+    }
+    &_outbox {
+        background-color: rgba(33, 150, 243, 0.2);
+    }
+}
+
+.message__phone {
+    .os-sb;
+    font-size: 13px;
+}
+.message__date {
+    .lgray;
+    .os-sb;
+    .mt-10;
+    font-size: 13px;
+}
+.message__text {
+    height: 42px;
+}
+.message__icon {
+    .inline-b;
+    .va-t;
+    width: 16px;
+    height: 16px;
+    .mr-5;
+    &_inbox {
+        background: url('@{img_path}/inbox.png') no-repeat center center;
+    }
+    &_outbox {
+        background: url('@{img_path}/outbox.png') no-repeat center center;
+    }
+}

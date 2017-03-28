@@ -1,0 +1,49 @@
+.login__block {
+    .absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    width: 500px;
+    height: 500px;
+    margin: auto;
+}
+.login__form {
+    .p-20;
+    .rounded-corners(5px);
+    .wbc;
+    margin: auto;
+    width: 305px;
+    height: 315px;
+    form {
+        .relative;
+        height: 87%;
+    }
+}
+.login__title {
+    .ta-c;
+    .mb-25;
+    .accuratist;
+    font-size: 32px;
+}
+.login__input {
+    .block;
+    .os-r;
+    .p-15;
+    font-size: 17px;
+    width: 90%;
+    height: 20px;
+    line-height: 20px;
+    &_button {
+        .absolute;
+        .os-sb;
+        .pointer;
+        padding: 12px 15px;
+        bottom: 0px;
+        left: 0px;
+        font-size: 14px;
+        &:focus {
+            border: 1px solid @gray;
+        }
+    }
+}

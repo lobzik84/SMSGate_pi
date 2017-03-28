@@ -75,6 +75,9 @@ public class CIncomingMessage extends CMessage
 		index = j + k + 2;
 		str1 = "" + pdu.charAt(index) + pdu.charAt(index + 1);
 		protocol = Integer.parseInt(str1, 16);
+                str1 = decodeText(pdu.substring(index + 2), protocol & 0x0C);
+                setText(str1);
+
 		index += 2;
 		year = Integer.parseInt("" + pdu.charAt(index + 1) + pdu.charAt(index)); index += 2;
 		month = Integer.parseInt("" + pdu.charAt(index + 1) + pdu.charAt(index)); index += 2;
@@ -90,7 +93,7 @@ public class CIncomingMessage extends CMessage
 		cal.set(Calendar.MINUTE, min);
 		cal.set(Calendar.SECOND, sec);
 		date = cal.getTime();
-		str1 = decodeText(pdu.substring(index + 2), protocol & 0x0C);
+		
 //		switch (protocol & 0x0C)
 //		{
 //			case 0:
@@ -123,7 +126,6 @@ public class CIncomingMessage extends CMessage
 //		}
 		setOriginator(originator);
 		setDate(date);
-		setText(str1);
 	}
 
 	/**
@@ -140,5 +142,7 @@ public class CIncomingMessage extends CMessage
 		@return	 the originator's phone number.
 	*/
 	public String getOriginator() { return originator; }
+        
+
 
 }

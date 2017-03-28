@@ -6,11 +6,18 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*"%>
 <%@ page import="org.lobzik.smspi.pi.*"%>
+<%
+response.sendRedirect(request.getContextPath()+"/adm");
+    String baseUrl = request.getContextPath();
+%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
+        <script src="js/jquery-3.1.1.min.js"></script>
+        <script src="js/highstock.js"></script>
+        <script src="js/exporting.js"></script>
     </head>
     <body>
         <h1>SMS-gate</h1>
@@ -18,7 +25,6 @@
         <br>
         <%
             request.setCharacterEncoding("UTF-8");
- 
 
             if (request.getMethod().equalsIgnoreCase("POST")) {
                 String command = request.getParameter("command");
@@ -42,7 +48,7 @@
                     Event e = new Event("send_sms", data, Event.Type.USER_ACTION);
                     AppData.eventManager.newEvent(e);
                 }
-                 if (system_event != null && system_event.length() > 0) {
+                if (system_event != null && system_event.length() > 0) {
                     Event e = new Event(system_event, null, Event.Type.SYSTEM_EVENT);
                     AppData.eventManager.newEvent(e);
                 } else if (event != null && event.length() > 0) {
@@ -76,8 +82,67 @@
             Text:<input type="text" name="sms" /><input type="submit" value="Send" name="submit" />
         </form> <br> <br>
         <br>
-
-
-
+        <br>
+        <br>
+        <div id="container" style="height: 400px; width: 800px;"></div>
     </body>
+
+    <script type="text/javascript">
+        $.getJSON("<%= baseUrl + "/HighchartsJsonServlet"%>", function (data) {
+            //data.data1.push([1483218000000, 10]);
+            //data.data2.push([1483218000000, 5]);
+            Highcharts.stockChart('container', {
+                chart: {
+                    alignTicks: false
+                },
+                rangeSelector: {
+                    selected: 1
+                },
+                title: {
+                    text: 'Диаграмма отправки/приема СМС'
+                },
+                series: [{
+                        type: 'column',
+                        name: 'Колличество отправленных СМС',
+                        data: data.data1,
+                        dataGrouping: {
+                            approximation: "sum",
+                            enabled: true,
+                            forced: true,
+                            units: [[
+                                    'hour', // unit name
+                                    [1] // allowed multiples
+                                ], [
+                                    'day', // unit name
+                                    [1] // allowed multiples
+                                ], [
+                                    'month',
+                                    [1]
+                                ]]
+                        }
+                    },
+                    {type: 'column',
+                        name: 'Колличество принятых СМС',
+                        data: data.data2,
+                        dataGrouping: {
+                            approximation: "sum",
+                            enabled: true,
+                            forced: true,
+                            units: [[
+                                    'hour', // unit name
+                                    [1] // allowed multiples
+                                ], [
+                                    'day', // unit name
+                                    [1] // allowed multiples
+                                ], [
+                                    'month',
+                                    [1]
+                                ]]
+                        }
+                    }]
+            });
+        });
+
+
+    </script>
 </html>

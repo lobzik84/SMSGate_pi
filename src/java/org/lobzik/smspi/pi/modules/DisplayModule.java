@@ -203,7 +203,12 @@ public class DisplayModule implements Module {
     }
 
     public static void finish() {
-        instance.fbiRunner.finish();
+        try {
+            instance.fbiRunner.finish();
+            Tools.sysExec("sudo killall -9 fbi", new File("/"));
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
     }
 
     /*
@@ -358,4 +363,5 @@ public class DisplayModule implements Module {
             }
         }
     }
+
 }
