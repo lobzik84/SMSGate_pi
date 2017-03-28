@@ -49,7 +49,7 @@
 
 <jsp:include page="header.jsp" />
 
-<div class="content__layout content__layout_main">
+<div class="content__layout_main">
     <div class="content__top">
         <div id="container" class="chart"></div><!--
         --><div class="chart__total">

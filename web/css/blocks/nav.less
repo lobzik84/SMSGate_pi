@@ -15,16 +15,20 @@
     .inline-b;
     height: 100%;
     padding: 0 20px;
-    .nav__link {
-        .black;
-    }
     &_active {
         .abc;
         .nav__link {
             .white;
+            &:hover {
+                .opacity(1);
+            }
         }
     }
 }
 .nav__link {
+    .black;
     .tdn;
+    &:hover {
+        .opacity(0.7);
+    }
 }
