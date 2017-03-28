@@ -12,12 +12,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import org.lobzik.smspi.pi.event.Event;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,13 +40,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.lobzik.home_sapiens.entity.Measurement;
 import org.lobzik.home_sapiens.entity.Parameter;
+
 /**
  *
  * @author lobzik
  */
 public class ModemModule extends Thread implements Module {
-
-    public static boolean test = false;
 
     public final String MODULE_NAME = this.getClass().getSimpleName();
     private static ModemModule instance = null;
@@ -69,8 +68,8 @@ public class ModemModule extends Thread implements Module {
     private static String lastRecieved = "";
 
     private static CommPort commPort = null;
-    private static ModemSerialReader serialReader = null;
-    private static OutputStreamWriter outWriter = null;
+    private static final ModemSerialReader serialReader = new ModemSerialReader();
+    private static final ModemSerialWriter serialWriter = new ModemSerialWriter();
     private static final int REPLIES_BUFFER_SIZE = 100;
     private static final Queue<String> recievedLines = new ConcurrentLinkedQueue();
 
@@ -81,7 +80,7 @@ public class ModemModule extends Thread implements Module {
 
     public static final String regex = "[0-9\\.]+ *р\\.";//будет в настройках
     public static final String replacer = "р.";//будет в настройках
-    
+
     private ModemModule() { //singleton
     }
 
@@ -90,10 +89,10 @@ public class ModemModule extends Thread implements Module {
         if (instance == null) {
             instance = new ModemModule(); //lazy init
             log = Logger.getLogger(instance.MODULE_NAME);
-            if (!test) {
-                Appender appender = ConnJDBCAppender.getAppenderInstance(AppData.dataSource, instance.MODULE_NAME);
-                log.addAppender(appender);
-            }
+
+            Appender appender = ConnJDBCAppender.getAppenderInstance(AppData.dataSource, instance.MODULE_NAME);
+            log.addAppender(appender);
+
         }
         return instance;
     }
@@ -102,7 +101,7 @@ public class ModemModule extends Thread implements Module {
     public String getModuleName() {
         return MODULE_NAME;
     }
-   
+
     @Override
     public void run() {
         setName(this.getClass().getSimpleName() + "-Thread");
@@ -112,11 +111,9 @@ public class ModemModule extends Thread implements Module {
         EventManager.subscribeForEventType(this, Event.Type.SYSTEM_EVENT);
 
         try {
-            if (test) {
-                conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/hs?useUnicode=true&amp;characterEncoding=utf8&user=hsuser&password=hspass");
-            } else {
-                conn = DBTools.openConnection(BoxCommonData.dataSourceName);
-            }
+
+            conn = DBTools.openConnection(BoxCommonData.dataSourceName);
+
             CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(BoxCommonData.MODEM_INFO_PORT);
 
             commPort = portIdentifier.open(this.getClass().getName(), MODEM_TIMEOUT);
@@ -127,100 +124,90 @@ public class ModemModule extends Thread implements Module {
                     SerialPort.STOPBITS_1,
                     SerialPort.PARITY_NONE);
 
-            outWriter = new OutputStreamWriter(serialPort.getOutputStream());
-            serialReader = new ModemSerialReader(serialPort.getInputStream());
+            serialReader.setInputStream(serialPort.getInputStream());
             serialReader.start();
+            serialWriter.setOutputStream(serialPort.getOutputStream());
+            serialWriter.start();
             log.debug("Configuring modem");
-            modemBusy.set(true);
-            waitForCommand("ATE0\r", outWriter);
-            waitForCommand("AT+CMGF=0\r", outWriter);
-            //TODO other init
-/*
-            log.debug("Checking number");
-            waitForCommand("AT^USSDMODE=0\r", outWriter);
-            recievedLines.clear();
-            waitForCommand("AT+CUSD=1,\"*205#\",15\r", outWriter); //MEGAFON-specific!!
-            waitForCommand(null, outWriter, 4 * MODEM_TIMEOUT);
-            String number = parseUSSDnumReply(recievedLines);
-            log.debug("Recieved number " + number);
-             */
 
-            waitForCommand("AT+COPS=3,0\r", outWriter);
-            waitForCommand("AT+COPS?\r", outWriter);
+            waitForCommand("ATE0\r");
+            waitForCommand("AT+CMGF=0\r");
+
+
+            waitForCommand("AT+COPS=3,0\r");
+            waitForCommand("AT+COPS?\r");
             String operator = parseCOPSReply(recievedLines);
             HashMap opData = new HashMap();
             opData.put("name", operator);
             Event event = new Event("operator_detected", opData, Event.Type.SYSTEM_EVENT);
-            if (!test) {
-                AppData.eventManager.newEvent(event);
-            }
+
+            AppData.eventManager.newEvent(event);
+
             log.debug("Operator is " + operator);
-            
+
             int operatorparamId = AppData.parametersStorage.resolveAlias("MODEM_OPERATOR");
             if (operatorparamId > 0) {
                 Parameter p = AppData.parametersStorage.getParameter(operatorparamId);
                 Measurement m = new Measurement(p, operator);
-                if (!test) {
-                    HashMap eventData = new HashMap();
-                    eventData.put("parameter", p);
-                    eventData.put("measurement", m);
-                    event = new Event("operator_detected", eventData, Event.Type.PARAMETER_UPDATED);
 
-                    AppData.eventManager.newEvent(event);
-                }
+                HashMap eventData = new HashMap();
+                eventData.put("parameter", p);
+                eventData.put("measurement", m);
+                event = new Event("operator_detected", eventData, Event.Type.PARAMETER_UPDATED);
+
+                AppData.eventManager.newEvent(event);
+
             }
-            
-            
+
             recievedLines.clear();
-            waitForCommand("AT+CREG=2\r", outWriter);
-            waitForCommand("AT+CREG?\r", outWriter);
+            waitForCommand("AT+CREG=2\r");
+            waitForCommand("AT+CREG?\r");
             HashMap cellId = parseCREGReply(recievedLines);
             event = new Event("cellid_detected", cellId, Event.Type.SYSTEM_EVENT);
-            if (!test) {
-                AppData.eventManager.newEvent(event);
-            }
+
+            AppData.eventManager.newEvent(event);
+
             log.debug("Cell ID is " + cellId);
             int cellIdparamId = AppData.parametersStorage.resolveAlias("MODEM_CELLID");
             if (cellIdparamId > 0) {
                 Parameter p = AppData.parametersStorage.getParameter(cellIdparamId);
                 Measurement m = new Measurement(p, cellId.toString());
-                if (!test) {
-                    HashMap eventData = new HashMap();
-                    eventData.put("parameter", p);
-                    eventData.put("measurement", m);
-                    event = new Event("Cell ID updated", eventData, Event.Type.PARAMETER_UPDATED);
 
-                    AppData.eventManager.newEvent(event);
-                }
+                HashMap eventData = new HashMap();
+                eventData.put("parameter", p);
+                eventData.put("measurement", m);
+                event = new Event("Cell ID updated", eventData, Event.Type.PARAMETER_UPDATED);
+
+                AppData.eventManager.newEvent(event);
+
             }
-                    
-            waitForCommand("AT+CSCA?\r", outWriter);
+
+            waitForCommand("AT+CSCA?\r");
             smscNumber = parseCSCAReply(recievedLines);
             log.debug("SMSC is " + smscNumber);
 
             String myNumber = checkNumber();
             int myNumberparamId = AppData.parametersStorage.resolveAlias("MODEM_NUMBER");
-            if (myNumberparamId > 0 && myNumber.length()==11) {
+            if (myNumberparamId > 0 && myNumber.length() == 11) {
                 Parameter p = AppData.parametersStorage.getParameter(myNumberparamId);
                 Measurement m = new Measurement(p, cellId.toString());
-                if (!test) {
-                    HashMap eventData = new HashMap();
-                    eventData.put("parameter", p);
-                    eventData.put("measurement", m);
-                    event = new Event("Mobile number updated", eventData, Event.Type.PARAMETER_UPDATED);
 
-                    AppData.eventManager.newEvent(event);
-                }
+                HashMap eventData = new HashMap();
+                eventData.put("parameter", p);
+                eventData.put("measurement", m);
+                event = new Event("Mobile number updated", eventData, Event.Type.PARAMETER_UPDATED);
+
+                AppData.eventManager.newEvent(event);
+
             }
-                        
-            
+
             while (run) {
                 try {
 
                     String sSQL = "select * from sms_outbox where status=" + STATUS_NEW + " or status=" + STATUS_ERROR_SENDING;
 
                     List<HashMap> smsToSendList = DBSelect.getRows(sSQL, conn);
-                    modemBusy.set(true);
+
                     while (!smsToSendList.isEmpty()) {
                         HashMap smsToSend = smsToSendList.remove(0);
                         log.info("Processing SMS id " + smsToSend.get("id"));
@@ -234,7 +221,7 @@ public class ModemModule extends Thread implements Module {
                             continue;
                         }
                         Date msgDate = (Date) smsToSend.get("date");
-                        if (System.currentTimeMillis() > BoxSettingsAPI.getInt("OutgoingMessageMaxAge")*1000l + msgDate.getTime()) {
+                        if (System.currentTimeMillis() > BoxSettingsAPI.getInt("OutgoingMessageMaxAge") * 1000l + msgDate.getTime()) {
                             log.error("Message too old!");
                             smsToSend.put("status", STATUS_ERROR_TOO_OLD);
                             smsToSend.put("tries_cnt", tries);
@@ -262,9 +249,9 @@ public class ModemModule extends Thread implements Module {
                         j--;
                         recievedLines.clear();
 
-                        waitForCommand("AT+CMGS=" + j + "\r", outWriter);
+                        waitForCommand("AT+CMGS=" + j + "\r");
 
-                        waitForCommand(pdu + "\032", outWriter);
+                        waitForCommand(pdu + "\032");
 
                         if (lastRecieved.equalsIgnoreCase("OK")) {
                             smsToSend.put("status", STATUS_SENT);
@@ -280,24 +267,24 @@ public class ModemModule extends Thread implements Module {
                     }
 
                     recievedLines.clear();
-                    waitForCommand("AT+CSQ\r", outWriter);
+                    waitForCommand("AT+CSQ\r");
                     int db = parseCSQReply(recievedLines);
                     log.debug("RSSI = " + db + " dBm");
-                    
+
                     int paramId = AppData.parametersStorage.resolveAlias("MODEM_RSSI");
                     if (paramId > 0) {
                         Parameter p = AppData.parametersStorage.getParameter(paramId);
                         Measurement m = new Measurement(p, Tools.parseDouble(db + "", null));
-                        if (!test) {
-                            HashMap eventData = new HashMap();
-                            eventData.put("parameter", p);
-                            eventData.put("measurement", m);
-                            event = new Event("RSSI updated", eventData, Event.Type.PARAMETER_UPDATED);
 
-                            AppData.eventManager.newEvent(event);
-                        }
+                        HashMap eventData = new HashMap();
+                        eventData.put("parameter", p);
+                        eventData.put("measurement", m);
+                        event = new Event("RSSI updated", eventData, Event.Type.PARAMETER_UPDATED);
+
+                        AppData.eventManager.newEvent(event);
+
                     }
-                    
+
                     HashMap rssiData = new HashMap();
                     rssiData.put("RSSI", db);
                     event = new Event("modem_mode_updated", rssiData, Event.Type.SYSTEM_EVENT);
@@ -305,23 +292,17 @@ public class ModemModule extends Thread implements Module {
 
                     recievedLines.clear();
                     log.debug("Polling for new messages");
-                    waitForCommand("AT+CMGL=4\r", outWriter);
+                    waitForCommand("AT+CMGL=4\r");
                     if (lastRecieved.equals("OK")) {
                         int cnt = recieveMessages(recievedLines);
                         if (cnt > 0) {
                             log.info("Recieved " + cnt + " messages, clearing modem inbox");
-                            waitForCommand("AT+CMGD=0,4\r", outWriter);
+                            waitForCommand("AT+CMGD=0,4\r");
                         }
                     }
                     synchronized (this) {
-                        modemBusy.set(false);
                         try {
-                            if (test) {
-                                wait(10000);
-                            } else {
-                                wait();//wait for timer 
-                            }
-
+                            wait();//wait for timer 
                         } catch (InterruptedException ie) {
                         }
                     }
@@ -342,31 +323,18 @@ public class ModemModule extends Thread implements Module {
         }
     }
 
-    private void waitForCommand(String command, OutputStreamWriter outWriter) throws Exception {
-        waitForCommand(command, outWriter, MODEM_TIMEOUT);
+    private void waitForCommand(String command) throws Exception {
+        waitForCommand(command, MODEM_TIMEOUT);
     }
 
-    private void waitForCommand(String command, OutputStreamWriter outWriter, int timeout) throws Exception {
+    private void waitForCommand(String command, int timeout) throws Exception {
+        modemBusy.set(true);
         log.debug("Sending " + command);
-        if (command != null) {
-            try {
-                outWriter.write(command);
-                outWriter.flush();
-            } catch (IOException ioe) {
-                modemWriteErrorCount++;
-                if (modemOkRepliesCount > 10 && modemWriteErrorCount > 3) { //если нормально работал и перестал - значит хана
-                    modemOkRepliesCount = 0;
-                    String message = "Modem port lost!";
-                    log.fatal(message);
-                    HashMap cause = new HashMap();
-                    cause.put("cause", message);
-                    Event reboot = new Event("modem_and_system_reboot", cause, Event.Type.SYSTEM_EVENT);
-                    AppData.eventManager.newEvent(reboot);
-                }
-                throw ioe;
-            }
-        }
         long waitStart = System.currentTimeMillis();
+        if (command != null) {
+            serialWriter.send(command);
+        }
+
         synchronized (this) {
             try {
                 wait(timeout);
@@ -376,6 +344,7 @@ public class ModemModule extends Thread implements Module {
         if (System.currentTimeMillis() - waitStart >= MODEM_TIMEOUT) {
             log.error("MODEM TIMEOUT");
         }
+        modemBusy.set(false);
     }
 
     @Override
@@ -405,21 +374,21 @@ public class ModemModule extends Thread implements Module {
 
                         break;
 
-                        case "check_balance":
-                            Double myBalabce = checkBalance();
-                            int myNumberparamId = AppData.parametersStorage.resolveAlias("MODEM_BALANCE");
-                            if (myNumberparamId > 0 && myBalabce>=0) {
-                                Parameter p = AppData.parametersStorage.getParameter(myNumberparamId);
-                                Measurement m = new Measurement(p, myBalabce);
-                                if (!test) {
-                                    HashMap eventData = new HashMap();
-                                    eventData.put("parameter", p);
-                                    eventData.put("measurement", m);
-                                    Event event = new Event("Balance updated", eventData, Event.Type.PARAMETER_UPDATED);
+                    case "check_balance":
+                        Double myBalabce = checkBalance();
+                        int myNumberparamId = AppData.parametersStorage.resolveAlias("MODEM_BALANCE");
+                        if (myNumberparamId > 0 && myBalabce >= 0) {
+                            Parameter p = AppData.parametersStorage.getParameter(myNumberparamId);
+                            Measurement m = new Measurement(p, myBalabce);
 
-                                    AppData.eventManager.newEvent(event);
-                                }
-                            }
+                            HashMap eventData = new HashMap();
+                            eventData.put("parameter", p);
+                            eventData.put("measurement", m);
+                            Event event = new Event("Balance updated", eventData, Event.Type.PARAMETER_UPDATED);
+
+                            AppData.eventManager.newEvent(event);
+
+                        }
 
                         break;
                 }
@@ -432,7 +401,7 @@ public class ModemModule extends Thread implements Module {
 
                 }
                 break;
-                
+
             case SYSTEM_EVENT:
                 if (e.name.equals("check_number")) {
                     checkNumber();
@@ -440,21 +409,8 @@ public class ModemModule extends Thread implements Module {
                 if (e.name.equals("check_balance")) {
                     checkBalance();
                 }
-                break;                
+                break;
 
-            /*           case BEHAVIOR_EVENT:
-                if (e.name.equals("send_sms")) {
-                    boolean doSendSms = Tools.parseBoolean(BoxSettingsAPI.get("SMSNotifications"), false);
-//                    Notification n = (Notification) e.data.get("Notification");
-                    if (n != null && doSendSms) {
-                        for (String login : AppData.usersPublicKeysCache.getLogins()) {
-                            String number = login.replace("(", "").replace(")", "").replaceAll("-", "");
-                            log.debug("Sending sms ");
-                            sendMessage(number, n.text);
-                        }
-                    }
-                }
-                break;*/
         }
     }
 
@@ -472,7 +428,7 @@ public class ModemModule extends Thread implements Module {
         while (recievedLines.size() > REPLIES_BUFFER_SIZE) {
             recievedLines.poll();
         }
-
+        line = line.trim();
         if (line.equals("OK") || line.contains("ERROR") || line.equals(">") || line.contains("+CMTI:") || line.contains("+CUSD:")) {
             if (modemOkRepliesCount < Integer.MAX_VALUE) {
                 modemOkRepliesCount++;
@@ -599,9 +555,8 @@ public class ModemModule extends Thread implements Module {
                     eventData.put("sender", message.getOriginator());
                     eventData.put("text", message.getNativeText());
                     Event e = new Event("sms_recieved", eventData, Event.Type.USER_ACTION);
-                    if (!test) {
-                        AppData.eventManager.newEvent(e);
-                    }
+
+                    AppData.eventManager.newEvent(e);
 
                 } catch (Exception e) {
                     log.error("Error while getting SMS: " + e.getMessage());
@@ -624,8 +579,10 @@ public class ModemModule extends Thread implements Module {
         int msgId = -1;
         try {
             msgId = DBTools.insertRow("sms_outbox", message, conn);
-            synchronized (this) {
-                notify();
+            if (!modemBusy.get()) {
+                synchronized (this) {
+                    notify();
+                }
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -645,7 +602,10 @@ public class ModemModule extends Thread implements Module {
         InputStream is;
         int maxLineLength = 1000;
 
-        public ModemSerialReader(InputStream is) {
+        public ModemSerialReader() {
+        }
+        
+        public void setInputStream(InputStream is) {
             this.is = is;
         }
 
@@ -684,38 +644,93 @@ public class ModemModule extends Thread implements Module {
             }
         }
     }
-    
+
+    public static class ModemSerialWriter extends Thread {
+
+        OutputStream os;
+        private static final Queue<String> linesToSend = new ConcurrentLinkedQueue();
+
+        public ModemSerialWriter() {
+        }
+
+        public void setOutputStream(OutputStream os) {
+            this.os = os;
+        }
+
+        public void send(String command) {
+            linesToSend.add(command);
+            synchronized (serialWriter) {
+                notify();
+            }
+        }
+
+        @Override
+        public void run() {
+            log.debug("Modem writer started");
+            OutputStreamWriter osw = new OutputStreamWriter(os);
+            while (run) {
+                if (linesToSend.size() > 0) {
+                    String command = linesToSend.poll();
+                    try {
+                        osw.write(command);
+                        osw.flush();
+                    } catch (IOException ioe) {
+                        modemWriteErrorCount++;
+                        if (modemOkRepliesCount > 10 && modemWriteErrorCount > 3) { //если нормально работал и перестал - значит хана
+                            modemOkRepliesCount = 0;
+                            String message = "Modem port lost!";
+                            log.fatal(message);
+                            HashMap cause = new HashMap();
+                            cause.put("cause", message);
+                            Event reboot = new Event("modem_and_system_reboot", cause, Event.Type.SYSTEM_EVENT);
+                            AppData.eventManager.newEvent(reboot);
+                        }
+                        log.error(ioe.getMessage());
+                    }
+                } else {
+                    synchronized (serialWriter) {
+                        try {
+                            wait();
+                        } catch (InterruptedException ie) {
+
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
     public String checkNumber() {
         String myNumber = "";
         try {
             log.debug("Checking number");
-            waitForCommand("AT^USSDMODE=0\r", outWriter);
+            waitForCommand("AT^USSDMODE=0\r");
             recievedLines.clear();
-            waitForCommand("AT+CUSD=1,\"*205#\",15\r", outWriter); //MEGAFON-specific!!
-            waitForCommand(null, outWriter, 4 * MODEM_TIMEOUT);
+            waitForCommand("AT+CUSD=1,\"*205#\",15\r"); //MEGAFON-specific!!
+            waitForCommand(null, 4 * MODEM_TIMEOUT);
             myNumber = parseUSSDUCS2numReply(recievedLines);
-            myNumber=myNumber.replaceAll(" ", "").replaceAll("-", "");
+            myNumber = myNumber.replaceAll(" ", "").replaceAll("-", "");
             Matcher m = Pattern.compile("\\d{11}").matcher(myNumber);
             while (m.find()) {
                 myNumber = m.group();
             }
-            
+
             log.debug("Recieved number " + myNumber);
+        } catch (Exception eee) {
         }
-        catch (Exception eee)
-        {}
         return myNumber;
 
     }
-    
+
     public Double checkBalance() {
         Double balance = -1D;
         try {
             log.debug("Checking number");
-            waitForCommand("AT^USSDMODE=0\r", outWriter);
+            waitForCommand("AT^USSDMODE=0\r");
             recievedLines.clear();
-            waitForCommand("AT+CUSD=1,\"*100#\",15\r", outWriter); //MEGAFON-specific!!
-            waitForCommand(null, outWriter, 4 * MODEM_TIMEOUT);
+            waitForCommand("AT+CUSD=1,\"*100#\",15\r"); //MEGAFON-specific!!
+            waitForCommand(null, 4 * MODEM_TIMEOUT);
             String balanceString = parseUSSDUCS2numReply(recievedLines);
 
             Pattern pattern = Pattern.compile(regex);
@@ -728,14 +743,14 @@ public class ModemModule extends Thread implements Module {
                 balance = Tools.parseDouble(sVal, 0);
             }
 
-                log.debug("Recieved number " + balanceString);
-            }
-        catch (Exception eee)
-        {}
+            log.debug("Recieved number " + balanceString);
+        } catch (Exception eee) {
+        }
         return balance;
 
     }
-        private String parseUSSDUCS2numReply(Queue<String> replyLines) {
+
+    private String parseUSSDUCS2numReply(Queue<String> replyLines) {
         String number = "";
         while (!replyLines.isEmpty()) {
 
@@ -745,21 +760,21 @@ public class ModemModule extends Thread implements Module {
                     pdu = pdu.substring(pdu.indexOf("\"") + 1);
                     pdu = pdu.substring(0, pdu.indexOf("\""));
 
-                    if (pdu.length()>16){
+                    if (pdu.length() > 16) {
                         Usc2 usc = new Usc2();
-                        number=usc.decode(pdu);
-                        
+                        number = usc.decode(pdu);
+
                     }
                     break;
                 } catch (Exception e) {
-                                log.debug("err " + e.toString());
+                    log.debug("err " + e.toString());
                 }
             }
         }
         return number;
     }
-        
-    String encodeAsUCS2(String test) throws UnsupportedEncodingException{
+
+    String encodeAsUCS2(String test) throws UnsupportedEncodingException {
 
         byte[] bytes = test.getBytes("UTF-16BE");
 
@@ -770,21 +785,19 @@ public class ModemModule extends Thread implements Module {
 
         return sb.toString();
 
-
     }
-       
-    
-    public String ucs2ToUTF8(byte[] ucs2Bytes) throws UnsupportedEncodingException{  
-        String unicode = new String(ucs2Bytes, "UTF-16");  
-        String utf8 = new String(unicode.getBytes("UTF-8"), "Cp1251");  
-        return utf8;  
-    } 
-    
-    
-    public class Usc2{
-          public HashMap alphabet = new HashMap();
-          
-          public Usc2(){
+
+    public String ucs2ToUTF8(byte[] ucs2Bytes) throws UnsupportedEncodingException {
+        String unicode = new String(ucs2Bytes, "UTF-16");
+        String utf8 = new String(unicode.getBytes("UTF-8"), "Cp1251");
+        return utf8;
+    }
+
+    public class Usc2 {
+
+        public HashMap alphabet = new HashMap();
+
+        public Usc2() {
             alphabet.put("0410", "А");
             alphabet.put("0411", "Б");
             alphabet.put("0412", "В");
@@ -931,29 +944,28 @@ public class ModemModule extends Thread implements Module {
             alphabet.put("7800", "x");
             alphabet.put("7900", "y");
             alphabet.put("7A00", "z");
-            }
-          
-          public String decode(String input){
-              String result="";
-              int i=0;
-              try{
-                 for (i = 0; i < input.length(); i += 4) 
-                 {
-                     String sstr = input.substring(i, i+4).toUpperCase();
-                     String c ="";
-                     try{
-                         c=(String)alphabet.get(sstr);
-                     }                       
-                     catch(Exception e){}
-                     if (c !=null)
-                         result+=c;
-                 }
-                 
-              }
-              catch(Exception ee){
-                  
-              }
-              return result;
-          }
         }
+
+        public String decode(String input) {
+            String result = "";
+            int i = 0;
+            try {
+                for (i = 0; i < input.length(); i += 4) {
+                    String sstr = input.substring(i, i + 4).toUpperCase();
+                    String c = "";
+                    try {
+                        c = (String) alphabet.get(sstr);
+                    } catch (Exception e) {
+                    }
+                    if (c != null) {
+                        result += c;
+                    }
+                }
+
+            } catch (Exception ee) {
+
+            }
+            return result;
+        }
+    }
 }
