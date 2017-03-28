@@ -37,7 +37,7 @@
     msgCssClassStatuses.put(ModemModule.STATUS_ERROR_SENDING, "error");
     msgStringStatuses.put(ModemModule.STATUS_ERROR_TOO_OLD, "Слишком старая");
     msgCssClassStatuses.put(ModemModule.STATUS_ERROR_TOO_OLD, "sad_pedobear");
-    msgStringStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "Превышено колличество попыток отправки");
+    msgStringStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "Превышено количество попыток отправки");
     msgCssClassStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "exceeded");
     msgStringStatuses.put(ModemModule.STATUS_SENDING, "Отправляется");
     msgCssClassStatuses.put(ModemModule.STATUS_SENDING, "sending");

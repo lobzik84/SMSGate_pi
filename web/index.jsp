@@ -103,7 +103,7 @@ response.sendRedirect(request.getContextPath()+"/adm");
                 },
                 series: [{
                         type: 'column',
-                        name: 'Колличество отправленных СМС',
+                        name: 'Количество отправленных СМС',
                         data: data.data1,
                         dataGrouping: {
                             approximation: "sum",
@@ -122,7 +122,7 @@ response.sendRedirect(request.getContextPath()+"/adm");
                         }
                     },
                     {type: 'column',
-                        name: 'Колличество принятых СМС',
+                        name: 'Количество принятых СМС',
                         data: data.data2,
                         dataGrouping: {
                             approximation: "sum",
