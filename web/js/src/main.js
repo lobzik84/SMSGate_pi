@@ -1,5 +1,7 @@
 $(function () {
 
+    $('.js-tooltip').tooltip();
+
     $('.label_blue').click(function () {
         $('.textarea__message').val('Это тест');
         var current = $('.textarea__message').val().length;
@@ -100,9 +102,9 @@ $(function () {
             $('.good').removeClass('dBm_opacity');
         }
     }
-    
+
     signalPoint();
-    
+
     $('.counter_dBm').bind("DOMSubtreeModified", function () {
         signalPoint();
     });

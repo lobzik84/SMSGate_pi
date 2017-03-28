@@ -1,21 +1,27 @@
-.new { //новое
-    
-}
-.sent { //отправлено
-    
-}
-.read { //прочитано
-    
-}
-.error { //ошибка отправления
-    
-}
-.sad_pedobear { //слишком старая
-    
-}
-.exceeded { //превышено колличество попыток отправки
-    
-}
-.sending { //отправляется
-    
+.message__status {
+    .inline-b;
+    .va-t;
+    width: 20px;
+    height: 20px;
+    &_new { //новое
+        background: url('@{img_path}/icons.png') no-repeat -86px -32px;
+    }
+    &_sent { //отправлено
+        background: url('@{img_path}/icons.png') no-repeat -86px -32px;
+    }
+    &_read { //прочитано
+        background: url('@{img_path}/icons.png') no-repeat -86px -5px;
+    }
+    &_error { //ошибка отправления
+        background: url('@{img_path}/icons.png') no-repeat -10px -50px;
+    }
+    &_sad_pedobear { //слишком старая
+        background: url('@{img_path}/icons.png') no-repeat -10px -50px;
+    }
+    &_exceeded { //превышено колличество попыток отправки
+        background: url('@{img_path}/icons.png') no-repeat -10px -50px;
+    }
+    &_sending { //отправляется
+        background: url('@{img_path}/icons.png') no-repeat -10px -10px;
+    }
 }

@@ -15,6 +15,7 @@ var orders = {
     scripts: [
         'libs/jquery/*.js',
         'libs/jquery-ui/*.js',
+        'libs/jquery-migrate/*.js',
         'libs/*.js',
         'plugins/highstock/*.js',
         'plugins/exporting/*.js',

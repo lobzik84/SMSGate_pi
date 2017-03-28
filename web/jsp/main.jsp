@@ -86,9 +86,13 @@
                     <td class="w-5"><%= id%></td>
                     <td class="w-30"><%= message%></td>
                     <td class="w-20"><%= telNo%></td>
-                    <td class="w-10"><%= type%></td>
+                    <td class="w-10">
+                        <span class="js-tooltip message__icon message__icon_<%= type%>" title="<%= type%>"></span>
+                    </td>
                     <td class="w-15"><%= date%></td>
-                    <td class="w-5 <%= Tools.getStringValue(msgCssClassStatuses.get(status), "")%>"><%= Tools.getStringValue(msgStringStatuses.get(status), "")%></td>
+                    <td class="w-5">
+                        <span class="js-tooltip message__status message__status_<%= Tools.getStringValue(msgCssClassStatuses.get(status), "")%>" title="<%= Tools.getStringValue(msgStringStatuses.get(status), "")%>"></span>
+                    </td>
                 </tr>
                 <%}%>
             </tbody>

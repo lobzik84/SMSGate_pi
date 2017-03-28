@@ -93,9 +93,9 @@
                     <p class="message__phone"><%= curTelNo%></p>
                     <p class="message__text"><%= curMessage%></p>
                     <p class="message__date"> 
-                        <span class="message__icon message__icon_<%= curType%>"></span>
+                        <span class="js-tooltip message__icon message__icon_<%= curType%>" title="<%= curType%>"></span>
                         <%= curDate%> 
-                        <span class="message__status message__status_<%= Tools.getStringValue(msgCssClassStatuses.get(curStatus), "")%>"></span></p>
+                        <span class="js-tooltip message__status message__status_<%= Tools.getStringValue(msgCssClassStatuses.get(curStatus), "")%>" title="<%= Tools.getStringValue(msgStringStatuses.get(curStatus), "")%>"></span></p>
                 </div>
             </div>
 
