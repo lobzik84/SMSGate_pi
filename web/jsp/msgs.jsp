@@ -24,8 +24,8 @@
     String dateFrom = Tools.getStringValue(filterList.get("date_from"), "");
     String dateTo = Tools.getStringValue(filterList.get("date_to"), "");
 
-
 %>
+
 <jsp:include page="header.jsp" />
 
 <div class="content__layout">
@@ -61,7 +61,7 @@
         </form>
 
         <div class="content__messages">
-            
+
             <%for (HashMap hm : msgsList) {
                     int id = Tools.parseInt(hm.get("id"), -1);
                     String curMessage = Tools.getStringValue(hm.get("message"), "");
@@ -75,7 +75,10 @@
                 <div class="message__block message__block_<%= curType%>">
                     <p class="message__phone"><%= curTelNo%></p>
                     <p class="message__text"><%= curMessage%></p>
-                    <p class="message__date"> <span class="message__icon message__icon_<%= curType%>"></span><%= curDate%> <span class="message__status">1</span></p>
+                    <p class="message__date"> 
+                        <span class="message__icon message__icon_<%= curType%>"></span>
+                        <%= curDate%> 
+                        <span class="message__status message__status_<%= curStatus%>"></span></p>
                 </div>
             </div>
 
