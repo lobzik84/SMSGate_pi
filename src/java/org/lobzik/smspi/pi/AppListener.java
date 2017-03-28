@@ -13,9 +13,11 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.lobzik.smspi.pi.modules.ActualDataStorageModule;
 import org.lobzik.smspi.pi.modules.ChartModule;
 import org.lobzik.smspi.pi.modules.DisplayModule;
 import org.lobzik.smspi.pi.modules.InternalSensorsModule;
+import org.lobzik.smspi.pi.modules.DBDataWriterModule;
 
 import org.lobzik.smspi.pi.modules.ModemModule;
 import org.lobzik.smspi.pi.modules.SystemModule;
@@ -44,9 +46,9 @@ public class AppListener implements ServletContextListener {
             AppData.setGraphicsWorkDir(new File(sce.getServletContext().getRealPath("img")));
             InternalSensorsModule.getInstance().start();
             ModemModule.getInstance().start();
-
+            ActualDataStorageModule.getInstance().start();
             TimerModule.getInstance().start();
-
+            DBDataWriterModule.getInstance().start();
             SystemModule.getInstance().start();
             DisplayModule.getInstance().start();
             ChartModule.getInstance().start();
