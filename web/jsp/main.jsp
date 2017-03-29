@@ -53,7 +53,31 @@
     <div class="content__top">
         <div id="container" class="chart"></div><!--
         --><div class="chart__total">
-
+            <div class="chart__mb">
+                <div class="mb__top">
+                    <div class="mb__top_1"></div>
+                    <div class="mb__top_2"></div>
+                    <div class="mb__top_3"></div>
+                    <div class="mb__top_4"></div>
+                    <div class="mb__top_5"></div>
+                    <div class="mb__top_6"></div>
+                    <div class="mb__top_7"></div>
+                    <div class="mb__top_8"></div>
+                    <div class="mb__top_9"></div>
+                    <div class="mb__top_10"></div>
+                    <div class="mb__top_11"></div>
+                    <div class="mb__top_12"></div>
+                    <div class="mb__top_13"></div>
+                    <div class="mb__top_14"></div>
+                </div>
+                <div class="mb__text">
+                    <p class="mb__operator"></p>
+                    <p class="chart__balance">
+                        <!--<span class="rouble">i</span>-->
+                    </p>
+                    <p class="chart__phone"></p>
+                </div>
+            </div>
             <p class="chart__total_label">Отправлено за сегодня:</p>
             <p class="chart__total_num"><%= msgSentDaily%></p>
 

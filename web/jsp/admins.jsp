@@ -26,7 +26,7 @@
 
         <%if (isRoot) {%>
 
-        <input class="btn btn_hide mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
+        <input class="btn btn_hide mt-20 mb-5" type="submit" value="Добавить нового администратора"/>
 
         <form class="form_hide none" action="<%= baseUrl + "addadm"%>" method="post">
             <div class="inline-b">

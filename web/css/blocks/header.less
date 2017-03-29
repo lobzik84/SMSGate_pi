@@ -31,15 +31,26 @@
         .inline-b;
         font-size: 14px;
     }
+    &_root {
+        .inline-b;
+        width: 24px;
+        height: 24px;
+        &_on {
+            background: url('@{img_path}/icons.png') no-repeat -90px 0px;
+        }
+    }
     &_logout {
         .os-sb;
         .blue;
         .inline-b;
         .tdn;
+        width: 24px;
+        height: 24px;
         margin-left: 15px;
         font-size: 14px;
+        background: url('@{img_path}/icons.png') no-repeat -115px 0px;
         &:hover {
-            .tdu;
+            .opacity(0.8);
         }
     }
 }

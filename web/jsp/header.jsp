@@ -27,7 +27,7 @@
                         <a class="nav__link" href="<%= baseUrl + "main"%>">Главная</a>
                     </li>
                     <li class="nav__item <%= headUrl.equals("addapp") ? "nav__item_active" : ""%> ">
-                        <a class="nav__link" href="<%= baseUrl + "addapp"%>">Пользователи</a>
+                        <a class="nav__link" href="<%= baseUrl + "addapp"%>">Клиенты</a>
                     </li>
                     <li class="nav__item <%= headUrl.equals("addadm") ? "nav__item_active" : ""%> ">
                         <a class="nav__link" href="<%= baseUrl + "addadm"%>">Администраторы</a>
@@ -39,8 +39,9 @@
             </nav>
             <div class="header__right">
                 <div class="header__user">
-                    <p class="header__user_id"><%= adminId%><%= adminId == 1 ? "(root)" : ""%></p>
-                    <a class="header__user_logout" href="<%= baseUrl + "logout"%>">Выйти</a>
+                    <p class="header__user_id"><%= adminId%></p>
+                    <div class="header__user_root <%= adminId == 1 ? "header__user_root_on" : ""%>"></div>
+                    <a class="header__user_logout" href="<%= baseUrl + "logout"%>"></a>
                 </div>
                 <div class="header__dbm">
                     <?xml version="1.0" standalone="no"?>
