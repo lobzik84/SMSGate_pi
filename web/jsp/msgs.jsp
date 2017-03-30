@@ -27,6 +27,7 @@
 
     HashMap msgStringStatuses = new HashMap();
     HashMap msgCssClassStatuses = new HashMap();
+    HashMap rusMsgType = new HashMap();
     msgStringStatuses.put(ModemModule.STATUS_NEW, "Новое");
     msgCssClassStatuses.put(ModemModule.STATUS_NEW, "new");
     msgStringStatuses.put(ModemModule.STATUS_SENT, "Отправлено");
@@ -41,6 +42,9 @@
     msgCssClassStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "exceeded");
     msgStringStatuses.put(ModemModule.STATUS_SENDING, "Отправляется");
     msgCssClassStatuses.put(ModemModule.STATUS_SENDING, "sending");
+
+    rusMsgType.put("outbox", "Исходящее");
+    rusMsgType.put("inbox", "Входящее");
 %>
 
 <jsp:include page="header.jsp" />
@@ -50,7 +54,7 @@
 
         <p class="title mb-20">Сообщения</p>
 
-        <form id="filters_form" class="mb-30" action="<%=baseUrl + "msgs"%>" method="POST">
+        <form id="filters_form" class="mb-30" action="<%=baseUrl + "msgs"%>" method="GET">
             <div class="inline-b va-t">
                 <div class="inline-b mb-15">
                     <label class="label_inline" for="date_from">С</label>
@@ -64,7 +68,7 @@
             <div class="inline-b va-t ml-15">
                 <div class="inline-b mb-15">
                     <label class="label_inline" for="SearchText">Текст в<br>сообщении</label>
-                    <textarea id="SearchText" class="textarea__text" type="text" name="search_text" value="<%=searchText%>"></textarea>
+                    <textarea id="SearchText" class="textarea__text" name="search_text"><%=searchText%></textarea>
                 </div>
                 <div class="inline-b mb-15 ml-15">
                     <label class="label_inline" for="TelNo">Номер<br>телефона</label>
@@ -93,7 +97,7 @@
                     <p class="message__phone"><%= curTelNo%></p>
                     <p class="message__text"><%= curMessage%></p>
                     <p class="message__date"> 
-                        <span class="js-tooltip message__icon message__icon_<%= curType%>" title="<%= curType%>"></span>
+                        <span class="js-tooltip message__icon message__icon_<%= curType%>" title="<%= Tools.getStringValue(rusMsgType.get(curType), "")%>"></span>
                         <%= curDate%> 
                         <span class="js-tooltip message__status message__status_<%= Tools.getStringValue(msgCssClassStatuses.get(curStatus), "")%>" title="<%= Tools.getStringValue(msgStringStatuses.get(curStatus), "")%>"></span></p>
                 </div>
