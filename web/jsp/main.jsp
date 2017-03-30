@@ -31,6 +31,7 @@
 
     HashMap msgStringStatuses = new HashMap();
     HashMap msgCssClassStatuses = new HashMap();
+    HashMap rusMsgType = new HashMap();
     msgStringStatuses.put(ModemModule.STATUS_NEW, "Новое");
     msgCssClassStatuses.put(ModemModule.STATUS_NEW, "new");
     msgStringStatuses.put(ModemModule.STATUS_SENT, "Отправлено");
@@ -45,6 +46,9 @@
     msgCssClassStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "exceeded");
     msgStringStatuses.put(ModemModule.STATUS_SENDING, "Отправляется");
     msgCssClassStatuses.put(ModemModule.STATUS_SENDING, "sending");
+
+    rusMsgType.put("outbox", "Исходящее");
+    rusMsgType.put("inbox", "Входящее");
 %>
 
 <jsp:include page="header.jsp" />
@@ -111,7 +115,7 @@
                     <td class="w-30"><%= message%></td>
                     <td class="w-20"><%= telNo%></td>
                     <td class="w-10">
-                        <span class="js-tooltip message__icon message__icon_<%= type%>" title="<%= type%>"></span>
+                        <span class="js-tooltip message__icon message__icon_<%= type%>" title="<%= Tools.getStringValue(rusMsgType.get(type), "")%>"></span>
                     </td>
                     <td class="w-15"><%= date%></td>
                     <td class="w-5">
