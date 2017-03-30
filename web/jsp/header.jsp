@@ -5,6 +5,7 @@
 <%
     String baseUrl = request.getContextPath() + request.getServletPath() + "/";
     int adminId = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
+    String adminLogin = Tools.getStringValue(request.getSession().getAttribute("AdminLogin"), "");
     if (adminId < 0) {
         return;
     }
@@ -39,7 +40,7 @@
             </nav>
             <div class="header__right">
                 <div class="header__user">
-                    <p class="header__user_id"><%= adminId%></p>
+                    <p class="header__user_id"><%= adminLogin%></p>
                     <div class="header__user_root <%= adminId == 1 ? "header__user_root_on" : ""%>"></div>
                     <a class="header__user_logout" href="<%= baseUrl + "logout"%>"></a>
                 </div>

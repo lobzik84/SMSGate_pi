@@ -84,6 +84,7 @@ public class PiServlet extends HttpServlet {
                                             loginAdmin = id;
                                             log.info("Admin login ok! id=" + loginAdmin + ", ip=" + request.getRemoteAddr());
                                             request.getSession().setAttribute("AdminID", loginAdmin);
+                                            request.getSession().setAttribute("AdminLogin", adminLogin);
                                             response.sendRedirect(baseUrl + "/main");
                                         } else {
                                             log.error("Admin:" + adminLogin + "is not activated");
@@ -160,6 +161,7 @@ public class PiServlet extends HttpServlet {
                 break;
             case "logout":
                 request.getSession().removeAttribute("AdminID");
+                request.getSession().removeAttribute("AdminLogin");
                 response.sendRedirect(baseUrl);
                 break;
             case "sendmsg":
