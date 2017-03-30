@@ -63,6 +63,9 @@ $(function () {
                 this.value = this.value.substr(0, 257);
                 $('.label_wrong').show();
             } else {
+                $('.label_wrong').show();
+            }
+            if (this.value.length == 256) {
                 $('.label_wrong').hide();
             }
         });

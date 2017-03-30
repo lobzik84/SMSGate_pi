@@ -38,7 +38,7 @@
                 <input type="text" name="name" />
             </div>
             <div class="inline-b ml-10 mr-10 va-t">
-                <label class="label mt-10">PublicKey (max 250 symbols)<span class="label_wrong pl-15">OVER 250 SYMBOLS!</span></label>
+                <label class="label mt-10">PublicKey (256 symbols)<span class="label_wrong pl-15">ENTER 256 SYMBOLS!</span></label>
                 <textarea class="textarea__key" name="public_key"></textarea>
             </div>
             <input hidden type="text" name="REG_ME" value="1"/>

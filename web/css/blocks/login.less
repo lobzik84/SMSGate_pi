@@ -1,11 +1,11 @@
 .login__block {
     .absolute;
-    top: 0px;
+    top: 40%;
     left: 0px;
-    bottom: 0px;
+    bottom: 55%;
     right: 0px;
-    width: 500px;
-    height: 500px;
+    width: 345px;
+    height: 457px;
     margin: auto;
 }
 .login__form {
@@ -14,17 +14,23 @@
     .wbc;
     margin: auto;
     width: 305px;
-    height: 315px;
+    height: 280px;
     form {
         .relative;
-        height: 87%;
+        height: 100%;
     }
 }
 .login__title {
-    .ta-c;
+    .ta-l;
     .mb-25;
     .accuratist;
-    font-size: 32px;
+    .os-sb;
+    .blue-logo;
+    font-size: 28px;
+    width: 175px;
+    height: 112px;
+    background: url('@{img_path}/logo/logo.png') no-repeat left center;
+    padding-left: 170px;
 }
 .login__input {
     .block;
@@ -38,12 +44,31 @@
         .absolute;
         .os-sb;
         .pointer;
+        .blbc; .white;
         padding: 12px 15px;
         bottom: 0px;
         left: 0px;
         font-size: 14px;
+        border: 1px solid @blue;
         &:focus {
             border: 1px solid @gray;
         }
+        &:hover {
+            .opacity(0.9);
+        }
     }
+}
+.login__hint {
+    .os-r;
+    .inline-b;
+    .va-t;
+    .absolute;
+    bottom: 0px;
+    right: 40px;
+    vertical-align: top;
+    width: 170px;
+    font-size: 12px; 
+    color: #757474;
+    line-height: 15px;
+    margin-left: 20px;
 }

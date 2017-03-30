@@ -19,6 +19,7 @@ var orders = {
         'libs/*.js',
         'plugins/highstock/*.js',
         'plugins/exporting/*.js',
+        'plugins/**/*.js',
         'src/*.js'
     ]
 };

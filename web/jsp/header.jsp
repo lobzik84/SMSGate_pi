@@ -21,7 +21,7 @@
     </head>
     <body class="abc">
         <header class="header">
-            <a class="header__logo" href="<%= baseUrl + "main"%>">smsity</a>
+            <a class="header__logo" href="<%= baseUrl + "main"%>"><p class="header__logo_top ">АИС РТРС</p><p class="header__logo_bottom">служба коротких сообщений</p></a>
             <nav class="nav">
                 <ul class="nav__list">
                     <li class="nav__item <%= headUrl.equals("main") ? "nav__item_active" : ""%> ">

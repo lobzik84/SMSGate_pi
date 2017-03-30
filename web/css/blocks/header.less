@@ -1,30 +1,40 @@
 .header {
     .wbc;
     .mb-30;
+    .relative;
     width: 100%;
-    height: 50px;
+    height: 55px;
 }
 .header__logo {
-    .accuratist;
+    .os-sb;
     .blue-logo;
     .tdn;
     .ml-20;
     .inline-b;
+    width: 115px;
     height: 100%;
-    line-height: 50px;
-    font-size: 23px;
     padding-left: 20px;
-    background: url('@{img_path}/logo/logo.png') no-repeat left 18px;
+    background: url('@{img_path}/logo/logo-small.png') no-repeat left 8px;
+    &_top {
+        .os-b;
+        margin-top: 5px;
+        font-size: 20px;
+    }
+    &_bottom {
+        .os-sb;
+        font-size: 13px;
+    }
 }
 .header__right {
-    .fl-r;
-    width: 280px;
+    .absolute;
+    top: 0px;
+    right: 30px;
     height: 100%;
 }
 .header__user {
     .inline-b;
     height: 100%;
-    line-height: 50px;
+    line-height: 55px;
     &_id {
         .os-sb;
         .blue;
@@ -32,20 +42,24 @@
         font-size: 14px;
     }
     &_root {
+        .relative;
         .inline-b;
+        top: 7px;
         width: 24px;
-        height: 24px;
+        height: 25px;
         &_on {
-            background: url('@{img_path}/icons.png') no-repeat -90px 0px;
+            background: url('@{img_path}/icons.png') no-repeat -91px 0px;
         }
     }
     &_logout {
         .os-sb;
         .blue;
-        .inline-b;
+        .relative;
         .tdn;
+        .inline-b;
+        top: 8px;
         width: 24px;
-        height: 24px;
+        height: 25px;
         margin-left: 15px;
         font-size: 14px;
         background: url('@{img_path}/icons.png') no-repeat -115px 0px;
@@ -60,6 +74,8 @@
     .ml-20;
     .white;
     .os-b;
+    .relative;
+    top: 2px;
     width: 90px;
     font-size: 14px;
     padding: 10px;

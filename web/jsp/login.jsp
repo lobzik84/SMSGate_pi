@@ -19,10 +19,10 @@
     <body class="lbc">
         <div class="login__block">
             <div class="login__title">
-                smsity
+                Служба<br>коротких<br>сообщений<br>ФГУП РТРС
             </div>
             <div class="login__form">
-                <p class="title mb-25">Войти в систему</p>
+<!--                <p class="title mb-25"></p>-->
                 <form action="<%= baseUrl + "login"%>" method="post">
                     <label class="label">Логин</label>
                     <input class="login__input mb-20" type="text" name="login"/>
@@ -34,6 +34,7 @@
                     <%}%>
                     
                     <input class="login__input_button" type="submit" value="Войти" name="submit" />
+                    <div class="login__hint">Ввод логина и пароля осуществляется с учетом больших и маленьких букв</div>
                 </form>
             </div>
         </div>
