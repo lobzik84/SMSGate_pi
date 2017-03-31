@@ -40,8 +40,8 @@
             </nav>
             <div class="header__right">
                 <div class="header__user">
-                    <p class="header__user_id"><%= adminLogin%></p>
                     <div class="header__user_root <%= adminId == 1 ? "header__user_root_on" : ""%>"></div>
+                    <p class="header__user_id"><%= adminLogin%></p>
                     <a class="header__user_logout" href="<%= baseUrl + "logout"%>"></a>
                 </div>
                 <div class="header__dbm">

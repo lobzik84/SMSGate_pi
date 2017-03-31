@@ -119,7 +119,7 @@
                     </td>
                     <td class="w-15"><%= date%></td>
                     <td class="w-5">
-                        <span class="js-tooltip message__status message__status_<%= Tools.getStringValue(msgCssClassStatuses.get(status), "")%>" title="<%= Tools.getStringValue(msgStringStatuses.get(status), "")%>"></span>
+                        <span class="js-tooltip message__status message__status_<%= type%>-<%= Tools.getStringValue(msgCssClassStatuses.get(status), "")%> message__status_<%= Tools.getStringValue(msgCssClassStatuses.get(status), "")%>" title="<%= Tools.getStringValue(msgStringStatuses.get(status), "")%>"></span>
                     </td>
                 </tr>
                 <%}%>
@@ -161,8 +161,6 @@
 
 <script type="text/javascript">
     
-    $(".input_phone").mask("+7 (999) 999-99-99");
-
     $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet"%>", function (data) {
 
         Highcharts.setOptions({
