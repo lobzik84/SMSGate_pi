@@ -190,7 +190,7 @@ public class ModemModule extends Thread implements Module {
             int myNumberparamId = AppData.parametersStorage.resolveAlias("MODEM_NUMBER");
             if (myNumberparamId > 0 && myNumber.length() == 11) {
                 Parameter p = AppData.parametersStorage.getParameter(myNumberparamId);
-                Measurement m = new Measurement(p, cellId.toString());
+                Measurement m = new Measurement(p, myNumber);
 
                 HashMap eventData = new HashMap();
                 eventData.put("parameter", p);
@@ -199,11 +199,12 @@ public class ModemModule extends Thread implements Module {
 
                 AppData.eventManager.newEvent(event);
 
+                
             }
-
+            int iter = -1;
             while (run) {
                 try {
-
+                    iter+=1;
                     String sSQL = "select * from sms_outbox where status=" + STATUS_NEW + " or status=" + STATUS_ERROR_SENDING;
 
                     List<HashMap> smsToSendList = DBSelect.getRows(sSQL, conn);
@@ -267,6 +268,21 @@ public class ModemModule extends Thread implements Module {
                     }
 
                     recievedLines.clear();
+                    
+                    if ((iter+"").endsWith("0")){
+                        Double myBalabce = checkBalance();
+                        myNumberparamId = AppData.parametersStorage.resolveAlias("MODEM_BALANCE");
+                        if (myNumberparamId > 0 && myBalabce >= 0) {
+                            Parameter p = AppData.parametersStorage.getParameter(myNumberparamId);
+                            Measurement m = new Measurement(p, myBalabce);
+
+                            HashMap eventData = new HashMap();
+                            eventData.put("parameter", p);
+                            eventData.put("measurement", m);
+                            AppData.eventManager.newEvent(new Event("Balance updated", eventData, Event.Type.PARAMETER_UPDATED));
+                        }
+                    }
+                        
                     waitForCommand("AT+CSQ\r");
                     int db = parseCSQReply(recievedLines);
                     log.debug("RSSI = " + db + " dBm");
@@ -300,6 +316,7 @@ public class ModemModule extends Thread implements Module {
                             waitForCommand("AT+CMGD=0,4\r");
                         }
                     }
+                    
                     synchronized (this) {
                         try {
                             wait();//wait for timer 
@@ -659,7 +676,7 @@ public class ModemModule extends Thread implements Module {
 
         public void send(String command) {
             linesToSend.add(command);
-            synchronized (serialWriter) {
+            synchronized (this) {
                 notify();
             }
         }
@@ -688,7 +705,7 @@ public class ModemModule extends Thread implements Module {
                         log.error(ioe.getMessage());
                     }
                 } else {
-                    synchronized (serialWriter) {
+                    synchronized (this) {
                         try {
                             wait();
                         } catch (InterruptedException ie) {
@@ -726,7 +743,7 @@ public class ModemModule extends Thread implements Module {
     public Double checkBalance() {
         Double balance = -1D;
         try {
-            log.debug("Checking number");
+            log.debug("Checking balance");
             waitForCommand("AT^USSDMODE=0\r");
             recievedLines.clear();
             waitForCommand("AT+CUSD=1,\"*100#\",15\r"); //MEGAFON-specific!!

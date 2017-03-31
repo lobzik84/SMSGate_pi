@@ -36,6 +36,7 @@ import org.lobzik.smspi.pi.event.Event;
 import javax.imageio.ImageIO;
 
 import org.apache.log4j.Appender;
+import org.lobzik.home_sapiens.entity.Measurement;
 import org.lobzik.smspi.pi.BoxCommonData;
 import org.lobzik.smspi.pi.ConnJDBCAppender;
 import org.lobzik.smspi.pi.event.EventManager;
@@ -60,6 +61,7 @@ public class DisplayModule implements Module {
     private FbiRunner fbiRunner = null;
     private static final Color DAY_FONT_COLOR = new Color(255, 255, 255);
     private static int rssi = -101;
+    private static int balance = -1123;
 
     private DisplayModule() { //singleton
     }
@@ -82,15 +84,23 @@ public class DisplayModule implements Module {
     @Override
     public void start() {
         try {
+            try {
+                Tools.sysExec("sudo killall -9 fbi", new File("/"));
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+                    
             draw();
             EventManager.subscribeForEventType(this, Event.Type.TIMER_EVENT);
             EventManager.subscribeForEventType(this, Event.Type.SYSTEM_EVENT);
             EventManager.subscribeForEventType(this, Event.Type.BEHAVIOR_EVENT);
             EventManager.subscribeForEventType(this, Event.Type.SYSTEM_MODE_CHANGED);
+            EventManager.subscribeForEventType(this, Event.Type.PARAMETER_UPDATED);
 
             fbiRunner = new FbiRunner();
             fbiRunner.start();
 
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -116,6 +126,20 @@ public class DisplayModule implements Module {
             case SYSTEM_MODE_CHANGED:
                 draw();
                 break;
+            case PARAMETER_UPDATED:
+                try {
+                    if (e.name.equals("Balance updated")) {
+                        Measurement m  = (Measurement)e.data.get("measurement");
+                        int newBalance = m.getDoubleValue().intValue();
+                        if ( newBalance!=balance) {
+                            balance = newBalance;
+                            draw();
+                        }
+                    }
+                }
+                catch (Exception eee){}
+                
+                break;
 
         }
 
@@ -136,50 +160,72 @@ public class DisplayModule implements Module {
             Color fontColor = DAY_FONT_COLOR;
 
             g.setColor(fontColor);
-            g.setFont(new Font("Roboto Regular", Font.BOLD, 81));
-            g.drawString(Tools.getFormatedDate(new Date(), "HH:mm"), 15, 169);
+            g.setFont(new Font("Roboto Regular", Font.BOLD, 30));
+            g.drawString(Tools.getFormatedDate(new Date(), "HH:mm"), 214, 35);
 
             //Modem
             g.setColor(fontColor);
-            g.setFont(new Font("Roboto Regular", Font.BOLD, 16));
-            g.drawString(modemMode, 425, 40);
+            //g.setFont(new Font("Roboto Regular", Font.BOLD, 16));
+            //g.drawString(modemMode, 425, 40);
             
-            g.drawString(rssi + " dB", 415, 60);
+            //g.drawString(rssi + " dB", 415, 60);
             //rssi
-            g.setColor(new Color(255, 255, 255, 80));
-            g.fillRect(456, 36, 3, 4);
-            g.fillRect(460, 32, 3, 8);
-            g.fillRect(464, 28, 3, 12);
-            g.fillRect(468, 24, 3, 16);
+            g.setColor(new Color(255, 255, 255, 200));
+            g.fillRect(250, 118, 10, 12);
+            g.fillRect(262, 106, 10, 24);
+            g.fillRect(274, 94, 10, 36);
+            g.fillRect(286, 82, 10, 48);
+            
+            //int rssi = -75;//сигнал сети, дБ. <100 нет фишек, 100<rssi<90 одна фишка, 90<rssi<80 две фишки, 80<rssi<70 три фишки, >70 четыре фишки
+            
+             if (rssi <= -100) {
+                g2d.setColor(new Color(255, 0, 0));
+                g2d.setStroke(new BasicStroke(5.0f));
+                g2d.drawOval(250, 80, 50, 50);
+                g2d.drawLine(260, 120, 290, 90);
+            }
+            
+            g.setColor(fontColor);
+            if (rssi > -100) 
+                g.fillRect(250, 118, 10, 12);
+            if (rssi > -90) 
+                g.fillRect(262, 106, 10, 24);
+            if (rssi > -80) 
+                g.fillRect(274, 94, 10, 36);
+            if (rssi > -70) 
+                g.fillRect(286, 82, 10, 48);
+            
+            
              try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
                 Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_SENT , "cnt", null, conn);
+                Long msgReceived = DBSelect.getCount("select count(*) as cnt from sms_inbox" , "cnt", null, conn);
                 Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status in (" + ModemModule.STATUS_ERROR_SENDING + "," + ModemModule.STATUS_ERROR_TOO_OLD + "," + ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED +")" , "cnt", null, conn);
+                g.setColor(new Color(255, 255, 255, 200));
+                g.setFont(new Font("Roboto Regular", Font.BOLD, 30));
+                g.drawString("Отправлено", 21, 90);
+                g.drawString("Принято", 21, 188);
+                g.drawString("Баланс", 250, 188);
+                g.drawString("Ошибок", 21, 230);
+                
                 g.setColor(fontColor);
-                g.setFont(new Font("Roboto Regular", Font.BOLD, 18));
-                g.drawString("Отправлено: " + msgSent, 312, 140);
-                g.drawString("Ошибок: " + msgErrs, 350, 165);
+
+                g.drawString(""+ msgReceived, 160, 188);
+                g.drawString(""+ msgErrs, 160, 230);
+
+                g.setFont(new Font("Roboto Regular", Font.BOLD, 60));
+                if (balance==-1123)
+                    g.drawString("Н/Д", 250, 238);
+                else
+                    g.drawString(balance + "р", 250, 238);
+                g.drawString(""+ msgSent, 21, 148);
+                
+                g.setFont(new Font("Roboto Regular", Font.BOLD, 65));
+                if (rssi>-100)
+                    g.drawString(rssi + "dB", 303, 130);
+
              } catch (Exception e) { e.printStackTrace();}
 
-            //int rssi = -75;//сигнал сети, дБ. <100 нет фишек, 100<rssi<90 одна фишка, 90<rssi<80 две фишки, 80<rssi<70 три фишки, >70 четыре фишки
-            if (rssi <= -100) {
-                g2d.setColor(new Color(255, 0, 0));
-                g2d.setStroke(new BasicStroke(2.0f));
-                g2d.drawOval(456, 25, 14, 14);
-                g2d.drawLine(458, 28, 468, 36);
-            }
-            g.setColor(fontColor);
-            if (rssi > -100) {
-                g.fillRect(456, 36, 3, 4);
-            }
-            if (rssi > -90) {
-                g.fillRect(460, 32, 3, 8);
-            }
-            if (rssi > -80) {
-                g.fillRect(464, 28, 3, 12);
-            }
-            if (rssi > -70) {
-                g.fillRect(468, 24, 3, 16);
-            }
+
             File file = new File(AppData.getGraphicsWorkDir().getAbsolutePath() + File.separator + TMP_FILE);
             FileOutputStream fos = new FileOutputStream(file);
             java.nio.channels.FileLock lock = fos.getChannel().lock();
