@@ -1,28 +1,51 @@
 .message__status {
     .inline-b;
-    .va-t;
-    width: 19px;
-    height: 19px;
+    .va-tt;
+    .ml-5;
+    width: 18px;
+    height: 18px;
     &_new { //новое
-        background: url('@{img_path}/icons.png') no-repeat -72px 0px;
     }
     &_sent { //отправлено
-        width: 17px !important;
-        background: url('@{img_path}/icons.png') no-repeat -19px 0px;
     }
     &_read { //прочитано
-        background: url('@{img_path}/icons.png') no-repeat -17px -17px;
     }
+
     &_error { //ошибка отправления
         background: url('@{img_path}/icons.png') no-repeat -36px 0px;
     }
     &_sad_pedobear { //слишком старая
-        background: url('@{img_path}/icons.png') no-repeat -54px 0px;
+        background: url('@{img_path}/icons.png') no-repeat -36px -36px;
     }
     &_exceeded { //превышено количество попыток отправки
-        background: url('@{img_path}/icons.png') no-repeat -54px -18px;
+        background: url('@{img_path}/icons.png') no-repeat -36px -54px;
     }
     &_sending { //отправляется
-        background: url('@{img_path}/icons.png') no-repeat -54px 0px;
+        background: url('@{img_path}/icons.png') no-repeat -36px -36px;
+    }
+}
+
+.message__status_inbox {
+    &-new { //новое
+        background: url('@{img_path}/icons.png') no-repeat 0px 0px;
+    }
+    &-sent { //отправлено
+        width: 17px !important;
+        background: url('@{img_path}/icons.png') no-repeat -18px 0px;
+    }
+    &-read { //прочитано
+        background: url('@{img_path}/icons.png') no-repeat -18px -18px;
+    }
+}
+.message__status_outbox {
+    &-new { //новое
+        background: url('@{img_path}/icons.png') no-repeat 0px -36px;
+    }
+    &-sent { //отправлено
+        width: 17px !important;
+        background: url('@{img_path}/icons.png') no-repeat -18px -36px;
+    }
+    &-read { //прочитано
+        background: url('@{img_path}/icons.png') no-repeat -18px -54px;
     }
 }
