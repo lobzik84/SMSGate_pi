@@ -67,6 +67,7 @@ public class AppListener implements ServletContextListener {
             TimerModule.finish();
             ModemModule.finish();
             InternalSensorsModule.finish();
+            DisplayModule.finish();
 
             AppData.eventManager.finish();
 
