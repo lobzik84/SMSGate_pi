@@ -161,6 +161,8 @@
 
 <script type="text/javascript">
     
+    $(".input_phone").mask("+7 (999) 999-99-99");
+    
     $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet"%>", function (data) {
 
         Highcharts.setOptions({
