@@ -170,6 +170,7 @@ public class PiServlet extends HttpServlet {
                     String recipient = Tools.getStringValue(request.getParameter("recipient"), "");
                     sms = Tools.replaceTags(sms);
                     recipient = Tools.replaceTags(recipient);
+                    recipient = recipient.replaceAll("\\(","").replaceAll("\\)","").replaceAll("\\-", "").replaceAll(" ","");
                     if (request.getMethod().equalsIgnoreCase("POST") && sms.trim().length() > 0 && recipient.trim().length() > 0) {
                         HashMap data = new HashMap();
                         data.put("message", sms);

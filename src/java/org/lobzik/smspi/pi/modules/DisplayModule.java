@@ -85,11 +85,13 @@ public class DisplayModule implements Module {
     public void start() {
         try {
             try {
-                Tools.sysExec("sudo killall -9 fbi", new File("/"));
+                if (AppData.onPi) {//pi is sudoer
+                    Tools.sysExec("sudo killall -9 fbi", new File("/"));
+                }
             } catch (Throwable t) {
                 t.printStackTrace();
             }
-                    
+
             draw();
             EventManager.subscribeForEventType(this, Event.Type.TIMER_EVENT);
             EventManager.subscribeForEventType(this, Event.Type.SYSTEM_EVENT);
@@ -100,7 +102,6 @@ public class DisplayModule implements Module {
             fbiRunner = new FbiRunner();
             fbiRunner.start();
 
-            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -129,16 +130,16 @@ public class DisplayModule implements Module {
             case PARAMETER_UPDATED:
                 try {
                     if (e.name.equals("Balance updated")) {
-                        Measurement m  = (Measurement)e.data.get("measurement");
+                        Measurement m = (Measurement) e.data.get("measurement");
                         int newBalance = m.getDoubleValue().intValue();
-                        if ( newBalance!=balance) {
+                        if (newBalance != balance) {
                             balance = newBalance;
                             draw();
                         }
                     }
+                } catch (Exception eee) {
                 }
-                catch (Exception eee){}
-                
+
                 break;
 
         }
@@ -167,7 +168,7 @@ public class DisplayModule implements Module {
             g.setColor(fontColor);
             //g.setFont(new Font("Roboto Regular", Font.BOLD, 16));
             //g.drawString(modemMode, 425, 40);
-            
+
             //g.drawString(rssi + " dB", 415, 60);
             //rssi
             g.setColor(new Color(255, 255, 255, 200));
@@ -175,56 +176,61 @@ public class DisplayModule implements Module {
             g.fillRect(262, 106, 10, 24);
             g.fillRect(274, 94, 10, 36);
             g.fillRect(286, 82, 10, 48);
-            
+
             //int rssi = -75;//сигнал сети, дБ. <100 нет фишек, 100<rssi<90 одна фишка, 90<rssi<80 две фишки, 80<rssi<70 три фишки, >70 четыре фишки
-            
-             if (rssi <= -100) {
+            if (rssi <= -100) {
                 g2d.setColor(new Color(255, 0, 0));
                 g2d.setStroke(new BasicStroke(5.0f));
                 g2d.drawOval(250, 80, 50, 50);
                 g2d.drawLine(260, 120, 290, 90);
             }
-            
+
             g.setColor(fontColor);
-            if (rssi > -100) 
+            if (rssi > -100) {
                 g.fillRect(250, 118, 10, 12);
-            if (rssi > -90) 
+            }
+            if (rssi > -90) {
                 g.fillRect(262, 106, 10, 24);
-            if (rssi > -80) 
+            }
+            if (rssi > -80) {
                 g.fillRect(274, 94, 10, 36);
-            if (rssi > -70) 
+            }
+            if (rssi > -70) {
                 g.fillRect(286, 82, 10, 48);
-            
-            
-             try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_SENT , "cnt", null, conn);
-                Long msgReceived = DBSelect.getCount("select count(*) as cnt from sms_inbox" , "cnt", null, conn);
-                Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status in (" + ModemModule.STATUS_ERROR_SENDING + "," + ModemModule.STATUS_ERROR_TOO_OLD + "," + ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED +")" , "cnt", null, conn);
+            }
+
+            try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_SENT, "cnt", null, conn);
+                Long msgReceived = DBSelect.getCount("select count(*) as cnt from sms_inbox", "cnt", null, conn);
+                Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status in (" + ModemModule.STATUS_ERROR_SENDING + "," + ModemModule.STATUS_ERROR_TOO_OLD + "," + ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED + ")", "cnt", null, conn);
                 g.setColor(new Color(255, 255, 255, 200));
                 g.setFont(new Font("Roboto Regular", Font.BOLD, 30));
                 g.drawString("Отправлено", 21, 90);
                 g.drawString("Принято", 21, 188);
                 g.drawString("Баланс", 250, 188);
                 g.drawString("Ошибок", 21, 230);
-                
+
                 g.setColor(fontColor);
 
-                g.drawString(""+ msgReceived, 160, 188);
-                g.drawString(""+ msgErrs, 160, 230);
+                g.drawString("" + msgReceived, 160, 188);
+                g.drawString("" + msgErrs, 160, 230);
 
                 g.setFont(new Font("Roboto Regular", Font.BOLD, 60));
-                if (balance==-1123)
+                if (balance == -1123) {
                     g.drawString("Н/Д", 250, 238);
-                else
+                } else {
                     g.drawString(balance + "р", 250, 238);
-                g.drawString(""+ msgSent, 21, 148);
-                
+                }
+                g.drawString("" + msgSent, 21, 148);
+
                 g.setFont(new Font("Roboto Regular", Font.BOLD, 65));
-                if (rssi>-100)
+                if (rssi > -100) {
                     g.drawString(rssi + "dB", 303, 130);
+                }
 
-             } catch (Exception e) { e.printStackTrace();}
-
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             File file = new File(AppData.getGraphicsWorkDir().getAbsolutePath() + File.separator + TMP_FILE);
             FileOutputStream fos = new FileOutputStream(file);
@@ -251,7 +257,9 @@ public class DisplayModule implements Module {
     public static void finish() {
         try {
             instance.fbiRunner.finish();
-            Tools.sysExec("sudo killall -9 fbi", new File("/"));
+            if (AppData.onPi) {//pi is sudoer
+                Tools.sysExec("sudo killall -9 fbi", new File("/"));
+            }
         } catch (Throwable t) {
             t.printStackTrace();
         }
