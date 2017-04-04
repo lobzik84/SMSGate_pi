@@ -133,7 +133,6 @@ public class ModemModule extends Thread implements Module {
             waitForCommand("ATE0\r");
             waitForCommand("AT+CMGF=0\r");
 
-
             waitForCommand("AT+COPS=3,0\r");
             waitForCommand("AT+COPS?\r");
             String operator = parseCOPSReply(recievedLines);
@@ -199,12 +198,11 @@ public class ModemModule extends Thread implements Module {
 
                 AppData.eventManager.newEvent(event);
 
-                
             }
             int iter = -1;
             while (run) {
                 try {
-                    iter+=1;
+                    iter += 1;
                     String sSQL = "select * from sms_outbox where status=" + STATUS_NEW + " or status=" + STATUS_ERROR_SENDING;
 
                     List<HashMap> smsToSendList = DBSelect.getRows(sSQL, conn);
@@ -268,8 +266,8 @@ public class ModemModule extends Thread implements Module {
                     }
 
                     recievedLines.clear();
-                    
-                    if ((iter+"").endsWith("0")){
+
+                    if ((iter + "").endsWith("0")) {
                         Double myBalabce = checkBalance();
                         myNumberparamId = AppData.parametersStorage.resolveAlias("MODEM_BALANCE");
                         if (myNumberparamId > 0 && myBalabce >= 0) {
@@ -282,7 +280,7 @@ public class ModemModule extends Thread implements Module {
                             AppData.eventManager.newEvent(new Event("Balance updated", eventData, Event.Type.PARAMETER_UPDATED));
                         }
                     }
-                        
+
                     waitForCommand("AT+CSQ\r");
                     int db = parseCSQReply(recievedLines);
                     log.debug("RSSI = " + db + " dBm");
@@ -316,7 +314,7 @@ public class ModemModule extends Thread implements Module {
                             waitForCommand("AT+CMGD=0,4\r");
                         }
                     }
-                    
+
                     synchronized (this) {
                         try {
                             wait();//wait for timer 
@@ -588,6 +586,10 @@ public class ModemModule extends Thread implements Module {
     }
 
     private int sendMessage(String recipient, String text) {
+        if (!recipient.matches("\\+[0-9]{7,15}")) {
+            log.error("Invalid recipient (must be like +71234567890)");
+            return -1;
+        }
         HashMap message = new HashMap();
         message.put("message", text);
         message.put("recipient", recipient); //TODO проверка на формат телефона!
@@ -621,7 +623,7 @@ public class ModemModule extends Thread implements Module {
 
         public ModemSerialReader() {
         }
-        
+
         public void setInputStream(InputStream is) {
             this.is = is;
         }
