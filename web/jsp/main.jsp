@@ -1,3 +1,5 @@
+<%@page import="org.lobzik.home_sapiens.entity.Parameter"%>
+<%@page import="org.lobzik.smspi.pi.AppData"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
@@ -49,6 +51,26 @@
 
     rusMsgType.put("outbox", "Исходящее");
     rusMsgType.put("inbox", "Входящее");
+    
+    Parameter operP = AppData.parametersStorage.getParameterByAlias("MODEM_OPERATOR");
+    String operator = "";
+    if (AppData.measurementsCache.getLastMeasurement(operP) != null) {
+        operator = AppData.measurementsCache.getLastMeasurement(operP).toStringValue();
+    }
+    
+    Parameter numP = AppData.parametersStorage.getParameterByAlias("MODEM_NUMBER");
+   String simNumber = "";
+    if (AppData.measurementsCache.getLastMeasurement(numP) != null) {
+        simNumber = "+" + AppData.measurementsCache.getLastMeasurement(numP).toStringValue();
+    }
+
+    
+    Parameter balP = AppData.parametersStorage.getParameterByAlias("MODEM_BALANCE");
+    String simBalance = "";
+    if (AppData.measurementsCache.getLastMeasurement(balP) != null ) {
+        simBalance =  AppData.measurementsCache.getLastMeasurement(balP).toStringValue();
+    }
+    
 %>
 
 <jsp:include page="header.jsp" />
@@ -75,11 +97,11 @@
                     <div class="mb__top_14"></div>
                 </div>
                 <div class="mb__text">
-                    <p class="mb__operator"></p>
-                    <p class="chart__balance">
-                        <!--<span class="rouble">i</span>-->
+                    <p class="mb__operator"><%=operator%></p>
+                    <p class="chart__balance"><%=simBalance%>
+                        <% if (simBalance.length() > 0) { %><span class="rouble">i</span> <%}%>
                     </p>
-                    <p class="chart__phone"></p>
+                    <p class="chart__phone"><%=simNumber%></p>
                 </div>
             </div>
             <p class="chart__total_label">Отправлено за сегодня:</p>
