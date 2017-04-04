@@ -46,7 +46,7 @@ public class AppData {
     static {
         BasicDataSource ds = null;
         ParametersStorage ps = null;
-        onPi = "pi".equals(System.getProperty("user.name"));
+        onPi = "tomcat7".equals(System.getProperty("user.name"));
         try {
             Context initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
