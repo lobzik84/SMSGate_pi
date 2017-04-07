@@ -88,7 +88,7 @@
                     String curMessage = Tools.getStringValue(hm.get("message"), "");
                     String curTelNo = Tools.getStringValue(hm.get("tel_no"), "");
                     String curType = Tools.getStringValue(hm.get("type"), "");
-                    String curDate = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:SS");
+                    String curDate = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:ss");
                     int curStatus = Tools.parseInt(hm.get("status"), -1);
             %>
 

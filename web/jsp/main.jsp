@@ -51,26 +51,25 @@
 
     rusMsgType.put("outbox", "Исходящее");
     rusMsgType.put("inbox", "Входящее");
-    
+
     Parameter operP = AppData.parametersStorage.getParameterByAlias("MODEM_OPERATOR");
     String operator = "";
     if (AppData.measurementsCache.getLastMeasurement(operP) != null) {
         operator = AppData.measurementsCache.getLastMeasurement(operP).toStringValue();
     }
-    
+
     Parameter numP = AppData.parametersStorage.getParameterByAlias("MODEM_NUMBER");
-   String simNumber = "";
+    String simNumber = "";
     if (AppData.measurementsCache.getLastMeasurement(numP) != null) {
         simNumber = "+" + AppData.measurementsCache.getLastMeasurement(numP).toStringValue();
     }
 
-    
     Parameter balP = AppData.parametersStorage.getParameterByAlias("MODEM_BALANCE");
     String simBalance = "";
-    if (AppData.measurementsCache.getLastMeasurement(balP) != null ) {
-        simBalance =  AppData.measurementsCache.getLastMeasurement(balP).toStringValue();
+    if (AppData.measurementsCache.getLastMeasurement(balP) != null) {
+        simBalance = AppData.measurementsCache.getLastMeasurement(balP).toStringValue();
     }
-    
+
 %>
 
 <jsp:include page="header.jsp" />
@@ -129,7 +128,7 @@
                         String message = Tools.getStringValue(hm.get("message"), "");
                         String telNo = Tools.getStringValue(hm.get("tel_no"), "");
                         String type = Tools.getStringValue(hm.get("type"), "");
-                        String date = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:SS");
+                        String date = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:ss");
                         int status = Tools.parseInt(hm.get("status"), -5);
                 %>
                 <tr>
@@ -151,7 +150,7 @@
         <div class="log">
             <%for (HashMap hm : logData) {
                     String moduleName = Tools.getStringValue(hm.get("module_name"), "");
-                    String dated = Tools.getFormatedDate((java.util.Date) hm.get("dated"), "dd.MM.yyyy HH:mm:SS");
+                    String dated = Tools.getFormatedDate((java.util.Date) hm.get("dated"), "dd.MM.yyyy HH:mm:ss");
                     String level = Tools.getStringValue(hm.get("level"), "");
                     String message = Tools.getStringValue(hm.get("message"), "");
             %>
@@ -182,9 +181,9 @@
 </div>
 
 <script type="text/javascript">
-    
+
     $(".input_phone").mask("+7 (999) 999-99-99");
-    
+
     $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet"%>", function (data) {
 
         Highcharts.setOptions({
@@ -203,6 +202,9 @@
                 downloadPDF: 'Скачать PDF',
                 downloadSVG: 'Скачать SVG',
                 printChart: 'Напечатать график'
+            },
+            global: {
+                useUTC: false
             }
         });
 
@@ -211,7 +213,32 @@
                 alignTicks: false
             },
             rangeSelector: {
-                selected: 1
+                buttons: [{
+                        type: 'month',
+                        count: 1,
+                        text: '1 мес'
+                    }, {
+                        type: 'month',
+                        count: 3,
+                        text: '3 мес'
+                    }, {
+                        type: 'month',
+                        count: 6,
+                        text: '6 мес'
+                    }, {
+                        type: 'ytd',
+                        text: 'Текущий год'
+                    }, {
+                        type: 'year',
+                        text: '1 год'
+                    }, {
+                        type: 'all',
+                        text: 'Всё'
+                    }],
+                buttonTheme: {
+                    width: 70
+                },
+                selected: 5
             },
             title: {
                 text: 'Количество SMS'
