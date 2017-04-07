@@ -44,13 +44,14 @@ public class AppListener implements ServletContextListener {
             log.info("Starting hs app. Modules start!");
             BoxSettingsAPI.initBoxSettings();
             AppData.setGraphicsWorkDir(new File(sce.getServletContext().getRealPath("img")));
+            DisplayModule.getInstance().start();
             InternalSensorsModule.getInstance().start();
             ModemModule.getInstance().start();
             ActualDataStorageModule.getInstance().start();
             TimerModule.getInstance().start();
             DBDataWriterModule.getInstance().start();
             SystemModule.getInstance().start();
-            DisplayModule.getInstance().start();
+
             ChartModule.getInstance().start();
 
         } catch (Throwable ex) {
