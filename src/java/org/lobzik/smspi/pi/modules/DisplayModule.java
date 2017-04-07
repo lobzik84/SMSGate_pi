@@ -22,7 +22,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -37,6 +36,7 @@ import javax.imageio.ImageIO;
 
 import org.apache.log4j.Appender;
 import org.lobzik.home_sapiens.entity.Measurement;
+import org.lobzik.home_sapiens.entity.Parameter;
 import org.lobzik.smspi.pi.BoxCommonData;
 import org.lobzik.smspi.pi.ConnJDBCAppender;
 import org.lobzik.smspi.pi.event.EventManager;
@@ -62,6 +62,7 @@ public class DisplayModule implements Module {
     private static final Color DAY_FONT_COLOR = new Color(255, 255, 255);
     private static int rssi = -101;
     private static int balance = -1123;
+    private static String operator = "";
 
     private DisplayModule() { //singleton
     }
@@ -121,6 +122,7 @@ public class DisplayModule implements Module {
                         rssi = newRSSI;
                         draw();
                     }
+
                 }
                 break;
 
@@ -151,6 +153,17 @@ public class DisplayModule implements Module {
             log.debug("Drawing img for screen");
             Graphics g = null;
             BufferedImage img = null;
+            Parameter operP = AppData.parametersStorage.getParameterByAlias("MODEM_OPERATOR");
+
+            if (AppData.measurementsCache.getLastMeasurement(operP) != null) {
+                operator = AppData.measurementsCache.getLastMeasurement(operP).toStringValue();
+            }
+
+            Parameter balP = AppData.parametersStorage.getParameterByAlias("MODEM_BALANCE");
+
+            if (AppData.measurementsCache.getLastMeasurement(balP) != null) {
+                balance = AppData.measurementsCache.getLastMeasurement(balP).getDoubleValue().intValue();
+            }
 
             img = ImageIO.read(new File(AppData.getGraphicsWorkDir().getAbsolutePath() + File.separator + "background_day.jpg"));
             g = img.getGraphics();
@@ -162,14 +175,14 @@ public class DisplayModule implements Module {
 
             g.setColor(fontColor);
             g.setFont(new Font("Roboto Regular", Font.BOLD, 30));
-            g.drawString(Tools.getFormatedDate(new Date(), "HH:mm"), 214, 35);
+            g.drawString(Tools.getFormatedDate(new Date(), "HH:mm"), 210, 35);
 
             //Modem
             g.setColor(fontColor);
-            //g.setFont(new Font("Roboto Regular", Font.BOLD, 16));
-            //g.drawString(modemMode, 425, 40);
 
-            //g.drawString(rssi + " dB", 415, 60);
+            g.setFont(new Font("Roboto Regular", Font.BOLD, 30));
+            g.drawString(operator, 324, 35);
+
             //rssi
             g.setColor(new Color(255, 255, 255, 200));
             g.fillRect(250, 118, 10, 12);
@@ -199,6 +212,20 @@ public class DisplayModule implements Module {
                 g.fillRect(286, 82, 10, 48);
             }
 
+            g.setFont(new Font("Roboto Regular", Font.BOLD, 60));
+            if (balance == -1123) {
+                g.drawString("Н/Д", 250, 238);
+            } else {
+                g.drawString(balance + "р", 250, 238);
+            }
+
+            if (rssi > -100) {
+                g.drawString(rssi + "", 303, 130);
+                g.setFont(new Font("Roboto Regular", Font.BOLD, 40));
+                g.drawString("dB", 407, 130);
+
+            }
+
             try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
                 Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_SENT, "cnt", null, conn);
                 Long msgReceived = DBSelect.getCount("select count(*) as cnt from sms_inbox", "cnt", null, conn);
@@ -215,18 +242,8 @@ public class DisplayModule implements Module {
                 g.drawString("" + msgReceived, 160, 188);
                 g.drawString("" + msgErrs, 160, 230);
 
-                g.setFont(new Font("Roboto Regular", Font.BOLD, 60));
-                if (balance == -1123) {
-                    g.drawString("Н/Д", 250, 238);
-                } else {
-                    g.drawString(balance + "р", 250, 238);
-                }
-                g.drawString("" + msgSent, 21, 148);
-
                 g.setFont(new Font("Roboto Regular", Font.BOLD, 65));
-                if (rssi > -100) {
-                    g.drawString(rssi + "dB", 303, 130);
-                }
+                g.drawString("" + msgSent, 21, 148);
 
             } catch (Exception e) {
                 e.printStackTrace();
