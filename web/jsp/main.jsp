@@ -133,7 +133,7 @@
                 %>
                 <tr>
                     <td class="w-5"><%= id%></td>
-                    <td class="w-30"><%= message%></td>
+                    <td class="w-50 word-b"><%= message%></td>
                     <td class="w-20"><%= telNo%></td>
                     <td class="w-10">
                         <span class="js-tooltip message__icon message__icon_<%= type%>" title="<%= Tools.getStringValue(rusMsgType.get(type), "")%>"></span>
