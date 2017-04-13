@@ -46,8 +46,9 @@ public class InternalSensorsModule extends Thread implements Module {
     private static final int STOPBITS = SerialPort.STOPBITS_1;
     private static final int PARITY = SerialPort.PARITY_NONE;
     private static final int PORT_TIMEOUT = 2000;
-    private static final int ONEWAY_433_PARAMETERS_TIMEOUT = 1000 * 15;
+    //private static final int ONEWAY_433_PARAMETERS_TIMEOUT = 1000 * 15;
     //private static List<Integer> ONEWAY_PARAMETERS = new ArrayList();
+    private static boolean firstPoll = true;
 
     @Override
     public String getModuleName() {
@@ -61,6 +62,10 @@ public class InternalSensorsModule extends Thread implements Module {
             case TIMER_EVENT:
                 if (e.name.equals("internal_sensors_poll")) {
                     if (serialWriter != null) {
+                        if (firstPoll) {
+                            serialWriter.doCommand("swd=on");// enable serial watchdog
+                            firstPoll = false;
+                        }
                         serialWriter.poll();
                     }
                 }
@@ -118,48 +123,27 @@ public class InternalSensorsModule extends Thread implements Module {
     private void parseUartReply(String data) {
         try {
             if (data.contains("DS18B20")) {
-                String val = data.substring(data.lastIndexOf(":") + 1, data.length());
+                /*String val = data.substring(data.lastIndexOf(":") + 1, data.length());
                 val = val.trim();
                 String address = data.substring(0, data.indexOf("DS18B20"));
                 address = address.trim();
-
+                 */
             } else if (data.contains(":")) {
                 String val = data.substring(data.lastIndexOf(":") + 1, data.length());
                 val = val.trim();
                 String paramName = data.substring(0, data.indexOf(":"));
                 paramName = paramName.trim();
-                Parameter doorP = AppData.parametersStorage.getParameterByAlias("DOOR_SENSOR");
-                Parameter wetP = AppData.parametersStorage.getParameterByAlias("WET_SENSOR");
-                if (paramName.equals("433_RX")) {
-                    /*
-                    Measurement m = null;
-                    HashMap eventData = new HashMap();
-                    String door433Addresses = BoxSettingsAPI.get("DoorSensorAddress433");
-                    if (door433Addresses != null && door433Addresses.length() > 0) {
-                        for (String address : door433Addresses.split(",")) {
-                            if (val.equals(address)) {
-                                m = new Measurement(doorP, true);
-                                eventData.put("parameter", doorP);
-
-                            }
-                        }
+                if (paramName.equals("POWER_SWITCH")) {
+                    boolean switchState = Tools.parseBoolean(val, null);
+                    if (!switchState) {
+                        //switch was turned off
+                        String message = "Power button pressed";
+                        log.info(message);
+                        HashMap cause = new HashMap();
+                        cause.put("cause", message);
+                        Event shutdown = new Event("shutdown", cause, Event.Type.SYSTEM_EVENT);
+                        AppData.eventManager.newEvent(shutdown);
                     }
-
-                    String wet433Addresses = BoxSettingsAPI.get("WetSensorAddress433");
-                    if (wet433Addresses != null && wet433Addresses.length() > 0) {
-                        for (String address : wet433Addresses.split(",")) {
-                            if (val.equals(address)) {
-                                m = new Measurement(wetP, true);
-                                eventData.put("parameter", wetP);
-                            }
-                        }
-                    }
-
-                    if (m != null) {
-                        eventData.put("measurement", m);
-                        Event e = new Event("433 recieved", eventData, Event.Type.PARAMETER_UPDATED);
-                        AppData.eventManager.newEvent(e);
-                    }*/
                 } else {
                     int paramId = AppData.parametersStorage.resolveAlias(paramName);
 
@@ -244,11 +228,20 @@ public class InternalSensorsModule extends Thread implements Module {
             this.port = port;
         }
 
-        public void finish() {
-            run = false;
-            synchronized (this) {
-                notify();
+        public static void finish() {
+            log.info("Disabling serial watchdog");
+            if (serialWriter != null) {
+                serialWriter.doCommand("swd=off");// disable serial watchdog
+
             }
+
+            log.info("Stopping SerialWriter");
+            if (serialWriter != null) {
+                serialWriter.finish();
+
+            }
+            run = false;
+
         }
 
         public void poll() {

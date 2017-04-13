@@ -25,10 +25,12 @@ public class SystemModule implements Module {
     private static SystemModule instance = null;
     private Process process = null;
     private static Logger log = null;
-    private static final String PREFIX = "/usr/bin/sudo";
-    private static final String SHUTDOWN_COMMAND = "halt";
+    private static final String PREFIX = "sudo";
+    private static final String SHUTDOWN_COMMAND = "halt"; 
     private static final String SHUTDOWN_SUFFIX = "-p";
-    private static final int SHUTDOWN_TIMEOUT = 30; //seconds for halt procedure
+    private static final String REBOOT_COMMAND = "reboot";
+    
+    //private static final int SHUTDOWN_TIMEOUT = 30; //seconds for halt procedure
 
     private SystemModule() { //singleton
     }
@@ -67,15 +69,15 @@ public class SystemModule implements Module {
                     @Override
                     public void run() {
                         try {
-                            if (e.type == Event.Type.BEHAVIOR_EVENT) {
+                           /* if (e.type == Event.Type.BEHAVIOR_EVENT) {
                                 Thread.sleep(30000);//чтобы успели разлететься смс-ки и остальное
-                            }
-                            HashMap data = new HashMap();
+                            }*/
+                           /* HashMap data = new HashMap();
                             data.put("uart_command", "poweroff=" + SHUTDOWN_TIMEOUT); //timer for SHUTDOWN_TIMEOUT secs
                             Event e = new Event("internal_uart_command", data, Event.Type.USER_ACTION);
-                            AppData.eventManager.lockForEvent(e, this);
+                            AppData.eventManager.lockForEvent(e, this);*/
                             log.info("Now shutting down");
-                            Tools.sysExec("sudo halt -p", new File("/"));
+                            Tools.sysExec(PREFIX + " " + SHUTDOWN_COMMAND + " " + SHUTDOWN_SUFFIX, new File("/"));
                         } catch (Exception e) {
                             log.error(e.getMessage());
                         }
@@ -99,12 +101,12 @@ public class SystemModule implements Module {
                             Thread.sleep(5000);                      
                             log.info("Turning modem power on!");                           
                             data = new HashMap();
-                            data.put("uart_command", "modem=on"); 
+                            data.put("uart_command", "modem=on"); //TODO disable serial watchdog? 
                             e = new Event("internal_uart_command", data, Event.Type.USER_ACTION);
                             AppData.eventManager.lockForEvent(e, this);
                             Thread.sleep(5000);
                             log.info("Now rebooting");
-                            Tools.sysExec("sudo reboot", new File("/"));
+                            Tools.sysExec(PREFIX + " " + REBOOT_COMMAND, new File("/"));
                         } catch (Exception e) {
                             log.error(e.getMessage());
                         }
