@@ -76,14 +76,15 @@ public class ModemModule extends Thread implements Module {
 
     private static int modemOkRepliesCount = 0;
     private static int modemWriteErrorCount = 0;
-
-    private static final AtomicBoolean modemBusy = new AtomicBoolean(false);
-   
-    private static final AtomicBoolean doCheckBalance = new AtomicBoolean(true);
+    private static String suggestedResponse = null;
     
+    private static final AtomicBoolean modemBusy = new AtomicBoolean(false);
+
+    private static final AtomicBoolean doCheckBalance = new AtomicBoolean(true);
+
     public static final String regex = "[0-9\\.]+ *р\\.";//будет в настройках
     public static final String replacer = "р.";//будет в настройках
-
+    
     private ModemModule() { //singleton
     }
 
@@ -342,12 +343,34 @@ public class ModemModule extends Thread implements Module {
         }
     }
 
+    private boolean waitForUSSD() {
+        modemBusy.set(true);
+        suggestedResponse = "+CUSD:";
+        long waitStart = System.currentTimeMillis();
+        synchronized (this) {
+            try {
+                wait(USSD_TIMEOUT);
+            } catch (InterruptedException ie) {
+            }
+        }
+        if (System.currentTimeMillis() - waitStart >= MODEM_TIMEOUT) {
+            log.error("USSD TIMEOUT");
+            modemBusy.set(false);
+            return false;
+            
+        }
+        modemBusy.set(false);
+        return true;
+    }
+
     private void waitForCommand(String command) throws Exception {
         waitForCommand(command, MODEM_TIMEOUT);
     }
 
     private void waitForCommand(String command, int timeout) throws Exception {
+        
         modemBusy.set(true);
+        suggestedResponse = null;
         log.debug("Sending " + command);
         long waitStart = System.currentTimeMillis();
         if (command != null) {
@@ -435,7 +458,8 @@ public class ModemModule extends Thread implements Module {
             recievedLines.poll();
         }
         line = line.trim();
-        if (line.equals("OK") || line.contains("ERROR") || line.equals(">") || line.contains("+CMTI:") || line.contains("+CUSD:")) {
+        if ((suggestedResponse == null &&  (line.equals("OK") || line.contains("ERROR") || line.equals(">") || line.contains("+CMTI:")))
+                 || (suggestedResponse != null && line.contains(suggestedResponse))) {
             if (modemOkRepliesCount < Integer.MAX_VALUE) {
                 modemOkRepliesCount++;
                 modemWriteErrorCount = 0;
@@ -444,26 +468,6 @@ public class ModemModule extends Thread implements Module {
                 notify();
             }
         }
-    }
-
-    private String parseUSSDnumReply(Queue<String> replyLines) {
-        String number = "";
-        while (!replyLines.isEmpty()) {
-
-            String pdu = replyLines.poll();
-            if (pdu.contains("+CUSD")) {
-                try {
-                    pdu = pdu.substring(pdu.indexOf("\"") + 1);
-                    pdu = pdu.substring(0, pdu.indexOf("\""));
-
-                    CIncomingMessage message = new CIncomingMessage(pdu, 1);
-                    number = message.getText();
-                    break;
-                } catch (Exception e) {
-                }
-            }
-        }
-        return number;
     }
 
     private String parseCOPSReply(Queue<String> replyLines) {
@@ -714,21 +718,12 @@ public class ModemModule extends Thread implements Module {
     public String checkNumber() {
         String myNumber = "";
         try {
+            modemBusy.set(true);
             log.debug("Checking number");
             waitForCommand("AT^USSDMODE=0\r");
             recievedLines.clear();
             waitForCommand("AT+CUSD=1,\"*205#\",15\r"); //MEGAFON-specific!!
-
-            long waitStart = System.currentTimeMillis();
-            synchronized (this) {
-                try {
-                    wait(USSD_TIMEOUT);
-                } catch (InterruptedException ie) {
-                }
-            }
-            if (System.currentTimeMillis() - waitStart >= MODEM_TIMEOUT) {
-                log.error("USSD TIMEOUT");
-            } else {
+            if (waitForUSSD()) {
                 myNumber = parseUSSDUCS2numReply(recievedLines);
                 myNumber = myNumber.replaceAll(" ", "").replaceAll("-", "");
                 Matcher m = Pattern.compile("\\d{11}").matcher(myNumber);
@@ -740,6 +735,7 @@ public class ModemModule extends Thread implements Module {
             }
         } catch (Exception eee) {
         }
+        modemBusy.set(false);
         return myNumber;
 
     }
@@ -754,16 +750,7 @@ public class ModemModule extends Thread implements Module {
             recievedLines.clear();
             waitForCommand("AT+CUSD=1,\"*100#\",15\r"); //MEGAFON-specific!!
 
-            long waitStart = System.currentTimeMillis();
-            synchronized (this) {
-                try {
-                    wait(USSD_TIMEOUT);
-                } catch (InterruptedException ie) {
-                }
-            }
-            if (System.currentTimeMillis() - waitStart >= MODEM_TIMEOUT) {
-                log.error("USSD TIMEOUT");
-            } else {
+            if (waitForUSSD()) {
                 String balanceString = parseUSSDUCS2numReply(recievedLines);
 
                 Pattern pattern = Pattern.compile(regex);
