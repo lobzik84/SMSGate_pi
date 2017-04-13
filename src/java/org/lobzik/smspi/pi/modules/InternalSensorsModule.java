@@ -110,13 +110,19 @@ public class InternalSensorsModule extends Thread implements Module {
             e.printStackTrace();
         }
     }
-
     public static void finish() {
-        log.info("Stopping SerialWriter");
+        log.info("Disabling serial watchdog");
+        if (serialWriter != null) {
+            serialWriter.doCommand("swd=off");// disable serial watchdog
+
+        }
+
+
         if (serialWriter != null) {
             serialWriter.finish();
 
         }
+        log.info("Stopping InternalSensorsModule");
         run = false;
     }
 
@@ -228,20 +234,12 @@ public class InternalSensorsModule extends Thread implements Module {
             this.port = port;
         }
 
-        public static void finish() {
-            log.info("Disabling serial watchdog");
-            if (serialWriter != null) {
-                serialWriter.doCommand("swd=off");// disable serial watchdog
-
-            }
-
+        public void finish() {
             log.info("Stopping SerialWriter");
-            if (serialWriter != null) {
-                serialWriter.finish();
-
-            }
             run = false;
-
+            synchronized (this) {
+                notify();
+            }
         }
 
         public void poll() {
