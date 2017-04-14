@@ -118,7 +118,7 @@ public class SMSClientTest {
                     in.close();
                     response = new JSONObject(sb.toString());
                     //result = response.getString("result");
-                    System.out.print(response.toString());
+                    System.out.println(response.toString());
 
                 } catch (Exception e) {
                     e.printStackTrace();

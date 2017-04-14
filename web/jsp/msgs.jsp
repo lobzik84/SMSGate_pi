@@ -1,3 +1,4 @@
+<%@page import="org.lobzik.smspi.pi.MessageStatus"%>
 <%@page import="org.lobzik.smspi.pi.modules.ModemModule"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.HashMap"%>
@@ -25,23 +26,8 @@
     String dateFrom = Tools.getStringValue(filterList.get("date_from"), "");
     String dateTo = Tools.getStringValue(filterList.get("date_to"), "");
 
-    HashMap msgStringStatuses = new HashMap();
-    HashMap msgCssClassStatuses = new HashMap();
     HashMap rusMsgType = new HashMap();
-    msgStringStatuses.put(ModemModule.STATUS_NEW, "Новое");
-    msgCssClassStatuses.put(ModemModule.STATUS_NEW, "new");
-    msgStringStatuses.put(ModemModule.STATUS_SENT, "Отправлено");
-    msgCssClassStatuses.put(ModemModule.STATUS_SENT, "sent");
-    msgStringStatuses.put(ModemModule.STATUS_READ, "Прочитано");
-    msgCssClassStatuses.put(ModemModule.STATUS_READ, "read");
-    msgStringStatuses.put(ModemModule.STATUS_ERROR_SENDING, "Ошибка отправления");
-    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_SENDING, "error");
-    msgStringStatuses.put(ModemModule.STATUS_ERROR_TOO_OLD, "Слишком старая");
-    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_TOO_OLD, "sad_pedobear");
-    msgStringStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "Превышено количество попыток отправки");
-    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "exceeded");
-    msgStringStatuses.put(ModemModule.STATUS_SENDING, "Отправляется");
-    msgCssClassStatuses.put(ModemModule.STATUS_SENDING, "sending");
+
 
     rusMsgType.put("outbox", "Исходящее");
     rusMsgType.put("inbox", "Входящее");
@@ -89,7 +75,7 @@
                     String curTelNo = Tools.getStringValue(hm.get("tel_no"), "");
                     String curType = Tools.getStringValue(hm.get("type"), "");
                     String curDate = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:ss");
-                    int curStatus = Tools.parseInt(hm.get("status"), -1);
+                    MessageStatus ms = new MessageStatus(hm.get("status"));
             %>
 
             <div class="message message__<%= curType%>">
@@ -99,7 +85,7 @@
                     <p class="message__date"> 
                         <span class="js-tooltip message__icon_small message__icon_small-<%= curType%>" title="<%= Tools.getStringValue(rusMsgType.get(curType), "")%>"></span>
                         <%= curDate%> 
-                        <span class="js-tooltip message__status message__status_<%= curType%>-<%= Tools.getStringValue(msgCssClassStatuses.get(curStatus), "")%> message__status_<%= Tools.getStringValue(msgCssClassStatuses.get(curStatus), "")%>" title="<%= Tools.getStringValue(msgStringStatuses.get(curStatus), "")%>"></span>
+                        <span class="js-tooltip message__status message__status_<%= curType%>-<%= ms.CSSClass()%> message__status_<%= ms.CSSClass()%>" title="<%= ms.rus()%>"></span>
                     </p>
                 </div>
             </div>

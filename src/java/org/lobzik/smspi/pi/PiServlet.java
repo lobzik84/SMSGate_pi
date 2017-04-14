@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import org.lobzik.home_sapiens.entity.Measurement;
 import org.lobzik.home_sapiens.entity.Parameter;
 import org.lobzik.smspi.pi.event.Event;
-import org.lobzik.smspi.pi.modules.ModemModule;
 import org.lobzik.tools.Tools;
 import org.lobzik.tools.db.mysql.DBSelect;
 import org.lobzik.tools.db.mysql.DBTools;
@@ -126,9 +125,9 @@ public class PiServlet extends HttpServlet {
                 if (loginAdmin > 0) {
                     log.info("Registration for admin: " + loginAdmin + " is alive");
                     try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                        Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_SENT, "cnt", null, conn);
-                        Long msgSentDaily = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_SENT + " and date_sent > concat (current_date, ' 00:00:00') and date_sent < concat (current_date ,' 23:59:59')", "cnt", null, conn);
-                        Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status in (" + ModemModule.STATUS_ERROR_SENDING + ", " + ModemModule.STATUS_ERROR_TOO_OLD + ", " + ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED + ")", "cnt", null, conn);
+                        Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + MessageStatus.STATUS_SENT, "cnt", null, conn);
+                        Long msgSentDaily = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + MessageStatus.STATUS_SENT + " and date_sent > concat (current_date, ' 00:00:00') and date_sent < concat (current_date ,' 23:59:59')", "cnt", null, conn);
+                        Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status in (" + MessageStatus.STATUS_ERROR_SENDING + ", " + MessageStatus.STATUS_ERROR_TOO_OLD + ", " + MessageStatus.STATUS_ERROR_ATTEMPTS_EXCEEDED + ")", "cnt", null, conn);
                         Long msgInbox = DBSelect.getCount("select count(*) as cnt from sms_inbox", "cnt", null, conn);
                         jspData.put("msgSent", msgSent);
                         jspData.put("msgSentDaily", msgSentDaily);

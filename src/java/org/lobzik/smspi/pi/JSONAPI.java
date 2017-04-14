@@ -15,10 +15,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import org.json.JSONObject;
 import org.lobzik.smspi.pi.event.Event;
-import static org.lobzik.smspi.pi.modules.ModemModule.STATUS_NEW;
 import org.lobzik.tools.Tools;
 import org.lobzik.tools.db.mysql.DBSelect;
 import org.lobzik.tools.db.mysql.DBTools;
@@ -42,6 +40,7 @@ public class JSONAPI {
             
             reply.put("message_id", msgId);
             reply.put("status", resList.get(0).get("status"));
+            reply.put("status_descirption", (new MessageStatus(resList.get(0).get("status"))).eng());
         }
         return reply;
     }
@@ -93,7 +92,7 @@ public class JSONAPI {
             data.put("message", text);
             data.put("recipient", recipient);
             data.put("date", new Date());
-            data.put("status", STATUS_NEW);
+            data.put("status", MessageStatus.STATUS_NEW);
             msgId = DBTools.insertRow("sms_outbox", data, conn);
 
         }

@@ -1,3 +1,4 @@
+<%@page import="org.lobzik.smspi.pi.MessageStatus"%>
 <%@page import="org.lobzik.home_sapiens.entity.Parameter"%>
 <%@page import="org.lobzik.smspi.pi.AppData"%>
 <%@page import="java.util.Date"%>
@@ -31,23 +32,9 @@
         messageList = (ArrayList<HashMap>) Tools.isNull(JspData.get("messageList"), new ArrayList<HashMap>());
     }
 
-    HashMap msgStringStatuses = new HashMap();
-    HashMap msgCssClassStatuses = new HashMap();
+
     HashMap rusMsgType = new HashMap();
-    msgStringStatuses.put(ModemModule.STATUS_NEW, "Новое");
-    msgCssClassStatuses.put(ModemModule.STATUS_NEW, "new");
-    msgStringStatuses.put(ModemModule.STATUS_SENT, "Отправлено");
-    msgCssClassStatuses.put(ModemModule.STATUS_SENT, "sent");
-    msgStringStatuses.put(ModemModule.STATUS_READ, "Прочитано");
-    msgCssClassStatuses.put(ModemModule.STATUS_READ, "read");
-    msgStringStatuses.put(ModemModule.STATUS_ERROR_SENDING, "Ошибка отправления");
-    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_SENDING, "error");
-    msgStringStatuses.put(ModemModule.STATUS_ERROR_TOO_OLD, "Слишком старая");
-    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_TOO_OLD, "sad_pedobear");
-    msgStringStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "Превышено количество попыток отправки");
-    msgCssClassStatuses.put(ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED, "exceeded");
-    msgStringStatuses.put(ModemModule.STATUS_SENDING, "Отправляется");
-    msgCssClassStatuses.put(ModemModule.STATUS_SENDING, "sending");
+
 
     rusMsgType.put("outbox", "Исходящее");
     rusMsgType.put("inbox", "Входящее");
@@ -129,7 +116,7 @@
                         String telNo = Tools.getStringValue(hm.get("tel_no"), "");
                         String type = Tools.getStringValue(hm.get("type"), "");
                         String date = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:ss");
-                        int status = Tools.parseInt(hm.get("status"), -5);
+                        MessageStatus ms = new MessageStatus(hm.get("status"));
                 %>
                 <tr>
                     <td class="w-5"><%= id%></td>
@@ -140,7 +127,7 @@
                     </td>
                     <td class="w-15"><%= date%></td>
                     <td class="w-5">
-                        <span class="js-tooltip message__status message__status_<%= type%>-<%= Tools.getStringValue(msgCssClassStatuses.get(status), "")%> message__status_<%= Tools.getStringValue(msgCssClassStatuses.get(status), "")%>" title="<%= Tools.getStringValue(msgStringStatuses.get(status), "")%>"></span>
+                        <span class="js-tooltip message__status message__status_<%= type%>-<%= ms.CSSClass()%> message__status_<%= ms.CSSClass()%>" title="<%= ms.rus()%>"></span>
                     </td>
                 </tr>
                 <%}%>

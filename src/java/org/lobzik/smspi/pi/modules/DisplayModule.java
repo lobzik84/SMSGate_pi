@@ -39,6 +39,7 @@ import org.lobzik.home_sapiens.entity.Measurement;
 import org.lobzik.home_sapiens.entity.Parameter;
 import org.lobzik.smspi.pi.BoxCommonData;
 import org.lobzik.smspi.pi.ConnJDBCAppender;
+import org.lobzik.smspi.pi.MessageStatus;
 import org.lobzik.smspi.pi.event.EventManager;
 import org.lobzik.tools.Tools;
 import org.lobzik.tools.db.mysql.DBSelect;
@@ -227,9 +228,9 @@ public class DisplayModule implements Module {
             }
 
             try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + ModemModule.STATUS_SENT, "cnt", null, conn);
+                Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + MessageStatus.STATUS_SENT, "cnt", null, conn);
                 Long msgReceived = DBSelect.getCount("select count(*) as cnt from sms_inbox", "cnt", null, conn);
-                Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status in (" + ModemModule.STATUS_ERROR_SENDING + "," + ModemModule.STATUS_ERROR_TOO_OLD + "," + ModemModule.STATUS_ERROR_ATTEMPTS_EXCEEDED + ")", "cnt", null, conn);
+                Long msgErrs = DBSelect.getCount("select count(*) as cnt from sms_outbox where status in (" + MessageStatus.STATUS_ERROR_SENDING + "," + MessageStatus.STATUS_ERROR_TOO_OLD + "," + MessageStatus.STATUS_ERROR_ATTEMPTS_EXCEEDED + ")", "cnt", null, conn);
                 g.setColor(new Color(255, 255, 255, 200));
                 g.setFont(new Font("Roboto Regular", Font.BOLD, 30));
                 g.drawString("Отправлено", 21, 90);

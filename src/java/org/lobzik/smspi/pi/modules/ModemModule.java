@@ -39,6 +39,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.lobzik.home_sapiens.entity.Measurement;
 import org.lobzik.home_sapiens.entity.Parameter;
+import org.lobzik.smspi.pi.MessageStatus;
 import org.lobzik.tools.sms.UCS2;
 
 /**
@@ -57,13 +58,7 @@ public class ModemModule extends Thread implements Module {
     private static boolean run = true;
     private static String smscNumber = "+79262909090";
 
-    public static final int STATUS_NEW = 0;
-    public static final int STATUS_SENT = 1;
-    public static final int STATUS_READ = 2;
-    public static final int STATUS_ERROR_SENDING = -1;
-    public static final int STATUS_ERROR_TOO_OLD = -2;
-    public static final int STATUS_ERROR_ATTEMPTS_EXCEEDED = -3;
-    public static final int STATUS_SENDING = 3;
+
 
     private static String lastRecieved = "";
 
@@ -207,7 +202,7 @@ public class ModemModule extends Thread implements Module {
             while (run) {
                 try {
                     iter++;
-                    String sSQL = "select * from sms_outbox where status=" + STATUS_NEW + " or status=" + STATUS_ERROR_SENDING;
+                    String sSQL = "select * from sms_outbox where status=" + MessageStatus.STATUS_NEW + " or status=" + MessageStatus.STATUS_ERROR_SENDING;
 
                     List<HashMap> smsToSendList = DBSelect.getRows(sSQL, conn);
 
@@ -218,7 +213,7 @@ public class ModemModule extends Thread implements Module {
                         tries++;
                         if (tries >= BoxSettingsAPI.getInt("MaxAttemptsToSend")) {
                             log.error("Sending attempts exceeded!");
-                            smsToSend.put("status", STATUS_ERROR_ATTEMPTS_EXCEEDED);
+                            smsToSend.put("status", MessageStatus.STATUS_ERROR_ATTEMPTS_EXCEEDED);
                             smsToSend.put("tries_cnt", tries);
                             DBTools.updateRow("sms_outbox", smsToSend, conn);
                             continue;
@@ -229,13 +224,13 @@ public class ModemModule extends Thread implements Module {
                         if ((validBefore != null && System.currentTimeMillis() > validBefore.getTime())
                                 || (System.currentTimeMillis() > BoxSettingsAPI.getInt("OutgoingMessageMaxAge") * 1000l + msgDate.getTime())) {
                             log.error("Message " + smsToSend.get("id") + " is too old! :(");
-                            smsToSend.put("status", STATUS_ERROR_TOO_OLD);
+                            smsToSend.put("status", MessageStatus.STATUS_ERROR_TOO_OLD);
                             smsToSend.put("tries_cnt", tries);
                             DBTools.updateRow("sms_outbox", smsToSend, conn);
                             continue;
                         }
 
-                        smsToSend.put("status", STATUS_SENDING);
+                        smsToSend.put("status", MessageStatus.STATUS_SENDING);
                         smsToSend.put("tries_cnt", tries);
                         DBTools.updateRow("sms_outbox", smsToSend, conn);
                         COutgoingMessage outMsg = new COutgoingMessage();
@@ -260,12 +255,12 @@ public class ModemModule extends Thread implements Module {
                         waitForCommand(pdu + "\032");
 
                         if (lastRecieved.equalsIgnoreCase("OK")) {
-                            smsToSend.put("status", STATUS_SENT);
+                            smsToSend.put("status", MessageStatus.STATUS_SENT);
                             smsToSend.put("date_sent", new Date());
                             log.info("Successfully sent");
                             DBTools.updateRow("sms_outbox", smsToSend, conn);
                         } else {
-                            smsToSend.put("status", STATUS_ERROR_SENDING);
+                            smsToSend.put("status", MessageStatus.STATUS_ERROR_SENDING);
 
                             DBTools.updateRow("sms_outbox", smsToSend, conn);
                             log.error("Error sending: " + lastRecieved);
@@ -578,7 +573,7 @@ public class ModemModule extends Thread implements Module {
                     dbMessage.put("message", message.getNativeText());
                     dbMessage.put("date", message.getDate());
                     dbMessage.put("sender", message.getOriginator());
-                    dbMessage.put("status", STATUS_NEW);
+                    dbMessage.put("status", MessageStatus.STATUS_NEW);
                     int id = DBTools.insertRow("sms_inbox", dbMessage, conn);
                     log.info("Recieved SMS from " + message.getOriginator() + " id = " + id);
                     HashMap eventData = new HashMap();
@@ -609,7 +604,7 @@ public class ModemModule extends Thread implements Module {
         message.put("message", text);
         message.put("recipient", recipient); //TODO проверка на формат телефона!
         message.put("date", new Date());
-        message.put("status", STATUS_NEW);
+        message.put("status", MessageStatus.STATUS_NEW);
         int msgId = -1;
         try {
             msgId = DBTools.insertRow("sms_outbox", message, conn);
