@@ -224,8 +224,11 @@ public class ModemModule extends Thread implements Module {
                             continue;
                         }
                         Date msgDate = (Date) smsToSend.get("date");
-                        if (System.currentTimeMillis() > BoxSettingsAPI.getInt("OutgoingMessageMaxAge") * 1000l + msgDate.getTime()) {
-                            log.error("Message too old!");
+                        Date validBefore = (Date) smsToSend.get("valid_before");
+
+                        if ((validBefore != null && System.currentTimeMillis() > validBefore.getTime())
+                                || (System.currentTimeMillis() > BoxSettingsAPI.getInt("OutgoingMessageMaxAge") * 1000l + msgDate.getTime())) {
+                            log.error("Message " + smsToSend.get("id") + " is too old! :(");
                             smsToSend.put("status", STATUS_ERROR_TOO_OLD);
                             smsToSend.put("tries_cnt", tries);
                             DBTools.updateRow("sms_outbox", smsToSend, conn);

@@ -54,8 +54,11 @@ public class SMSClientTest {
                     digest.update(message.toString().getBytes(CHARSET));
                     byte[] digestRaw = digest.sign();
                     String digestHex = DatatypeConverter.printHexBinary(digestRaw);
-
+                    
+                    long validBefore = System.currentTimeMillis() + 1 * 60 * 1000l;//expires in 1 min 
+                    
                     JSONObject requestJson = new JSONObject();
+                    requestJson.put("valid_before", validBefore);
                     requestJson.put("action", "send_sms");
                     requestJson.put("message", message);
                     requestJson.put("username", username);
