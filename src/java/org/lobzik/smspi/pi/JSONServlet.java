@@ -62,7 +62,7 @@ public class JSONServlet extends HttpServlet {
             if (requestString.startsWith("{")) {
                 JSONObject json = new JSONObject(requestString);
                 request.setAttribute("json", json);
-                int userId = 0;
+                //int userId = 0;
                 String action = json.getString("action");
                 switch (action) {
                     case "send_sms":
@@ -72,10 +72,9 @@ public class JSONServlet extends HttpServlet {
                         }
                         break;
 
-                    case "get_settings":
-                        if (userId > 0) {
-                            replyWithSettings(request, response);
-                        }
+                    case "get_out_status":
+
+                        replyWithOutStatus(request, response);
 
                         break;
 
@@ -139,19 +138,17 @@ public class JSONServlet extends HttpServlet {
         JSONObject reply = new JSONObject();
         reply.put("result", "success");
         reply.put("msg_id", msgId);
-        
+
         response.getWriter().write(reply.toString());
 
     }
 
-    private void replyWithSettings(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private void replyWithOutStatus(HttpServletRequest request, HttpServletResponse response) throws Exception {
         JSONObject json = (JSONObject) request.getAttribute("json");
+        int msgId = json.getInt("msg_id");
+        
+        JSONObject reply = JSONAPI.getOutMsgStatusJSON(msgId);
 
-        JSONObject reply = new JSONObject();// JSONAPI.getSettingsJSON((RSAPublicKey) session.get("UsersPublicKey"), (String) session.get("Login"));
-        reply.put("result", "success");
-        reply.put("connection_type", "local");
-
-        reply.put("session_key", json.getString("session_key"));
         response.getWriter().write(reply.toString());
     }
 

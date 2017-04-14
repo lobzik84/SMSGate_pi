@@ -31,7 +31,7 @@ public class SMSClientTest {
     static String text = "Это тест отправки sms:" + System.currentTimeMillis();
     static String recipient = "+79263357107";
     static final String CHARSET = "UTF-8";
-    
+
     public static void main(String[] args) {
         new Thread() {
             @Override
@@ -54,9 +54,9 @@ public class SMSClientTest {
                     digest.update(message.toString().getBytes(CHARSET));
                     byte[] digestRaw = digest.sign();
                     String digestHex = DatatypeConverter.printHexBinary(digestRaw);
-                    
+
                     long validBefore = System.currentTimeMillis() + 1 * 60 * 1000l;//expires in 1 min 
-                    
+
                     JSONObject requestJson = new JSONObject();
                     requestJson.put("valid_before", validBefore);
                     requestJson.put("action", "send_sms");
@@ -88,11 +88,38 @@ public class SMSClientTest {
                     }
                     if (result.equals("success")) {
                         System.out.println("message sent to gate successfully, id = " + messageId);
-                        
+
                     } else {
                         System.err.print("Error from sms gate: ");
                         System.err.println(response.getString("message"));
                     }
+
+                    Thread.sleep(3000);
+
+                    requestJson = new JSONObject();
+                    requestJson.put("action", "get_out_status");
+                    requestJson.put("msg_id", messageId);
+
+                    url = new URL(SMSGateUrl);
+
+                    conn = url.openConnection();
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    out = new OutputStreamWriter(conn.getOutputStream(), CHARSET);
+                    out.write(requestJson.toString());
+                    out.close();
+
+                    in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+                    sb = new StringBuffer();
+                    while ((decodedString = in.readLine()) != null) {
+                        sb.append(decodedString);
+                    }
+                    in.close();
+                    response = new JSONObject(sb.toString());
+                    //result = response.getString("result");
+                    System.out.print(response.toString());
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

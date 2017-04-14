@@ -31,17 +31,18 @@ import org.lobzik.tools.db.mysql.DBTools;
  */
 public class JSONAPI {
 
-    private static long lastParametersWriteTime = 0;
-
-    public static JSONObject getSettingsJSON(RSAPublicKey publicKey, String login) throws Exception {
+    public static JSONObject getOutMsgStatusJSON(int msgId) throws Exception {
         JSONObject reply = new JSONObject();
-        JSONObject settingsJSON = new JSONObject();
-        Map<String, String> settings = BoxSettingsAPI.getSettingsMap();
-        for (String name : settings.keySet()) {
-            settingsJSON.put(name, settings.get(name));
+        String sSQL = "select * from sms_outbox where id=" + msgId;
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            List<HashMap> resList = DBSelect.getRows(sSQL, conn);
+            if (resList.size() != 1) {
+                throw new Exception("Message " + msgId + " not found");
+            }
+            
+            reply.put("message_id", msgId);
+            reply.put("status", resList.get(0).get("status"));
         }
-        settingsJSON.put("UserLogin", login);
-        reply.put("settings", settingsJSON);
         return reply;
     }
 
@@ -100,4 +101,5 @@ public class JSONAPI {
         AppData.eventManager.newEvent(e);
         return msgId;
     }
+
 }
