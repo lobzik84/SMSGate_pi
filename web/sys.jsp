@@ -63,6 +63,16 @@
         %> 
 
         <br>
+         <b>Internal UART command: </b>
+        <form action="" method="post">
+            <input type="text" name="modem_command" /><input type="submit" value="OK" name="submit" />
+        </form> <br> <br>
+        
+        <b>Modem command: </b>
+        <form action="" method="post">
+            <input type="text" name="command" /><input type="submit" value="OK" name="submit" />
+        </form> <br> <br>
+        
         <br>
 
         <b>Generate timer event: </b>
