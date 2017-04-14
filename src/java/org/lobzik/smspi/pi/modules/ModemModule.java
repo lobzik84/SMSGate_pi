@@ -351,7 +351,7 @@ public class ModemModule extends Thread implements Module {
             } catch (InterruptedException ie) {
             }
         }
-        if (System.currentTimeMillis() - waitStart >= MODEM_TIMEOUT) {
+        if (System.currentTimeMillis() - waitStart >= USSD_TIMEOUT) {
             log.error("USSD TIMEOUT");
             modemBusy.set(false);
             return false;
