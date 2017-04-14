@@ -11,12 +11,14 @@ import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
 import java.sql.Connection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.json.JSONObject;
 import org.lobzik.smspi.pi.event.Event;
+import static org.lobzik.smspi.pi.modules.ModemModule.STATUS_NEW;
 import org.lobzik.tools.Tools;
 import org.lobzik.tools.db.mysql.DBSelect;
 import org.lobzik.tools.db.mysql.DBTools;
@@ -43,13 +45,18 @@ public class JSONAPI {
         return reply;
     }
 
-    public static void sendSms(JSONObject json, String username) throws Exception {
+    public static int sendSms(JSONObject json, String username) throws Exception {
         String sSQL = "select * from users where name=?";
         List args = new LinkedList();
         args.add(username);
         String digest = json.getString("digest");
         JSONObject message = json.getJSONObject("message");
         String text = message.getString("text");
+        Date validBefore = null;
+        if (json.has("valid_before")) {
+            validBefore = new Date(json.getLong("valid_before"));
+        }
+
         String recipient = message.getString("recipient");
         if (!recipient.matches("\\+[0-9]{7,15}")) {
             throw new Exception("Invalid recipient (must be like +71234567890)"); //TODO regex check
@@ -57,6 +64,7 @@ public class JSONAPI {
         if (text.length() == 0 || text.length() > 160) {
             throw new Exception("Text is missing or too long");
         }
+        int msgId = 0;
         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
             List<HashMap> resList = DBSelect.getRows(sSQL, args, conn);
             if (resList.size() != 1) {
@@ -74,13 +82,22 @@ public class JSONAPI {
             if (!valid) {
                 throw new Exception("Invalid digest");
             }
+            if (!recipient.matches("\\+[0-9]{7,15}")) {
+                throw new Exception("Invalid recipient (must be like +71234567890)");
+
+            }
+            HashMap data = new HashMap();
+            data.put("user_id", Tools.parseInt(resList.get(0).get("id"), 0));
+            data.put("valid_before", validBefore);
+            data.put("message", text);
+            data.put("recipient", recipient);
+            data.put("date", new Date());
+            data.put("status", STATUS_NEW);
+            msgId = DBTools.insertRow("sms_outbox", data, conn);
+
         }
-        HashMap data = new HashMap();
-        data.put("message", text);
-        data.put("recipient", recipient);
-        Event e = new Event("send_sms", data, Event.Type.USER_ACTION);
+        Event e = new Event("check_outbox", null, Event.Type.USER_ACTION);
         AppData.eventManager.newEvent(e);
-
+        return msgId;
     }
-
 }

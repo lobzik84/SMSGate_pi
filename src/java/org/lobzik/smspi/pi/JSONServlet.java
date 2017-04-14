@@ -134,10 +134,11 @@ public class JSONServlet extends HttpServlet {
 
     private void doSmsSend(HttpServletRequest request, HttpServletResponse response, String username) throws Exception {
         JSONObject json = (JSONObject) request.getAttribute("json");
-        JSONAPI.sendSms(json, username);
+        int msgId = JSONAPI.sendSms(json, username);
 
         JSONObject reply = new JSONObject();
         reply.put("result", "success");
+        reply.put("msg_id", msgId);
         
         response.getWriter().write(reply.toString());
 

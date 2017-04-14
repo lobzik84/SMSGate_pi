@@ -77,14 +77,14 @@ public class ModemModule extends Thread implements Module {
     private static int modemOkRepliesCount = 0;
     private static int modemWriteErrorCount = 0;
     private static String suggestedResponse = null;
-    
+
     private static final AtomicBoolean modemBusy = new AtomicBoolean(false);
 
     private static final AtomicBoolean doCheckBalance = new AtomicBoolean(true);
 
     public static final String regex = "[0-9\\.]+ *р\\.";//будет в настройках
     public static final String replacer = "р.";//будет в настройках
-    
+
     private ModemModule() { //singleton
     }
 
@@ -357,7 +357,7 @@ public class ModemModule extends Thread implements Module {
             log.error("USSD TIMEOUT");
             modemBusy.set(false);
             return false;
-            
+
         }
         modemBusy.set(false);
         return true;
@@ -368,7 +368,7 @@ public class ModemModule extends Thread implements Module {
     }
 
     private void waitForCommand(String command, int timeout) throws Exception {
-        
+
         modemBusy.set(true);
         suggestedResponse = null;
         log.debug("Sending " + command);
@@ -424,10 +424,27 @@ public class ModemModule extends Thread implements Module {
                 break;
 
             case USER_ACTION:
-                if (e.name.equals("send_sms")) {
-                    log.debug("Sending sms ");
-                    sendMessage((String) e.data.get("recipient"), (String) e.data.get("message"));
+                switch (e.name) {
+                    case "send_sms":
+                        log.debug("Sending sms ");
+                        sendMessage((String) e.data.get("recipient"), (String) e.data.get("message"));
+                        break;
 
+                    case "modem_command":
+                        log.debug("User Modem Command ");
+                        try {
+                            waitForCommand((String) e.data.get("modem_command"));
+                        } catch (Exception ex) {
+                            log.error(ex.getMessage());
+                        }
+                        break;
+
+                    case "check_outbox":
+                        if (!modemBusy.get()) {
+                            synchronized (this) {
+                                notify();
+                            }
+                        }
                 }
                 break;
 
@@ -458,8 +475,8 @@ public class ModemModule extends Thread implements Module {
             recievedLines.poll();
         }
         line = line.trim();
-        if ((suggestedResponse == null &&  (line.equals("OK") || line.contains("ERROR") || line.equals(">") || line.contains("+CMTI:")))
-                 || (suggestedResponse != null && line.contains(suggestedResponse))) {
+        if ((suggestedResponse == null && (line.equals("OK") || line.contains("ERROR") || line.equals(">") || line.contains("+CMTI:")))
+                || (suggestedResponse != null && line.contains(suggestedResponse))) {
             if (modemOkRepliesCount < Integer.MAX_VALUE) {
                 modemOkRepliesCount++;
                 modemWriteErrorCount = 0;
