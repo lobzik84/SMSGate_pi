@@ -58,8 +58,6 @@ public class ModemModule extends Thread implements Module {
     private static boolean run = true;
     private static String smscNumber = "+79262909090";
 
-
-
     private static String lastRecieved = "";
 
     private static CommPort commPort = null;
@@ -133,7 +131,7 @@ public class ModemModule extends Thread implements Module {
             waitForCommand("AT+CMGF=0\r");
 
             waitForCommand("AT+COPS=3,0\r");
-            waitForCommand("AT+COPS?\r");
+            waitForCommand("AT+COPS?\r", "+COPS:");
             String operator = parseCOPSReply(recievedLines);
             HashMap opData = new HashMap();
             opData.put("name", operator);
@@ -159,7 +157,7 @@ public class ModemModule extends Thread implements Module {
 
             recievedLines.clear();
             waitForCommand("AT+CREG=2\r");
-            waitForCommand("AT+CREG?\r");
+            waitForCommand("AT+CREG?\r","+CREG");
             HashMap cellId = parseCREGReply(recievedLines);
             event = new Event("cellid_detected", cellId, Event.Type.SYSTEM_EVENT);
 
@@ -180,7 +178,7 @@ public class ModemModule extends Thread implements Module {
 
             }
 
-            waitForCommand("AT+CSCA?\r");
+            waitForCommand("AT+CSCA?\r", "+CSCA");
             smscNumber = parseCSCAReply(recievedLines);
             log.debug("SMSC is " + smscNumber);
 
@@ -198,11 +196,10 @@ public class ModemModule extends Thread implements Module {
                 AppData.eventManager.newEvent(event);
 
             }
-            int iter = -1;
+
             while (run) {
                 try {
-                    iter++;
-                    String sSQL = "select * from sms_outbox where status=" + MessageStatus.STATUS_NEW + " or status=" + MessageStatus.STATUS_ERROR_SENDING;
+                   String sSQL = "select * from sms_outbox where status=" + MessageStatus.STATUS_NEW + " or status=" + MessageStatus.STATUS_ERROR_SENDING;
 
                     List<HashMap> smsToSendList = DBSelect.getRows(sSQL, conn);
 
@@ -362,23 +359,26 @@ public class ModemModule extends Thread implements Module {
     }
 
     private void waitForCommand(String command) throws Exception {
-        waitForCommand(command, MODEM_TIMEOUT);
+        waitForCommand(command, MODEM_TIMEOUT, null);
     }
 
-    private void waitForCommand(String command, int timeout) throws Exception {
+    private void waitForCommand(String command, String responseContains) throws Exception {
+        waitForCommand(command, MODEM_TIMEOUT, responseContains);
+    }
+        
+    private void waitForCommand(String command, int timeout, String responseContains) throws Exception {
 
         modemBusy.set(true);
-        suggestedResponse = null;
+        suggestedResponse = responseContains;
         log.debug("Sending " + command);
         long waitStart = System.currentTimeMillis();
         if (command != null) {
-            serialWriter.send(command);
-        }
-
-        synchronized (this) {
-            try {
-                wait(timeout);
-            } catch (InterruptedException ie) {
+            synchronized (this) {
+                try {
+                    serialWriter.send(command);
+                    wait(timeout);
+                } catch (InterruptedException ie) {
+                }
             }
         }
         if (System.currentTimeMillis() - waitStart >= MODEM_TIMEOUT) {
@@ -393,7 +393,7 @@ public class ModemModule extends Thread implements Module {
         switch (e.getType()) {
             case TIMER_EVENT:
                 switch (e.name) {
-                    case "internal_sensors_poll": {
+                    case "modem_poll": {
                         if (!modemBusy.get()) {
                             synchronized (this) {
                                 notify();
@@ -475,8 +475,10 @@ public class ModemModule extends Thread implements Module {
         line = line.trim();
         if ((suggestedResponse == null && (line.equals("OK") || line.contains("ERROR") || line.equals(">") || line.contains("+CMTI:")))
                 || (suggestedResponse != null && line.contains(suggestedResponse))) {
-            if (modemOkRepliesCount < Integer.MAX_VALUE) {
-                modemOkRepliesCount++;
+            if (line.equals("OK")) {
+                if (modemOkRepliesCount < Integer.MAX_VALUE) {
+                    modemOkRepliesCount++;
+                }
                 modemWriteErrorCount = 0;
             }
             synchronized (this) {
@@ -660,10 +662,20 @@ public class ModemModule extends Thread implements Module {
                     if (response.length() > 0) {
                         if (response.contains("ERROR")) {
                             log.error("Modem response:" + response);
+                            modemWriteErrorCount++;
+                            if (modemOkRepliesCount > 10 && modemWriteErrorCount > 10) { //если нормально работал и перестал - значит хана
+                                modemOkRepliesCount = 0;
+                                String message = "Too many modem errors! rebooting";
+                                log.fatal(message);
+                                HashMap cause = new HashMap();
+                                cause.put("cause", message);
+                                Event reboot = new Event("modem_and_system_reboot", cause, Event.Type.SYSTEM_EVENT);
+                                AppData.eventManager.newEvent(reboot);
+                            }
                         } else {
                             log.debug("Modem response:" + response);
                         }
-
+                        Thread.sleep(1);
                         instance.lineRecieved(response);
                     }
                 }
