@@ -17,9 +17,12 @@ var orders = {
         'libs/jquery-ui/*.js',
         'libs/jquery-migrate/*.js',
         'libs/*.js',
+        'common/commonData.js',
         'plugins/highstock/*.js',
         'plugins/exporting/*.js',
         'plugins/**/*.js',
+        'crypto/*.js',
+        'crypto/rsa/*.js',
         'src/*.js'
     ]
 };

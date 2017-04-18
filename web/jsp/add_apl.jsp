@@ -28,7 +28,7 @@
 <div class="content__layout">
     <div class="content__table">
 
-        <p class="title">Зарегестрированные пользователи шлюза</p>
+        <p class="title">Зарегистрированные пользователи шлюза</p>
 
         <input class="btn btn_hide mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
 
@@ -36,14 +36,22 @@
             <div class="inline-b">
                 <label class="label mt-10">Name</label>
                 <input type="text" name="name" />
-            </div>
+            </div> <br>
+            Ключ RSA
             <div class="inline-b ml-10 mr-10 va-t">
-                <label class="label mt-10">PublicKey (256 symbols)<span class="label_wrong pl-15">ENTER 256 SYMBOLS!</span></label>
-                <textarea class="textarea__key" name="public_key"></textarea>
+                
+                <label class="label mt-10">Длина ключа 1024 бита, public exponent = 10001 (HEX)</label>
+                
+                <label class="label mt-10">PublicKey (modulus in HEX, 256 symbols)<span class="label_wrong pl-15">Input or Generate 256 SYMBOLS!</span> <a href="#" onclick="generateKey()">Сгенерировать</a></label>
+                <textarea class="textarea__key" name="public_key" id="public_key"></textarea>
+                
+                <label class="label mt-10">Generated PrivateKey (multiplicative inverse in HEX, 256 symbols)</label>
+                <textarea class="textarea__key" name="private_key" id="private_key"></textarea>
             </div>
             <input hidden type="text" name="REG_ME" value="1"/>
 
             <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
+            
         </form>
 
         <table class="table mt-20">

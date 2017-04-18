@@ -18,6 +18,11 @@
 
         <br>
         <%
+            int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
+            if (loginAdmin  != 1) {
+                return;
+                    
+            } 
             request.setCharacterEncoding("UTF-8");
 
             if (request.getMethod().equalsIgnoreCase("POST")) {

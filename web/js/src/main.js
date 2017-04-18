@@ -111,5 +111,6 @@ $(function () {
     $('.counter_dBm').bind("DOMSubtreeModified", function () {
         signalPoint();
     });
-
+    
+    $('#private_key').hide();
 });

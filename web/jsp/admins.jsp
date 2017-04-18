@@ -34,10 +34,11 @@
                 <input type="text" name="login" />
             </div>
             <div class="inline-b ml-10 mr-10 va-t">
-                <label class="label mt-10">Password</label>
-                <input type="text" name="password"/>
+                <label class="label mt-10">Password</label> <a href="#" onclick="generatePass()">Сгенерировать</a>
+                <input type="text" name="password" id="admin_pass"/>
             </div>
             <input hidden type="text" name="ADD_ME" value="1"/>
+            <br>
 
             <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
         </form>
