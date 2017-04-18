@@ -15,7 +15,7 @@ function generateKey() {
         console.log('public key  =' + public_key);
         console.log('private key =' + private_key);
     }
-    $('#private_key').show();
+    $('.private_key').show();
     $('#public_key').text(public_key);
     $('#private_key').text(private_key);
 }

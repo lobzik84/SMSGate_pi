@@ -112,5 +112,5 @@ $(function () {
         signalPoint();
     });
     
-    $('#private_key').hide();
+    $('.private_key').hide();
 });
