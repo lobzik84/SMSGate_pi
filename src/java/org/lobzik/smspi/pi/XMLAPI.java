@@ -15,49 +15,77 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import org.json.JSONObject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.lobzik.smspi.pi.event.Event;
 import org.lobzik.tools.Tools;
 import org.lobzik.tools.db.mysql.DBSelect;
 import org.lobzik.tools.db.mysql.DBTools;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
- * class for generating and parsing JSON to be used in TunnelClient and
- * JSONServlet
  *
  * @author lobzik
  */
-public class JSONAPI {
+public class XMLAPI {
 
-    public static JSONObject getOutMsgStatusJSON(int msgId) throws Exception {
-        JSONObject reply = new JSONObject();
+    public static Document getOutMsgStatus(int msgId) throws Exception {
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+        Document doc = docBuilder.newDocument();
+
+        Element rootElement = doc.createElement("response");
+        doc.appendChild(rootElement);
+
         String sSQL = "select * from sms_outbox where id=" + msgId;
         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
             List<HashMap> resList = DBSelect.getRows(sSQL, conn);
             if (resList.size() != 1) {
                 throw new Exception("Message " + msgId + " not found");
             }
-            
-            reply.put("message_id", msgId);
-            reply.put("status", resList.get(0).get("status"));
-            reply.put("status_description", (new MessageStatus(resList.get(0).get("status"))).eng());
+
+            Element res = doc.createElement("result");
+            res.appendChild(doc.createTextNode("success"));
+            rootElement.appendChild(res);
+
+            Element message_id = doc.createElement("message_id");
+            message_id.appendChild(doc.createTextNode(msgId + ""));
+            rootElement.appendChild(message_id);
+
+            Element status = doc.createElement("status");
+            status.appendChild(doc.createTextNode(resList.get(0).get("status") + ""));
+            rootElement.appendChild(status);
+
+            Element status_description = doc.createElement("status_description");
+            status_description.appendChild(doc.createTextNode((new MessageStatus(resList.get(0).get("status"))).eng()));
+            rootElement.appendChild(status_description);
         }
-        return reply;
+        return doc;
     }
 
-    public static int sendSms(JSONObject json, String username) throws Exception {
+    public static Document sendSms(Document req, String username) throws Exception {
         String sSQL = "select * from users where name=?";
         List args = new LinkedList();
         args.add(username);
-        String digest = json.getString("digest");
-        JSONObject message = json.getJSONObject("message");
-        String text = message.getString("text");
+        //String digest = json.getString("digest");
+        Node message = req.getElementsByTagName("message").item(0);
+
+        String text = req.getElementsByTagName("text").item(0).getTextContent();
+        String recipient = req.getElementsByTagName("recipient").item(0).getTextContent();
+
         Date validBefore = null;
-        if (json.has("valid_before")) {
-            validBefore = new Date(json.getLong("valid_before"));
+        NodeList validBeforeNL = req.getElementsByTagName("valid_before");
+        if (validBeforeNL.getLength() == 1) {
+            long vbMs = Tools.parseLong(validBeforeNL.item(0).getTextContent(), 0);
+            if (vbMs > 0) {
+                validBefore = new Date(vbMs);
+            }
         }
 
-        String recipient = message.getString("recipient");
         if (!recipient.matches("\\+[0-9]{7,15}")) {
             throw new Exception("Invalid recipient (must be like +71234567890)"); //TODO regex check
         }
@@ -77,8 +105,8 @@ public class JSONAPI {
             RSAPublicKey userPublicKey = (RSAPublicKey) factory.generatePublic(spec);
             Signature verifier = Signature.getInstance("SHA256withRSA");
             verifier.initVerify(userPublicKey);
-            verifier.update(message.toString().getBytes());
-            boolean valid = verifier.verify(Tools.toByteArray(digest));
+            //verifier.update(message.toString().getBytes());
+            boolean valid = true;// TODO XMLDSig check verifier.verify(Tools.toByteArray(digest));
             if (!valid) {
                 throw new Exception("Invalid digest");
             }
@@ -98,7 +126,21 @@ public class JSONAPI {
         }
         Event e = new Event("check_outbox", null, Event.Type.USER_ACTION);
         AppData.eventManager.newEvent(e);
-        return msgId;
-    }
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
+        Document doc = docBuilder.newDocument();
+
+        Element rootElement = doc.createElement("response");
+        doc.appendChild(rootElement);
+        Element res = doc.createElement("result");
+        res.appendChild(doc.createTextNode("success"));
+        rootElement.appendChild(res);
+
+        Element message_id = doc.createElement("message_id");
+        message_id.appendChild(doc.createTextNode(msgId + ""));
+        rootElement.appendChild(message_id);
+        
+        return doc;
+    }
 }
