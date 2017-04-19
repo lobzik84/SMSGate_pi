@@ -607,6 +607,9 @@ strong {
 .w-100 {
   width: 100%;
 }
+.wp-210 {
+  width: 210px;
+}
 /*LINE-HEIGHT*/
 .lh-xxxs {
   line-height: .25;
