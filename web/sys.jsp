@@ -1,3 +1,4 @@
+<%@page import="org.lobzik.home_sapiens.entity.Parameter"%>
 <%@page import="java.io.File"%>
 <%@page import="org.lobzik.tools.Tools"%>
 <%@page import="java.sql.Connection"%>
@@ -66,14 +67,26 @@
                 }
             }
         %> 
+        <%
+            ParametersStorage ps = AppData.parametersStorage;
+            MeasurementsCache mc = AppData.measurementsCache;
 
+            for (Integer pId : ps.getParameterIds()) {
+                Parameter p = ps.getParameter(pId);
+                if (mc.getLastMeasurement(p) == null) {
+                    continue;
+                }
+        %>
+        <%=p.getName()%>: <%=mc.getLastMeasurement(p).toStringValue()%> <%=p.getUnit()%><br>
+        <%}%>
+        <br> <br>
         <br>
-         <b>Internal UART command: </b>
+         <b>Modem command: </b>
         <form action="" method="post">
             <input type="text" name="modem_command" /><input type="submit" value="OK" name="submit" />
         </form> <br> <br>
         
-        <b>Modem command: </b>
+        <b>Internal UART command: </b>
         <form action="" method="post">
             <input type="text" name="command" /><input type="submit" value="OK" name="submit" />
         </form> <br> <br>

@@ -431,7 +431,7 @@ public class ModemModule extends Thread implements Module {
                     case "modem_command":
                         log.debug("User Modem Command ");
                         try {
-                            waitForCommand((String) e.data.get("modem_command"));
+                            waitForCommand((String) e.data.get("modem_command") + "\r");
                         } catch (Exception ex) {
                             log.error(ex.getMessage());
                         }
