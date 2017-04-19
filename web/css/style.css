@@ -607,6 +607,9 @@ strong {
 .w-100 {
   width: 100%;
 }
+.wp-170 {
+  width: 170px;
+}
 .wp-210 {
   width: 210px;
 }
@@ -1281,7 +1284,7 @@ textarea:focus {
   max-height: 150px;
 }
 .textarea__key {
-  max-height: 100px;
+  height: 94px;
 }
 .label {
   font-family: 'opensans-semibold', Arial, Helvetica, sans-serif;
@@ -1306,6 +1309,14 @@ textarea:focus {
 .label_blue:hover {
   border-bottom: 1px dashed #2196f3;
 }
+.label_generate {
+  color: #2196f3;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(33, 150, 243, 0.5);
+}
+.label_generate:hover {
+  border-bottom: 1px dashed #2196f3;
+}
 .label_inline {
   font-family: 'opensans-semibold', Arial, Helvetica, sans-serif;
   display: inline-block;
@@ -1313,6 +1324,20 @@ textarea:focus {
   margin-right: 5px;
   font-size: 14px;
   line-height: 18px;
+}
+.label_inline_gen {
+  font-family: 'opensans-semibold', Arial, Helvetica, sans-serif;
+  display: inline-block;
+  margin-bottom: 5px;
+  margin-right: 5px;
+  font-size: 14px;
+  line-height: 18px;
+}
+.label__sub {
+  display: block;
+  font-family: 'opensans-semibold', Arial, Helvetica, sans-serif;
+  margin-bottom: 6px;
+  font-size: 13px;
 }
 .message {
   width: 100%;
