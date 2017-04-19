@@ -36,7 +36,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import static org.lobzik.smspi.tests.SMSClientTest.publicKeyString;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -68,29 +67,32 @@ public class SMSClientTestXML {
 
                     Element rootElement = doc.createElement("request");
                     doc.appendChild(rootElement);
-
+                    
+                    Element usernameEl = doc.createElement("username");
+                    usernameEl.appendChild(doc.createTextNode(username));
+                    rootElement.appendChild(usernameEl);
+                    
                     Element action = doc.createElement("action");
                     action.appendChild(doc.createTextNode("send_sms"));
                     rootElement.appendChild(action);
+                    
+                    Element message = doc.createElement("message");
 
                     long validBefore = System.currentTimeMillis() + 1 * 60 * 1000l;//expires in 1 min 
 
                     Element valid_before = doc.createElement("valid_before");
                     valid_before.appendChild(doc.createTextNode(validBefore + ""));
-                    rootElement.appendChild(valid_before);
-
-                    Element usernameEl = doc.createElement("username");
-                    usernameEl.appendChild(doc.createTextNode(username));
-                    rootElement.appendChild(usernameEl);
+                    message.appendChild(valid_before);
 
                     Element textEl = doc.createElement("text");
                     textEl.appendChild(doc.createTextNode(text));
-                    rootElement.appendChild(textEl);
+                    message.appendChild(textEl);
 
                     Element recipientEl = doc.createElement("recipient");
                     recipientEl.appendChild(doc.createTextNode(recipient));
-                    rootElement.appendChild(recipientEl);
+                    message.appendChild(recipientEl);
 
+                    rootElement.appendChild(message);
                     //prettyPrint(doc);
                     BigInteger modulus = new BigInteger(publicKeyString, 16);
                     BigInteger privateExp = new BigInteger(privateKeyString, 16);
@@ -104,7 +106,7 @@ public class SMSClientTestXML {
                     RSAPrivateKey privateKey = (RSAPrivateKey) kf.generatePrivate(privSpec);
                     RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(pubSpec);
                     
-                    DOMSignContext dsc = new DOMSignContext(privateKey, doc.getDocumentElement());
+                    DOMSignContext dsc = new DOMSignContext(privateKey, doc.getElementsByTagName("message").item(0));
                     XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
                     Reference ref = fac.newReference("", fac.newDigestMethod(DigestMethod.SHA256, null),
                             Collections.singletonList(fac.newTransform(Transform.ENVELOPED,
@@ -120,7 +122,7 @@ public class SMSClientTestXML {
                     XMLSignature signature = fac.newXMLSignature(si, ki);
                     signature.sign(dsc);
                     
-                    //prettyPrint(doc);
+                    prettyPrint(doc);
                     
                     URL url = new URL(SMSGateUrl);
 
