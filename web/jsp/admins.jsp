@@ -34,9 +34,9 @@
                 <input type="text" name="login" />
             </div>
             <div class="inline-b ml-10 mr-10 va-t wp-210">
-                <label class="label mt-10 fl-l">Password</label>
-                   <label class="label label_blue mb-5" onclick="generatePass()">Сгенерировать</label>
-                <input type="text" name="password" id="admin_pass"/>
+                <label class="label_inline_gen mt-10">Password</label>
+                <label class="label_inline_gen label_generate" onclick="generatePass()">Сгенерировать</label>
+                <input class="wp-170" type="text" name="password" id="admin_pass"/>
             </div>
             <input hidden type="text" name="ADD_ME" value="1"/>
             <input class="btn blbc white" type="submit" value="Добавить" name="submit" />

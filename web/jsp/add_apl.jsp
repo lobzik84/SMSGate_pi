@@ -40,15 +40,15 @@
 
             <p class="mt-15 os-r">
                 <label class="label">Ключ RSA</label>
-            <p class="label">Длина ключа 1024 бита, public exponent = 10001 (HEX)</p>
-            <p class="label">PublicKey (modulus in HEX, 256 symbols)<span class="label_wrong pl-15">Input or Generate 256 SYMBOLS!</span></p>
+            <p class="label__sub">Длина ключа 1024 бита, public exponent = 10001 (HEX)</p>
+            <p class="label__sub">PublicKey (modulus in HEX, 256 symbols)<span class="label_wrong pl-15">Input or Generate 256 SYMBOLS!</span></p>
             <div class="inline-b">
-                <span class="label publicKey_copy mb-5" onclick="generateKey()">Сгенерировать</span>
+                <p class="label label_generate mb-5" onclick="generateKey()">Сгенерировать</p>
             </div>
             <textarea class="textarea__key" name="public_key" id="public_key"></textarea>
 
             <div class="private_key mt-20">
-                <label class="label">Generated PrivateKey (multiplicative inverse in HEX, 256 symbols)</label>
+                <label class="label__sub">Generated PrivateKey (multiplicative inverse in HEX, 256 symbols)</label>
                 <textarea class="textarea__key" name="private_key" id="private_key"></textarea>
             </div>
             <input hidden type="text" name="REG_ME" value="1"/>
