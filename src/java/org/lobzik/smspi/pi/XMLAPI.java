@@ -6,11 +6,7 @@
 package org.lobzik.smspi.pi;
 
 import java.math.BigInteger;
-import java.security.Key;
-import java.security.KeyException;
 import java.security.KeyFactory;
-import java.security.PublicKey;
-import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
 import java.sql.Connection;
@@ -18,18 +14,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import javax.xml.crypto.AlgorithmMethod;
-import javax.xml.crypto.KeySelector;
-import javax.xml.crypto.KeySelectorException;
-import javax.xml.crypto.KeySelectorResult;
-import javax.xml.crypto.XMLCryptoContext;
-import javax.xml.crypto.XMLStructure;
-import javax.xml.crypto.dsig.SignatureMethod;
 import javax.xml.crypto.dsig.XMLSignature;
 import javax.xml.crypto.dsig.XMLSignatureFactory;
 import javax.xml.crypto.dsig.dom.DOMValidateContext;
-import javax.xml.crypto.dsig.keyinfo.KeyInfo;
-import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.lobzik.smspi.pi.event.Event;
@@ -123,8 +110,8 @@ public class XMLAPI {
             DOMValidateContext valContext = new DOMValidateContext(userPublicKey, nl.item(0));
             XMLSignatureFactory xfactory = XMLSignatureFactory.getInstance("DOM");
             XMLSignature signature = xfactory.unmarshalXMLSignature(valContext);
-            boolean coreValidity = signature.validate(valContext);
-            if (coreValidity) {
+            boolean coreInvalidity = signature.validate(valContext);
+            if (coreInvalidity) {
                 throw new Exception("Invalid digest!");
             }
 
