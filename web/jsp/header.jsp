@@ -18,6 +18,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <meta name="format-detection" content="telephone=no"> <!-- IE -->
         <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css?v=1.0">
+        <link rel="shortcut icon" href="<%=request.getContextPath()%>/img/favicon.png" type="image/png">
         <script type="text/javascript" src="<%=request.getContextPath()%>/js/min/main.min.js"></script>
     </head>
     <body class="abc">

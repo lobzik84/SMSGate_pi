@@ -14,6 +14,7 @@
     <head>
         <title>Login to SMS-gate</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link rel="shortcut icon" href="<%=request.getContextPath()%>/img/favicon.png" type="image/png">
         <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css?v=1.0">
     </head>
     <body class="lbc">

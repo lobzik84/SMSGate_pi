@@ -53,7 +53,7 @@ public class PiServlet extends HttpServlet {
         int rssi = -101;//сигнал сети, дБ. <100 нет фишек, 100<rssi<90 одна фишка, 90<rssi<80 две фишки, 80<rssi<70 три фишки, >70 четыре фишки        
         if (m != null) {
             rssi = (int) (double) m.getDoubleValue();
-        } 
+        }
         jspData.put("RSSI", rssi);
         String baseUrl = request.getContextPath() + request.getServletPath();
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
@@ -139,11 +139,12 @@ public class PiServlet extends HttpServlet {
                         List<HashMap> logData = DBSelect.getRows(logSql, null, conn);
                         jspData.put("logData", logData);
                         jspData.put("head_url", "main");
-                        String messageListSql = "select a.* from \n"
-                                + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status from sms_inbox si\n"
+                        String messageListSql = "select a.*, u.name from \n"
+                                + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status, null as user_id from sms_inbox si\n"
                                 + "union \n"
-                                + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status from sms_outbox so) a\n"
-                                + "order by a.date desc\n"
+                                + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status, so.user_id from sms_outbox so) a\n"
+                                + " left join users u on u.id = a.user_id "
+                                + " order by a.date desc\n"
                                 + "limit 100";
                         List<HashMap> messageList = DBSelect.getRows(messageListSql, null, conn);
                         jspData.put("messageList", messageList);
@@ -169,7 +170,7 @@ public class PiServlet extends HttpServlet {
                     String recipient = Tools.getStringValue(request.getParameter("recipient"), "");
                     sms = Tools.replaceTags(sms);
                     recipient = Tools.replaceTags(recipient);
-                    recipient = recipient.replaceAll("\\(","").replaceAll("\\)","").replaceAll("\\-", "").replaceAll(" ","");
+                    recipient = recipient.replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("\\-", "").replaceAll(" ", "");
                     if (request.getMethod().equalsIgnoreCase("POST") && sms.trim().length() > 0 && recipient.trim().length() > 0) {
                         HashMap data = new HashMap();
                         data.put("message", sms);
@@ -286,6 +287,11 @@ public class PiServlet extends HttpServlet {
             case "msgs":
                 if (loginAdmin > 0) {
                     HashMap reqData = Tools.replaceTags(getRequestParameters(request));
+                    String msgsListSQL = "select a.*, u.name from \n"
+                            + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status, null as user_id from sms_inbox si\n"
+                            + "union \n"
+                            + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status, so.user_id from sms_outbox so) a\n"
+                            + " left join users u on u.id = a.user_id ";
                     if (reqData.containsKey("FLTR_DATA") && Tools.parseInt(reqData.get("FLTR_DATA"), -1) == 1) {
                         String whereString = "where 1=1 ";
                         HashMap filterList = new HashMap();
@@ -329,12 +335,8 @@ public class PiServlet extends HttpServlet {
 
                         List<HashMap> msgsList = new ArrayList<>();
                         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                            String msgsListSQL = "select a.* from \n"
-                                    + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status from sms_inbox si\n"
-                                    + "union \n"
-                                    + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status from sms_outbox so) a\n"
-                                    + whereString + "\n"
-                                    + "order by a.date desc\n";
+
+                            msgsListSQL += whereString + "\n" + "order by a.date desc\n";
                             msgsList = DBSelect.getRows(msgsListSQL, args, conn);
                             jspData.put("MSGS_LIST", msgsList);
                             jspData.put("head_url", "msgs");
@@ -348,11 +350,7 @@ public class PiServlet extends HttpServlet {
                     } else {
                         List<HashMap> msgsList = new ArrayList<>();
                         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                            String msgsListSQL = "select a.* from \n"
-                                    + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status from sms_inbox si\n"
-                                    + "union \n"
-                                    + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status from sms_outbox so) a\n"
-                                    + "order by a.date desc\n"
+                            msgsListSQL += "order by a.date desc\n"
                                     + "limit 200";
                             msgsList = DBSelect.getRows(msgsListSQL, conn);
                             jspData.put("MSGS_LIST", msgsList);

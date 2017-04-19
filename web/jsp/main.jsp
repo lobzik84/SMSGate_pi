@@ -1,3 +1,4 @@
+<%@page import="org.lobzik.home_sapiens.entity.Measurement"%>
 <%@page import="org.lobzik.smspi.pi.MessageStatus"%>
 <%@page import="org.lobzik.home_sapiens.entity.Parameter"%>
 <%@page import="org.lobzik.smspi.pi.AppData"%>
@@ -53,8 +54,12 @@
 
     Parameter balP = AppData.parametersStorage.getParameterByAlias("MODEM_BALANCE");
     String simBalance = "";
-    if (AppData.measurementsCache.getLastMeasurement(balP) != null) {
-        simBalance = AppData.measurementsCache.getLastMeasurement(balP).toStringValue();
+    Measurement balM = AppData.measurementsCache.getLastMeasurement(balP);
+    String simBalanceHint = "";
+    if (balM != null) {
+        simBalanceHint = "Баланс проверен в " + Tools.getFormatedDate(new Date(balM.getTime()), "HH:mm dd MMM");
+        simBalance = balM.toStringValue();
+        
     }
 
 %>
@@ -84,7 +89,7 @@
                 </div>
                 <div class="mb__text">
                     <p class="mb__operator"><%=operator%></p>
-                    <p class="chart__balance"><%=simBalance%>
+                    <p class="chart__balance js-tooltip" title="<%=simBalanceHint%>"><%=simBalance%>
                         <% if (simBalance.length() > 0) { %><span class="rouble">i</span> <%}%>
                     </p>
                     <p class="chart__phone"><%=simNumber%></p>
