@@ -54,11 +54,17 @@ public class SMSClientTestXML {
                     Element action = doc.createElement("action");
                     action.appendChild(doc.createTextNode("send_sms"));
                     rootElement.appendChild(action);
-                    
+
+                    long validBefore = System.currentTimeMillis() + 1 * 60 * 1000l;//expires in 1 min 
+
+                    Element valid_before = doc.createElement("valid_before");
+                    valid_before.appendChild(doc.createTextNode(validBefore + ""));
+                    rootElement.appendChild(valid_before);
+
                     Element usernameEl = doc.createElement("username");
                     usernameEl.appendChild(doc.createTextNode(username));
                     rootElement.appendChild(usernameEl);
-                    
+
                     Element textEl = doc.createElement("text");
                     textEl.appendChild(doc.createTextNode(text));
                     rootElement.appendChild(textEl);
@@ -95,7 +101,7 @@ public class SMSClientTestXML {
                     DocumentBuilder builder = factory.newDocumentBuilder();
                     Document docResponse = builder.parse((conn.getInputStream()));
                     prettyPrint(docResponse);
-                    
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
