@@ -104,9 +104,12 @@ public class XMLServlet extends HttpServlet {
     private Document parseRequest(HttpServletRequest request) throws Exception {
 
         InputStream is = request.getInputStream();
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+
+        DocumentBuilder builder = dbf.newDocumentBuilder();
         Document doc = builder.parse(is);
+        
         return doc;
     }
 
@@ -166,4 +169,5 @@ public class XMLServlet extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
+ 
 }

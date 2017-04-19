@@ -6,7 +6,10 @@
 package org.lobzik.smspi.pi;
 
 import java.math.BigInteger;
+import java.security.Key;
+import java.security.KeyException;
 import java.security.KeyFactory;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
@@ -15,6 +18,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import javax.xml.crypto.AlgorithmMethod;
+import javax.xml.crypto.KeySelector;
+import javax.xml.crypto.KeySelectorException;
+import javax.xml.crypto.KeySelectorResult;
+import javax.xml.crypto.XMLCryptoContext;
+import javax.xml.crypto.XMLStructure;
+import javax.xml.crypto.dsig.SignatureMethod;
+import javax.xml.crypto.dsig.XMLSignature;
+import javax.xml.crypto.dsig.XMLSignatureFactory;
+import javax.xml.crypto.dsig.dom.DOMValidateContext;
+import javax.xml.crypto.dsig.keyinfo.KeyInfo;
+import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.lobzik.smspi.pi.event.Event;
@@ -23,7 +38,6 @@ import org.lobzik.tools.db.mysql.DBSelect;
 import org.lobzik.tools.db.mysql.DBTools;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
@@ -71,8 +85,10 @@ public class XMLAPI {
         String sSQL = "select * from users where name=?";
         List args = new LinkedList();
         args.add(username);
-        //String digest = json.getString("digest");
-        Node message = req.getElementsByTagName("message").item(0);
+        NodeList nl = req.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
+        if (nl.getLength() == 0) {
+            throw new Exception("Cannot find Signature element");
+        }
 
         String text = req.getElementsByTagName("text").item(0).getTextContent();
         String recipient = req.getElementsByTagName("recipient").item(0).getTextContent();
@@ -103,17 +119,15 @@ public class XMLAPI {
             RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, BoxCommonData.RSA_E);
             KeyFactory factory = KeyFactory.getInstance("RSA");
             RSAPublicKey userPublicKey = (RSAPublicKey) factory.generatePublic(spec);
-            Signature verifier = Signature.getInstance("SHA256withRSA");
-            verifier.initVerify(userPublicKey);
-            //verifier.update(message.toString().getBytes());
-            boolean valid = true;// TODO XMLDSig check verifier.verify(Tools.toByteArray(digest));
-            if (!valid) {
-                throw new Exception("Invalid digest");
-            }
-            if (!recipient.matches("\\+[0-9]{7,15}")) {
-                throw new Exception("Invalid recipient (must be like +71234567890)");
 
+            DOMValidateContext valContext = new DOMValidateContext(userPublicKey, nl.item(0));
+            XMLSignatureFactory xfactory = XMLSignatureFactory.getInstance("DOM");
+            XMLSignature signature = xfactory.unmarshalXMLSignature(valContext);
+            boolean coreValidity = signature.validate(valContext);
+            if (coreValidity) {
+                throw new Exception("Invalid digest!");
             }
+
             HashMap data = new HashMap();
             data.put("user_id", Tools.parseInt(resList.get(0).get("id"), 0));
             data.put("valid_before", validBefore);
@@ -140,7 +154,8 @@ public class XMLAPI {
         Element message_id = doc.createElement("message_id");
         message_id.appendChild(doc.createTextNode(msgId + ""));
         rootElement.appendChild(message_id);
-        
+
         return doc;
     }
+
 }
