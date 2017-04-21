@@ -49,7 +49,7 @@
 
             <div class="private_key mt-20">
                 <label class="label__sub">Generated PrivateKey (multiplicative inverse in HEX, 256 symbols)</label>
-                <textarea class="textarea__key" name="private_key" id="private_key"></textarea>
+                <textarea class="textarea__key mt-5" name="private_key" id="private_key"></textarea>
             </div>
             <input hidden type="text" name="REG_ME" value="1"/>
 
