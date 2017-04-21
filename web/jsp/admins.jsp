@@ -49,8 +49,8 @@
             </div>
             <div class="inline-b ml-10 mr-10 va-t wp-210">
                 <label class="label_inline_gen mt-10">Password</label>
-                <label class="label_inline_gen label_generate" onclick="generatePass()">Сгенерировать</label>
-                <input class="wp-170" type="text" name="password" id="admin_pass"/>
+                <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass')">Сгенерировать</label>
+                <input class="wp-170 js-tooltip" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
             </div>
             <input hidden type="text" name="ADD_ME" value="1"/>
             <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
@@ -62,13 +62,13 @@
                     <td class="w-10">
                         ID
                     </td>
-                    <td class="w-60">
+                    <td class="w-30">
                         login
                     </td>
                     <td class="w-20">
                         status
                     </td>
-                    <td class="w-10">
+                    <td class="w-30">
                         edit
                     </td>
                     <td class="w-10">
@@ -86,17 +86,18 @@
                     <td><%= id%></td>
                     <td><%= login%></td>
                     <td><%= status%></td>
-                    <td>                        
-                        <form class="form_hide none" id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
-                            <div class="inline-b ml-10 mr-10 va-t wp-210">
-                                <label class="label_inline_gen mt-10">Новый пароль:</label>
-                                <label class="label_inline_gen mt-10">Кроме символов ", ', <, >,</label>
-                                <input class="wp-170" type="text" name="password" id="admin_pass"/>
+                    <td>
+                        <input class="btn btn_hide-table" type="submit" value="Редактировать пароль"/>
+                        <form class="form_hide-table none" id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
+                            <div class="va-t wp-240">
+                                <label class="label_inline_gen mt-10">Новый пароль</label>
+                                <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass_<%=id%>')">Сгенерировать</label>
+                                <br>
+                                <input class="wp-210 js-tooltip" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
                             </div>
                             <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
-                            <input class="btn blbc white" type="submit" value="Изменить" name="submit" />
-                        </form> 
-                        <input class="btn btn_hide_edit mt-20 mb-5" type="submit" value="Редактировать"/> 
+                            <input class="btn blbc white mt-15" type="submit" value="Изменить" name="submit" />
+                        </form>
                     </td>
                     <td>
                         <%if (id != 1) {%>
@@ -108,28 +109,26 @@
             </tbody>
         </table>
     </div>
+
     <%} else {%>
-    <h2>У вас нет прав на добавление администратора. Только root Администратор может добавлять новых администраторов</h2>
-    <h2>Но вы можете изменить свой пароль</h2>
+
+    <p class="label_wrong">Только root администратор может добавлять новых администраторов!</p>
+    <p class="label ta-c pt-10">Вы можете изменить свой пароль.</p>
+
+    <input class="btn btn_hide mt-20 mb-5" type="submit" value="Редактировать пароль"/>
     <form class="form_hide none" id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
-        <div class="inline-b ml-10 mr-10 va-t wp-210">
-            <label class="label_inline_gen mt-10">Новый пароль:</label>
-            <label class="label_inline_gen mt-10">Кроме символов ", ', <, >,</label>
-            <input class="wp-170" type="text" name="password" id="admin_pass"/>
+        <div class="va-t wp-240">
+            <label class="label_inline_gen mt-10">Новый пароль</label>
+            <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass')">Сгенерировать</label>
+            <br>
+            <input class="wp-210 js-tooltip" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
+
         </div>
         <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=adminId%>"/>
-        <input class="btn blbc white" type="submit" value="Изменить" name="submit" />
-    </form> 
-    <input class="btn btn_hide_edit mt-20 mb-5" type="submit" value="Редактировать пароль"/> 
+        <input class="btn blbc white mt-15" type="submit" value="Изменить" name="submit" />
+    </form>
+
     <%}%>
 </div>
-<script type="text/javascript">
-    $(function () {
-        $('.btn_hide_edit').click(function () {
-            $(this).toggleClass('btn_on');
-            $(this).prev('#edit_form').toggleClass('block');
-        });
-    });
-</script>
 </body>
 </html>

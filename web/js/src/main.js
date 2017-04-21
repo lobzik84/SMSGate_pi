@@ -29,6 +29,11 @@ $(function () {
         $('.form_hide').toggleClass('block');
     });
 
+    $('.btn_hide-table').click(function () {
+        $(this).toggleClass('btn_on-table');
+        $(this).siblings('.form_hide-table').toggleClass('block');
+    });
+
     $('.publicKey_copy').click(function () {
         $(this).siblings('.publicKey_full').toggleClass('block');
     });
@@ -111,6 +116,6 @@ $(function () {
     $('.counter_dBm').bind("DOMSubtreeModified", function () {
         signalPoint();
     });
-    
+
     $('.private_key').hide();
 });

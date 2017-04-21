@@ -613,6 +613,9 @@ strong {
 .wp-210 {
   width: 210px;
 }
+.wp-240 {
+  width: 240px;
+}
 /*LINE-HEIGHT*/
 .lh-xxxs {
   line-height: .25;
@@ -1193,11 +1196,13 @@ body {
 .btn_delete:hover {
   background: url('/smspi/img/icons.png') no-repeat -36px -18px;
 }
-.btn_hide {
+.btn_hide,
+.btn_hide-table {
   background: #2196f3;
   color: #ffffff;
 }
-.btn_on {
+.btn_on,
+.btn_on-table {
   background: #d9dde3;
   color: #000000;
 }

@@ -20,7 +20,7 @@ function generateKey() {
     $('#private_key').text(private_key);
 }
 
-function generatePass() {
+function generatePass(inputId) {
     var pass_alphabet = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     var pass = "";
     var pass_length = 8;
@@ -28,5 +28,5 @@ function generatePass() {
         var ch = pass_alphabet.charAt(Math.floor(Math.random() * pass_alphabet.length));
         pass += ch;
     }
-    $('#admin_pass').val(pass);
+    $(inputId).val(pass);
 }
