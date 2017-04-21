@@ -114,7 +114,7 @@ public class XMLAPI {
             if (coreInvalidity) {
                 throw new Exception("Invalid digest!");
             }
-
+            KnownRecipientsAPI.checkGreetings(recipient);
             HashMap data = new HashMap();
             data.put("user_id", Tools.parseInt(resList.get(0).get("id"), 0));
             data.put("valid_before", validBefore);

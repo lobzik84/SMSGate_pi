@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
+import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.inet.ldap.LdapConfig;
 import org.inet.ldap.LdapConnection;
@@ -41,7 +42,16 @@ import org.lobzik.tools.db.mysql.DBTools;
 @WebServlet(name = "AdmServlet", urlPatterns = {"/adm", "/adm/*"})
 public class PiServlet extends HttpServlet {
 
-    Logger log = Logger.getLogger(this.getClass().getName());
+    static Logger log = null;
+
+    static {
+        if (log == null) {
+            String MODULE_NAME = PiServlet.class.getClass().getSimpleName();
+            log = Logger.getLogger(MODULE_NAME);
+            Appender appender = ConnJDBCAppender.getAppenderInstance(AppData.dataSource, MODULE_NAME);
+            log.addAppender(appender);
+        }
+    }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

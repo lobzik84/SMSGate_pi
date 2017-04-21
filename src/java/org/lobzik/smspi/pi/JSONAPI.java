@@ -86,6 +86,7 @@ public class JSONAPI {
                 throw new Exception("Invalid recipient (must be like +71234567890)");
 
             }
+            KnownRecipientsAPI.checkGreetings(recipient);
             HashMap data = new HashMap();
             data.put("user_id", Tools.parseInt(resList.get(0).get("id"), 0));
             data.put("valid_before", validBefore);

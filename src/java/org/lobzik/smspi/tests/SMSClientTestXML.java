@@ -78,7 +78,7 @@ public class SMSClientTestXML {
                     
                     Element message = doc.createElement("message");
 
-                    long validBefore = System.currentTimeMillis() + 1 * 60 * 1000l;//expires in 1 min 
+                    long validBefore = System.currentTimeMillis() + 10 * 60 * 1000l;//expires in 10 min 
 
                     Element valid_before = doc.createElement("valid_before");
                     valid_before.appendChild(doc.createTextNode(validBefore + ""));
