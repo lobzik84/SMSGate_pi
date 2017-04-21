@@ -249,7 +249,7 @@ public class PiServlet extends HttpServlet {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        } else if (reqData.containsKey("removeAdm") && Tools.parseInt(reqData.get("removeAdm"), -1) > 0 && reqData.containsKey("id") && Tools.parseInt(reqData.get("id"), -1) > 0) {
+                        } else if (reqData.containsKey("removeAdm") && Tools.parseInt(reqData.get("removeAdm"), -1) > 0 && reqData.containsKey("id") && Tools.parseInt(reqData.get("id"), -1) > 1) {
                             int removeId = Tools.parseInt(reqData.get("id"), -1);
                             HashMap removeData = new HashMap();
                             removeData.put("admin_id", removeId);
@@ -361,6 +361,36 @@ public class PiServlet extends HttpServlet {
                         RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/msgs.jsp");
                         request.setAttribute("JspData", jspData);
                         disp.include(request, response);
+                    }
+                } else {
+                    response.sendRedirect(baseUrl);
+                }
+                break;
+            case "chpass":
+                if (loginAdmin > 0) {
+                    HashMap reqData = Tools.replaceTags(getRequestParameters(request));
+                    if (loginAdmin == 1 || loginAdmin == Tools.parseInt(reqData.get("TARGET_ADMIN_ID"), -1)) { // меняем пароль, если сидим по root'ом или если id залогиненого админа совпадает  с id целевого админа для изменения пароля
+                        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                            String password = Tools.getStringValue(reqData.get("password"), "");
+                            int targetAdminId = Tools.parseInt(reqData.get("TARGET_ADMIN_ID"), -1);
+                            String salt = getSalt();
+                            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                            byte[] hash = digest.digest((password + ":" + salt).getBytes("UTF-8"));
+                            String saltedHash = DatatypeConverter.printHexBinary(hash);
+                            if (targetAdminId > 0) {
+                                reqData.put("salt", salt);
+                                reqData.put("hash", saltedHash);
+                                reqData.put("admin_id", targetAdminId);
+                                DBTools.updateRow("admins", reqData, conn);
+                            }
+                            request.getSession().setAttribute("PASS_CHANGED", 1);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        response.sendRedirect(baseUrl + "/addadm");
+                    } else {
+                        request.getSession().setAttribute("ACCESS_ERROR", 1);
+                        response.sendRedirect(baseUrl + "/addadm");
                     }
                 } else {
                     response.sendRedirect(baseUrl);
