@@ -65,10 +65,11 @@ public class ModemModule extends Thread implements Module {
     private static final ModemSerialWriter serialWriter = new ModemSerialWriter();
     private static final int REPLIES_BUFFER_SIZE = 100;
     private static final Queue<String> recievedLines = new ConcurrentLinkedQueue();
-    //private static final int CHECK_BALANCE_EVERY = 10;
+
 
     private static int modemOkRepliesCount = 0;
     private static int modemWriteErrorCount = 0;
+    private static int modemSIMErrorCount = 0;
     private static String suggestedResponse = null;
 
     private static final AtomicBoolean modemBusy = new AtomicBoolean(false);
@@ -126,6 +127,8 @@ public class ModemModule extends Thread implements Module {
             serialWriter.setOutputStream(serialPort.getOutputStream());
             serialWriter.start();
             log.debug("Configuring modem");
+            
+            waitForCommand("AT^CURC=0\r");
 
             waitForCommand("ATE0\r");
             waitForCommand("AT+CMGF=0\r");
@@ -480,6 +483,7 @@ public class ModemModule extends Thread implements Module {
                     modemOkRepliesCount++;
                 }
                 modemWriteErrorCount = 0;
+                modemSIMErrorCount = 0;
             }
             synchronized (this) {
                 notify();
@@ -662,16 +666,17 @@ public class ModemModule extends Thread implements Module {
                     if (response.length() > 0) {
                         if (response.contains("ERROR")) {
                             log.error("Modem response:" + response);
-                            modemWriteErrorCount++;
-                            if (modemOkRepliesCount > 10 && modemWriteErrorCount > 10) { //если нормально работал и перестал - значит хана
+                                                    if (response.contains("CME ERROR")) {
+                            modemSIMErrorCount++;
+                            if (modemOkRepliesCount > 10 && modemSIMErrorCount > 10) { //если нормально работал и перестал - значит хана
                                 modemOkRepliesCount = 0;
-                                String message = "Too many modem errors! rebooting";
+                                String message = "Too many SIM errors! rebooting";
                                 log.fatal(message);
                                 HashMap cause = new HashMap();
                                 cause.put("cause", message);
                                 Event reboot = new Event("modem_and_system_reboot", cause, Event.Type.SYSTEM_EVENT);
                                 AppData.eventManager.newEvent(reboot);
-                            }
+                            }}
                         } else {
                             log.debug("Modem response:" + response);
                         }
