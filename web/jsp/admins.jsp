@@ -50,7 +50,10 @@
             <div class="inline-b ml-10 mr-10 va-t wp-210">
                 <label class="label_inline_gen mt-10">Password</label>
                 <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass')">Сгенерировать</label>
-                <input class="wp-170 js-tooltip" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
+                <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
+                <br>
+                <label class='label__sub'>Доменная авторизация</label>
+                <input class='va-m' type="checkbox"/>
             </div>
             <input hidden type="text" name="ADD_ME" value="1"/>
             <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
@@ -92,8 +95,10 @@
                             <div class="va-t wp-240">
                                 <label class="label_inline_gen mt-10">Новый пароль</label>
                                 <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass_<%=id%>')">Сгенерировать</label>
+                                <input class="wp-210 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
                                 <br>
-                                <input class="wp-210 js-tooltip" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
+                                <label class='label__sub'>Доменная авторизация</label>
+                                <input class='va-m' type="checkbox"/>
                             </div>
                             <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
                             <input class="btn blbc white mt-15" type="submit" value="Изменить" name="submit" />
@@ -121,8 +126,10 @@
             <label class="label_inline_gen mt-10">Новый пароль</label>
             <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass')">Сгенерировать</label>
             <br>
-            <input class="wp-210 js-tooltip" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
-
+            <input class="wp-210 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
+            <br>
+            <label class='label__sub'>Доменная авторизация</label>
+            <input class='va-m' type="checkbox"/>
         </div>
         <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=adminId%>"/>
         <input class="btn blbc white mt-15" type="submit" value="Изменить" name="submit" />

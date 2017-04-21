@@ -1339,9 +1339,8 @@ textarea:focus {
   line-height: 18px;
 }
 .label__sub {
-  display: block;
   font-family: 'opensans-semibold', Arial, Helvetica, sans-serif;
-  margin-bottom: 6px;
+  padding-bottom: 6px;
   font-size: 13px;
 }
 .message {
