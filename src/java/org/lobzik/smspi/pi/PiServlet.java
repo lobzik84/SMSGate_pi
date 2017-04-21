@@ -23,6 +23,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.log4j.Logger;
+import org.inet.ldap.LdapConfig;
+import org.inet.ldap.LdapConnection;
+import org.inet.ldap.com.LdapTools;
+import org.inet.ldap.entity.LdapReader;
 import org.lobzik.home_sapiens.entity.Measurement;
 import org.lobzik.home_sapiens.entity.Parameter;
 import org.lobzik.smspi.pi.event.Event;
@@ -66,39 +70,64 @@ public class PiServlet extends HttpServlet {
                         String adminPass = request.getParameter("pass");
                         if (adminLogin != null && adminPass != null && adminPass.trim().length() > 0 && adminPass.trim().length() > 0) {
                             try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                                String loginSql = "select * from admins a where a.login = ?";
+                                String loginSql = "select * from admins a where a.login = ? and status = 1";
                                 LinkedList args = new LinkedList();
                                 args.add(adminLogin);
                                 List<HashMap> res = DBSelect.getRows(loginSql, args, conn);
                                 if (res.size() == 1) {
                                     HashMap h = res.get(0);
                                     int id = Tools.parseInt(h.get("admin_id"), 0);
-                                    String salt = (String) h.get("salt");
-                                    String dbHash = (String) h.get("hash");
-                                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                                    byte[] hash = digest.digest((adminPass + ":" + salt).getBytes("UTF-8"));
-                                    String saltedHash = DatatypeConverter.printHexBinary(hash);
-                                    if (dbHash.equals(saltedHash)) {
-                                        if (Tools.parseInt(h.get("status"), -1) == 1) {
+                                    boolean authViaLDAP = Tools.parseInt(h.get("auth_via_ldap"), 0) == 1;
+                                    if (authViaLDAP) {
+                                        log.info("Authorizing admin id=" + id + " via LDAP");
+                                        String[] userLoginArr = LdapTools.splitUsername(adminLogin);
+                                        final String un = userLoginArr[0];
+                                        LdapReader reader = LdapConfig.getReader(userLoginArr[1]);
+                                        LdapReader userReader = new LdapReader.Builder(un, adminPass, reader.getDomainName()).setServerIp(reader.getServerIp()).build();
+                                        if (LdapConnection.checkAuthorization(userReader)) {
+
                                             loginAdmin = id;
                                             log.info("Admin login ok! id=" + loginAdmin + ", ip=" + request.getRemoteAddr());
                                             request.getSession().setAttribute("AdminID", loginAdmin);
                                             request.getSession().setAttribute("AdminLogin", adminLogin);
                                             response.sendRedirect(baseUrl + "/main");
                                         } else {
-                                            log.error("Admin:" + adminLogin + "is not activated");
+                                            log.error("Incorrect password for admin " + adminLogin);
                                             RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
                                             jspData.put("FAIL_LOGIN", 1);
                                             request.setAttribute("JspData", jspData);
-                                            disp.forward(request, response);
+                                            disp.include(request, response);
                                         }
+
                                     } else {
-                                        log.error("Incorrect password for admin " + adminLogin);
-                                        RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
-                                        jspData.put("FAIL_LOGIN", 1);
-                                        request.setAttribute("JspData", jspData);
-                                        disp.include(request, response);
+                                        String salt = (String) h.get("salt");
+                                        String dbHash = (String) h.get("hash");
+                                        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                                        byte[] hash = digest.digest((adminPass + ":" + salt).getBytes("UTF-8"));
+                                        String saltedHash = DatatypeConverter.printHexBinary(hash);
+                                        if (dbHash.equals(saltedHash)) {
+                                            if (Tools.parseInt(h.get("status"), -1) == 1) {
+                                                loginAdmin = id;
+                                                log.info("Admin login ok! id=" + loginAdmin + ", ip=" + request.getRemoteAddr());
+                                                request.getSession().setAttribute("AdminID", loginAdmin);
+                                                request.getSession().setAttribute("AdminLogin", adminLogin);
+                                                response.sendRedirect(baseUrl + "/main");
+                                            } else {
+                                                log.error("Admin:" + adminLogin + "is not activated");
+                                                RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
+                                                jspData.put("FAIL_LOGIN", 1);
+                                                request.setAttribute("JspData", jspData);
+                                                disp.forward(request, response);
+                                            }
+                                        } else {
+                                            log.error("Incorrect password for admin " + adminLogin);
+                                            RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
+                                            jspData.put("FAIL_LOGIN", 1);
+                                            request.setAttribute("JspData", jspData);
+                                            disp.include(request, response);
+                                        }
                                     }
+
                                 } else {
                                     log.error("Admin with login " + adminLogin + " not found");
                                     RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
@@ -106,9 +135,12 @@ public class PiServlet extends HttpServlet {
                                     request.setAttribute("JspData", jspData);
                                     disp.include(request, response);
                                 }
+
                             } catch (Exception e) {
+                                log.error("Error while authenticating " + e.getMessage());
                                 e.printStackTrace();
                             }
+
                         } else {
                             response.sendRedirect(baseUrl);
                         }
@@ -121,6 +153,7 @@ public class PiServlet extends HttpServlet {
                     response.sendRedirect(baseUrl + "/main");
                 }
                 break;
+
             case "main":
                 if (loginAdmin > 0) {
                     log.info("Registration for admin: " + loginAdmin + " is alive");

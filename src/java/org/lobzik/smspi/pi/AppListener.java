@@ -13,6 +13,9 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.inet.ldap.LdapConfig;
+import org.inet.ldap.com.LdapDomainException;
+import org.inet.ldap.entity.LdapReader;
 import org.lobzik.smspi.pi.modules.ActualDataStorageModule;
 import org.lobzik.smspi.pi.modules.ChartModule;
 import org.lobzik.smspi.pi.modules.DisplayModule;
@@ -43,6 +46,7 @@ public class AppListener implements ServletContextListener {
             log.info("Root Log init ok");
             log.info("Starting hs app. Modules start!");
             BoxSettingsAPI.initBoxSettings();
+            initLdapSettings();
             AppData.setGraphicsWorkDir(new File(sce.getServletContext().getRealPath("img")));
             DisplayModule.getInstance().start();
             InternalSensorsModule.getInstance().start();
@@ -76,6 +80,21 @@ public class AppListener implements ServletContextListener {
 
         } catch (Throwable ex) {
             ex.printStackTrace();
+        }
+    }
+
+    private void initLdapSettings() {
+        try {
+            LdapReader ldapReader = new LdapReader.Builder(
+                    BoxSettingsAPI.get("ldap.server.login"),
+                    BoxSettingsAPI.get("ldap.server.password"),
+                    BoxSettingsAPI.get("ldap.server.domain"))
+                    .setServerIp(BoxSettingsAPI.get("ldap.server.ip"))
+                    .build();
+            LdapConfig.setReaders(ldapReader);
+        } catch (LdapDomainException ex) {
+            log.error("Error while ldap init");
+            log.error(ex.getMessage());
         }
     }
 
