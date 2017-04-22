@@ -53,7 +53,7 @@
                 <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
                 <br>
                 <label class='label__sub'>Доменная авторизация</label>
-                <input class='va-m' type="checkbox"/>
+                <input class='va-m' type="checkbox" value="1" name="auth_via_ldap"/>
             </div>
             <input hidden type="text" name="ADD_ME" value="1"/>
             <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
@@ -84,6 +84,7 @@
                         int id = Tools.parseInt(hm.get("admin_id"), -1);
                         String login = Tools.getStringValue(hm.get("login"), "");
                         int status = Tools.parseInt(hm.get("status"), -1);
+                        String auth_via_ldap = (Tools.parseInt(hm.get("auth_via_ldap"), -1)==1)?"checked":"";
                 %>
                 <tr>
                     <td><%= id%></td>
@@ -98,7 +99,7 @@
                                 <input class="wp-210 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
                                 <br>
                                 <label class='label__sub'>Доменная авторизация</label>
-                                <input class='va-m' type="checkbox"/>
+                                <input class='va-m' type="checkbox" value="1" name="auth_via_ldap" <%=auth_via_ldap%>/>
                             </div>
                             <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
                             <input class="btn blbc white mt-15" type="submit" value="Изменить" name="submit" />
