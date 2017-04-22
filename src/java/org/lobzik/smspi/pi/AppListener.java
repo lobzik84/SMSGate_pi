@@ -18,6 +18,7 @@ import org.inet.ldap.com.LdapDomainException;
 import org.inet.ldap.entity.LdapReader;
 import org.lobzik.smspi.pi.modules.ActualDataStorageModule;
 import org.lobzik.smspi.pi.modules.ChartModule;
+import org.lobzik.smspi.pi.modules.DBCleanerModule;
 import org.lobzik.smspi.pi.modules.DisplayModule;
 import org.lobzik.smspi.pi.modules.InternalSensorsModule;
 import org.lobzik.smspi.pi.modules.DBDataWriterModule;
@@ -55,7 +56,7 @@ public class AppListener implements ServletContextListener {
             TimerModule.getInstance().start();
             DBDataWriterModule.getInstance().start();
             SystemModule.getInstance().start();
-
+            DBCleanerModule.getInstance().start();
             ChartModule.getInstance().start();
 
         } catch (Throwable ex) {

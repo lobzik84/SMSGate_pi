@@ -24,11 +24,13 @@ public class DBCleanerModule extends Thread implements Module {
 
     public final String MODULE_NAME = this.getClass().getSimpleName();
     private static DBCleanerModule instance = null;
-    private static Connection conn = null;
     private static Logger log = null;
     private static boolean run = true;
     private static boolean clearingInProgress = false;
     private static final int DAYS_TO_STORE_LOG_MSG = 9;
+    private static final int OUTBOX_MAX_ROWS = 10000;
+    private static final int INBOX_MAX_ROWS = 10000;
+    private static final int SENSORS_DATA_MAX_ROWS = 10000;
 
     private DBCleanerModule() { //singleton
     }
@@ -77,18 +79,37 @@ public class DBCleanerModule extends Thread implements Module {
     }
 
     private void doClearing() {
-        try {
-            conn = DBTools.openConnection(BoxCommonData.dataSourceName);
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
             DBSelect.executeStatement("delete from logs where datediff(curdate(), dated) > " + DAYS_TO_STORE_LOG_MSG, null, conn);
             log.info("Log table cleared");
-
- 
         } catch (Exception e) {
-            log.error("Error while DB Clearing: " + e.getMessage());
-
-        } finally {
-            DBTools.closeConnection(conn);
+            log.error("Error while Log Clearing: " + e.getMessage());
         }
+
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            long minId = DBSelect.getCount("select (max(id) - " + OUTBOX_MAX_ROWS + ") as min_id from sms_outbox", "min_id", null, conn);
+            DBSelect.executeStatement("delete from sms_outbox where id < " + minId, null, conn);
+            log.info("OutBox cleared");
+        } catch (Exception e) {
+            log.error("Error while OutBox Clearing: " + e.getMessage());
+        }
+
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            long minId = DBSelect.getCount("select (max(id) - " + INBOX_MAX_ROWS + ") as min_id from sms_inbox", "min_id", null, conn);
+            DBSelect.executeStatement("delete from sms_inbox where id < " + minId, null, conn);
+            log.info("InBox cleared");
+        } catch (Exception e) {
+            log.error("Error while InBox Clearing: " + e.getMessage());
+        }
+
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            long minId = DBSelect.getCount("select (max(rec_id) - " + SENSORS_DATA_MAX_ROWS + ") as min_id from sensors_data", "min_id", null, conn);
+            DBSelect.executeStatement("delete from sensors_data where rec_id < " +minId, null, conn);
+            log.info("Sensors Data cleared");
+        } catch (Exception e) {
+            log.error("Error while Sensors Data Clearing: " + e.getMessage());
+        }
+
     }
 
     @Override
