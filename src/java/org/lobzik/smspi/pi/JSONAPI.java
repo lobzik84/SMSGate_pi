@@ -37,10 +37,18 @@ public class JSONAPI {
             if (resList.size() != 1) {
                 throw new Exception("Message " + msgId + " not found");
             }
-            
+            HashMap dbMap = resList.get(0);
             reply.put("message_id", msgId);
-            reply.put("status", resList.get(0).get("status"));
-            reply.put("status_description", (new MessageStatus(resList.get(0).get("status"))).eng());
+            int status = Tools.parseInt(dbMap.get("status"), Integer.MAX_VALUE);
+            reply.put("status", status);
+            reply.put("status_description", (new MessageStatus(dbMap.get("status"))).eng());
+            if (status == MessageStatus.STATUS_SENT) {
+                Date dateSent = (Date) dbMap.get("date_sent");
+                if (dateSent != null) {
+                    reply.put("date_sent", dateSent.getTime());
+                }
+            }
+            
         }
         return reply;
     }

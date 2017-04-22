@@ -48,6 +48,9 @@ public class XMLAPI {
             if (resList.size() != 1) {
                 throw new Exception("Message " + msgId + " not found");
             }
+            HashMap dbMap = resList.get(0);
+
+            int status = Tools.parseInt(dbMap.get("status"), Integer.MAX_VALUE);
 
             Element res = doc.createElement("result");
             res.appendChild(doc.createTextNode("success"));
@@ -57,13 +60,22 @@ public class XMLAPI {
             message_id.appendChild(doc.createTextNode(msgId + ""));
             rootElement.appendChild(message_id);
 
-            Element status = doc.createElement("status");
-            status.appendChild(doc.createTextNode(resList.get(0).get("status") + ""));
-            rootElement.appendChild(status);
+            Element statusEl = doc.createElement("status");
+            statusEl.appendChild(doc.createTextNode(dbMap.get("status") + ""));
+            rootElement.appendChild(statusEl);
 
             Element status_description = doc.createElement("status_description");
-            status_description.appendChild(doc.createTextNode((new MessageStatus(resList.get(0).get("status"))).eng()));
+            status_description.appendChild(doc.createTextNode((new MessageStatus(dbMap.get("status"))).eng()));
             rootElement.appendChild(status_description);
+
+            if (status == MessageStatus.STATUS_SENT) {
+                Date dateSent = (Date) dbMap.get("date_sent");
+                if (dateSent != null) {
+                    Element date_sent = doc.createElement("status_description");
+                    date_sent.appendChild(doc.createTextNode(dateSent.getTime() + ""));
+                    rootElement.appendChild(date_sent);
+                }
+            }
         }
         return doc;
     }
