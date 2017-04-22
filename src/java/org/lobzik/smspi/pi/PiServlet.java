@@ -43,12 +43,13 @@ import org.lobzik.tools.db.mysql.DBTools;
 public class PiServlet extends HttpServlet {
 
     static Logger log = null;
+    public static final String logName = "PiServlet";
 
     static {
         if (log == null) {
-            String MODULE_NAME = PiServlet.class.getClass().getSimpleName();
-            log = Logger.getLogger(MODULE_NAME);
-            Appender appender = ConnJDBCAppender.getAppenderInstance(AppData.dataSource, MODULE_NAME);
+
+            log = Logger.getLogger(logName);
+            Appender appender = ConnJDBCAppender.getAppenderInstance(AppData.dataSource, logName);
             log.addAppender(appender);
         }
     }
@@ -102,7 +103,7 @@ public class PiServlet extends HttpServlet {
                                             request.getSession().setAttribute("AdminLogin", adminLogin);
                                             response.sendRedirect(baseUrl + "/main");
                                         } else {
-                                            log.error("Incorrect password for admin " + adminLogin);
+                                            log.error("Incorrect LDAP password for admin " + ", ip=" + request.getRemoteAddr());
                                             RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
                                             jspData.put("FAIL_LOGIN", 1);
                                             request.setAttribute("JspData", jspData);
@@ -123,14 +124,14 @@ public class PiServlet extends HttpServlet {
                                                 request.getSession().setAttribute("AdminLogin", adminLogin);
                                                 response.sendRedirect(baseUrl + "/main");
                                             } else {
-                                                log.error("Admin:" + adminLogin + "is not activated");
+                                                log.error("Admin:" + adminLogin + "is not active");
                                                 RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
                                                 jspData.put("FAIL_LOGIN", 1);
                                                 request.setAttribute("JspData", jspData);
                                                 disp.forward(request, response);
                                             }
                                         } else {
-                                            log.error("Incorrect password for admin " + adminLogin);
+                                            log.error("Incorrect password for admin " + adminLogin + ", ip=" + request.getRemoteAddr());
                                             RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
                                             jspData.put("FAIL_LOGIN", 1);
                                             request.setAttribute("JspData", jspData);
@@ -139,7 +140,7 @@ public class PiServlet extends HttpServlet {
                                     }
 
                                 } else {
-                                    log.error("Admin with login " + adminLogin + " not found");
+                                    log.error("Admin with login " + adminLogin + " not found" + ", ip=" + request.getRemoteAddr());
                                     RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/login.jsp");
                                     jspData.put("FAIL_LOGIN", 1);
                                     request.setAttribute("JspData", jspData);
@@ -159,14 +160,14 @@ public class PiServlet extends HttpServlet {
                         disp.include(request, response);
                     }
                 } else {
-                    log.error("Registration for admin: " + loginAdmin + " is alive");
+                    log.info("Session is alive for admin: " + loginAdmin);
                     response.sendRedirect(baseUrl + "/main");
                 }
                 break;
 
             case "main":
                 if (loginAdmin > 0) {
-                    log.info("Registration for admin: " + loginAdmin + " is alive");
+
                     try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
                         Long msgSent = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + MessageStatus.STATUS_SENT, "cnt", null, conn);
                         Long msgSentDaily = DBSelect.getCount("select count(*) as cnt from sms_outbox where status = " + MessageStatus.STATUS_SENT + " and date_sent > concat (current_date, ' 00:00:00') and date_sent < concat (current_date ,' 23:59:59')", "cnt", null, conn);
@@ -198,7 +199,7 @@ public class PiServlet extends HttpServlet {
                     request.setAttribute("JspData", jspData);
                     disp.include(request, response);
                 } else {
-                    log.error("No alive registration");
+                    log.error("No alive session");
                     response.sendRedirect(baseUrl);
                 }
                 break;
@@ -257,7 +258,7 @@ public class PiServlet extends HttpServlet {
                     } else {
                         List<HashMap> appList = new ArrayList<>();
                         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                            String appListSQL = "select*from users\n"
+                            String appListSQL = "select * from users\n"
                                     + "order by id";
                             appList = DBSelect.getRows(appListSQL, conn);
                             jspData.put("APP_LIST", appList);
@@ -277,9 +278,10 @@ public class PiServlet extends HttpServlet {
                 if (loginAdmin > 0) {
                     if (loginAdmin == 1) {
                         HashMap reqData = Tools.replaceTags(getRequestParameters(request));
-                        if (reqData.containsKey("ADD_ME") && Tools.parseInt(reqData.get("ADD_ME"), -1) > 0 && Tools.getStringValue(reqData.get("login"), "").trim().length() > 0 && Tools.getStringValue(reqData.get("password"), "").trim().length() > 0) {
+                        String password = Tools.getStringValue(reqData.get("password"), "");
+                        int ldapAuth = Tools.parseInt(reqData.get("auth_via_ldap"), 0) == 1 ? 1 : 0;
+                        if (reqData.containsKey("ADD_ME") && Tools.parseInt(reqData.get("ADD_ME"), -1) > 0 && Tools.getStringValue(reqData.get("login"), "").trim().length() > 3 && (password.trim().length() > 3 || ldapAuth == 1)) {
                             try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                                String password = Tools.getStringValue(reqData.get("password"), "");
                                 String salt = getSalt();
                                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
                                 byte[] hash = digest.digest((password + ":" + salt).getBytes("UTF-8"));
@@ -287,6 +289,7 @@ public class PiServlet extends HttpServlet {
                                 reqData.put("salt", salt);
                                 reqData.put("hash", saltedHash);
                                 reqData.put("status", 1);
+                                reqData.put("auth_via_ldap", ldapAuth);
                                 int newAdminId = DBTools.insertRow("admins", reqData, conn);
                                 response.sendRedirect(baseUrl + "/addadm");
                             } catch (Exception e) {
@@ -305,7 +308,7 @@ public class PiServlet extends HttpServlet {
                         } else {
                             List<HashMap> admList = new ArrayList<>();
                             try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                                String appListSQL = "select*from admins\n"
+                                String appListSQL = "select * from admins\n"
                                         + "order by admin_id";
                                 admList = DBSelect.getRows(appListSQL, conn);
                                 jspData.put("ADM_LIST", admList);
@@ -412,10 +415,12 @@ public class PiServlet extends HttpServlet {
             case "chpass":
                 if (loginAdmin > 0) {
                     HashMap reqData = Tools.replaceTags(getRequestParameters(request));
-                    if (loginAdmin == 1 || loginAdmin == Tools.parseInt(reqData.get("TARGET_ADMIN_ID"), -1)) { // меняем пароль, если сидим по root'ом или если id залогиненого админа совпадает  с id целевого админа для изменения пароля
+                    int targetAdminId = Tools.parseInt(reqData.get("TARGET_ADMIN_ID"), -1);
+                    String password = Tools.getStringValue(reqData.get("password"), "");
+                    int ldapAuth = Tools.parseInt(reqData.get("auth_via_ldap"), 0) == 1 ? 1 : 0;
+                    if (loginAdmin == 1 || loginAdmin == targetAdminId && (password.trim().length() > 3 || ldapAuth == 1)) { // меняем пароль, если сидим по root'ом или если id залогиненого админа совпадает  с id целевого админа для изменения пароля
                         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                            String password = Tools.getStringValue(reqData.get("password"), "");
-                            int targetAdminId = Tools.parseInt(reqData.get("TARGET_ADMIN_ID"), -1);
+
                             String salt = getSalt();
                             MessageDigest digest = MessageDigest.getInstance("SHA-256");
                             byte[] hash = digest.digest((password + ":" + salt).getBytes("UTF-8"));
@@ -424,6 +429,7 @@ public class PiServlet extends HttpServlet {
                                 reqData.put("salt", salt);
                                 reqData.put("hash", saltedHash);
                                 reqData.put("admin_id", targetAdminId);
+                                reqData.put("auth_via_ldap", ldapAuth);
                                 DBTools.updateRow("admins", reqData, conn);
                             }
                             request.getSession().setAttribute("PASS_CHANGED", 1);
