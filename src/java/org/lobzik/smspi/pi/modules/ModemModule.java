@@ -51,8 +51,8 @@ public class ModemModule extends Thread implements Module {
     public final String MODULE_NAME = this.getClass().getSimpleName();
     private static ModemModule instance = null;
     private static Connection conn = null;
-    private static final int MODEM_TIMEOUT = 10000;
-    private static final int USSD_TIMEOUT = 50000;
+    private static final int MODEM_TIMEOUT = 30000;
+    private static final int USSD_TIMEOUT = 90000;
     private static Logger log = null;
 
     private static boolean run = true;
@@ -76,8 +76,8 @@ public class ModemModule extends Thread implements Module {
 
     private static final AtomicBoolean doCheckBalance = new AtomicBoolean(true);
 
-    public static final String regex = "[0-9\\.]+ *р\\.";//будет в настройках
-    public static final String replacer = "р.";//будет в настройках
+    //public static final String regex = "[0-9\\.]+ *р\\.";//будет в настройках
+    //public static final String replacer = "р.";//будет в настройках
 
     private ModemModule() { //singleton
     }
@@ -758,7 +758,8 @@ public class ModemModule extends Thread implements Module {
             if (waitForUSSD()) {
                 myNumber = parseUSSDUCS2numReply(recievedLines);
                 myNumber = myNumber.replaceAll(" ", "").replaceAll("-", "");
-                Matcher m = Pattern.compile("\\d{11}").matcher(myNumber);
+                //Matcher m = Pattern.compile("\\d{11}").matcher(myNumber);
+                Matcher m = Pattern.compile(BoxSettingsAPI.get("MegaFonMyNumberPattern")).matcher(myNumber);
                 while (m.find()) {
                     myNumber = m.group();
                 }
@@ -785,11 +786,13 @@ public class ModemModule extends Thread implements Module {
             if (waitForUSSD()) {
                 String balanceString = parseUSSDUCS2numReply(recievedLines);
 
-                Pattern pattern = Pattern.compile(regex);
+                //Pattern pattern = Pattern.compile(regex);
+                Pattern pattern = Pattern.compile(BoxSettingsAPI.get("MegaFonBalanceRegex"));
                 Matcher matcher = pattern.matcher(balanceString);
                 if (matcher.find()) {
                     String sVal = matcher.group(0);
-                    sVal = sVal.replaceAll(replacer, "").trim();
+                    //sVal = sVal.replaceAll(replacer, "").trim();
+                    sVal = sVal.replaceAll(BoxSettingsAPI.get("MegaFonBalanceReplacer"), "").trim();
                     balance = Tools.parseDouble(sVal, 0);
                 }
 
