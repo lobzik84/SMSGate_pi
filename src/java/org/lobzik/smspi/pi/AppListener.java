@@ -24,6 +24,7 @@ import org.lobzik.smspi.pi.modules.InternalSensorsModule;
 import org.lobzik.smspi.pi.modules.DBDataWriterModule;
 
 import org.lobzik.smspi.pi.modules.ModemModule;
+import org.lobzik.smspi.pi.modules.PBDDataWriterModule;
 import org.lobzik.smspi.pi.modules.SystemModule;
 import org.lobzik.smspi.pi.modules.TimerModule;
 
@@ -58,6 +59,7 @@ public class AppListener implements ServletContextListener {
             SystemModule.getInstance().start();
             DBCleanerModule.getInstance().start();
             ChartModule.getInstance().start();
+            PBDDataWriterModule.getInstance().start();
 
         } catch (Throwable ex) {
             ex.printStackTrace();
