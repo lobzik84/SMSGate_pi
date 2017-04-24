@@ -79,7 +79,7 @@ public class AppListener implements ServletContextListener {
 
             AppData.eventManager.finish();
 
-            BasicConfigurator.resetConfiguration();
+            //BasicConfigurator.resetConfiguration();
 
         } catch (Throwable ex) {
             ex.printStackTrace();
