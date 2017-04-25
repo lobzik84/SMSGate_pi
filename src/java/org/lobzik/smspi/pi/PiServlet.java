@@ -216,11 +216,25 @@ public class PiServlet extends HttpServlet {
                     recipient = Tools.replaceTags(recipient);
                     recipient = recipient.replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("\\-", "").replaceAll(" ", "");
                     if (request.getMethod().equalsIgnoreCase("POST") && sms.trim().length() > 0 && recipient.trim().length() > 0) {
+
                         HashMap data = new HashMap();
+                        data.put("admin_id", loginAdmin);
+                        //data.put("valid_before", validBefore);
                         data.put("message", sms);
                         data.put("recipient", recipient);
-                        Event e = new Event("send_sms", data, Event.Type.USER_ACTION);
-                        AppData.eventManager.newEvent(e);
+                        data.put("date", new Date());
+                        data.put("status", MessageStatus.STATUS_NEW);
+                        try {
+                            try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                                int msgId = DBTools.insertRow("sms_outbox", data, conn);
+                                log.info("New SMS id=" + msgId + " from admin id=" + loginAdmin);
+                                Event e = new Event("check_outbox", null, Event.Type.USER_ACTION);
+                                AppData.eventManager.newEvent(e);
+                            }
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        }
+
                         response.sendRedirect(baseUrl + "/main");
                     } else {
                         response.sendRedirect(baseUrl + "/main");
@@ -333,11 +347,12 @@ public class PiServlet extends HttpServlet {
             case "msgs":
                 if (loginAdmin > 0) {
                     HashMap reqData = Tools.replaceTags(getRequestParameters(request));
-                    String msgsListSQL = "select a.*, u.name from \n"
-                            + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status, null as user_id from sms_inbox si\n"
+                    String msgsListSQL = "select a.*, u.name, adm.login from \n"
+                            + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status, null as user_id, null as admin_id from sms_inbox si\n"
                             + "union \n"
-                            + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status, so.user_id from sms_outbox so) a\n"
-                            + " left join users u on u.id = a.user_id ";
+                            + "select so.id, so.message, so.recipient as tel_no, 'outbox' as type, so.date, so.status, so.user_id, so.admin_id from sms_outbox so) a\n"
+                            + " left join users u on u.id = a.user_id "
+                            + " left join admins adm on adm.admin_id = a.admin_id ";
                     if (reqData.containsKey("FLTR_DATA") && Tools.parseInt(reqData.get("FLTR_DATA"), -1) == 1) {
                         String whereString = "where 1=1 ";
                         HashMap filterList = new HashMap();

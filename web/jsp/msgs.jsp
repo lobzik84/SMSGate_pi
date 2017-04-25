@@ -73,7 +73,9 @@
                     int id = Tools.parseInt(hm.get("id"), -1);
                     String curMessage = Tools.getStringValue(hm.get("message"), "");
                     String curTelNo = Tools.getStringValue(hm.get("tel_no"), "");
-                    if (hm.get("name") != null) curTelNo = hm.get("name") + " -> " + curTelNo;
+                    if (hm.get("name") != null) {curTelNo = hm.get("name") + " -> " + curTelNo;}
+                    else if (hm.get("login") != null) {curTelNo = hm.get("login") + " -> " + curTelNo;}
+                    else if ("outbox".equals(hm.get("type")) ){curTelNo = "smsity -> " + curTelNo;}
                     String curType = Tools.getStringValue(hm.get("type"), "");
                     String curDate = Tools.getFormatedDate((java.util.Date) hm.get("date"), "dd.MM.yyyy HH:mm:ss");
                     MessageStatus ms = new MessageStatus(hm.get("status"));
