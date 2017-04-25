@@ -384,7 +384,7 @@ public class ModemModule extends Thread implements Module {
                 }
             }
         }
-        if (System.currentTimeMillis() - waitStart >= MODEM_TIMEOUT) {
+        if (System.currentTimeMillis() - waitStart >= timeout) {
             log.error("MODEM TIMEOUT");
         }
         modemBusy.set(false);
