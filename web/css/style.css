@@ -782,6 +782,16 @@ body {
   font-family: 'opensans-semibold', Arial, Helvetica, sans-serif;
   font-size: 17px;
 }
+.download {
+  display: inline-block;
+  vertical-align: top;
+  text-decoration: none;
+  color: #000000;
+  margin-left: 5px;
+  width: 15px;
+  height: 15px;
+  background: url('/smspi/img/download-icon.png') no-repeat center center;
+}
 .login__block {
   position: absolute;
   top: 40%;
@@ -1091,6 +1101,7 @@ body {
   background: #d9dde3;
   text-transform: uppercase;
   font-family: 'opensans-bold', Arial, Helvetica, sans-serif;
+  text-align: center;
   font-size: 13px;
   height: 40px;
   line-height: 40px;
@@ -1128,7 +1139,7 @@ body {
 }
 .table__messages tbody {
   display: block;
-  height: 223px;
+  height: 112px;
   overflow-y: auto;
   font-size: 14px;
 }
@@ -1207,10 +1218,10 @@ body {
   color: #000000;
 }
 .log {
-  margin-top: 25px;
+  margin-top: 20px;
   font-family: 'opensans-regular', Arial, Helvetica, sans-serif;
   width: 100%;
-  height: 100px;
+  height: 179px;
   font-size: 12px;
   overflow-y: auto;
 }
