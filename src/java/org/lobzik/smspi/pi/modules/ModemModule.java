@@ -66,7 +66,6 @@ public class ModemModule extends Thread implements Module {
     private static final int REPLIES_BUFFER_SIZE = 100;
     private static final Queue<String> recievedLines = new ConcurrentLinkedQueue();
 
-
     private static int modemOkRepliesCount = 0;
     private static int modemWriteErrorCount = 0;
     private static int modemSIMErrorCount = 0;
@@ -78,7 +77,6 @@ public class ModemModule extends Thread implements Module {
 
     //public static final String regex = "[0-9\\.]+ *р\\.";//будет в настройках
     //public static final String replacer = "р.";//будет в настройках
-
     private ModemModule() { //singleton
     }
 
@@ -126,12 +124,18 @@ public class ModemModule extends Thread implements Module {
             serialReader.start();
             serialWriter.setOutputStream(serialPort.getOutputStream());
             serialWriter.start();
+            Thread.sleep(3000);
             log.debug("Configuring modem");
-            
-            waitForCommand("AT^CURC=0\r");
 
-            waitForCommand("ATE0\r");
-            waitForCommand("AT+CMGF=0\r");
+            waitForCommand("AT^CURC=0\r"); //debug messages off
+            waitForCommand("ATE0\r"); //remote echo off
+            waitForCommand("AT+CMGF=0\r"); //PDU format on
+            for (String k : BoxSettingsAPI.getSettingsMap().keySet()) {
+                if (k.startsWith("CustomModemInit")) {
+                    String customInitString = BoxSettingsAPI.get(k);
+                    waitForCommand(customInitString + "\r"); 
+                }
+            }
 
             waitForCommand("AT+COPS=3,0\r");
             waitForCommand("AT+COPS?\r", "+COPS:");
@@ -160,7 +164,7 @@ public class ModemModule extends Thread implements Module {
 
             recievedLines.clear();
             waitForCommand("AT+CREG=2\r");
-            waitForCommand("AT+CREG?\r","+CREG");
+            waitForCommand("AT+CREG?\r", "+CREG");
             HashMap cellId = parseCREGReply(recievedLines);
             event = new Event("cellid_detected", cellId, Event.Type.SYSTEM_EVENT);
 
@@ -202,7 +206,7 @@ public class ModemModule extends Thread implements Module {
 
             while (run) {
                 try {
-                   String sSQL = "select * from sms_outbox where status=" + MessageStatus.STATUS_NEW + " or status=" + MessageStatus.STATUS_ERROR_SENDING;
+                    String sSQL = "select * from sms_outbox where status=" + MessageStatus.STATUS_NEW + " or status=" + MessageStatus.STATUS_ERROR_SENDING;
 
                     List<HashMap> smsToSendList = DBSelect.getRows(sSQL, conn);
 
@@ -368,7 +372,7 @@ public class ModemModule extends Thread implements Module {
     private void waitForCommand(String command, String responseContains) throws Exception {
         waitForCommand(command, MODEM_TIMEOUT, responseContains);
     }
-        
+
     private void waitForCommand(String command, int timeout, String responseContains) throws Exception {
 
         modemBusy.set(true);
@@ -666,17 +670,18 @@ public class ModemModule extends Thread implements Module {
                     if (response.length() > 0) {
                         if (response.contains("ERROR")) {
                             log.error("Modem response:" + response);
-                                                    if (response.contains("CME ERROR")) {
-                            modemSIMErrorCount++;
-                            if (modemOkRepliesCount > 10 && modemSIMErrorCount > 10) { //если нормально работал и перестал - значит хана
-                                modemOkRepliesCount = 0;
-                                String message = "Too many SIM errors! rebooting";
-                                log.fatal(message);
-                                HashMap cause = new HashMap();
-                                cause.put("cause", message);
-                                Event reboot = new Event("modem_and_system_reboot", cause, Event.Type.SYSTEM_EVENT);
-                                AppData.eventManager.newEvent(reboot);
-                            }}
+                            if (response.contains("CME ERROR")) {
+                                modemSIMErrorCount++;
+                                if (modemOkRepliesCount > 10 && modemSIMErrorCount > 10) { //если нормально работал и перестал - значит хана
+                                    modemOkRepliesCount = 0;
+                                    String message = "Too many SIM errors! rebooting";
+                                    log.fatal(message);
+                                    HashMap cause = new HashMap();
+                                    cause.put("cause", message);
+                                    Event reboot = new Event("modem_and_system_reboot", cause, Event.Type.SYSTEM_EVENT);
+                                    AppData.eventManager.newEvent(reboot);
+                                }
+                            }
                         } else {
                             log.debug("Modem response:" + response);
                         }
