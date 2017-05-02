@@ -92,7 +92,7 @@ public class AppListener implements ServletContextListener {
                     BoxSettingsAPI.get("ldap.server.login"),
                     BoxSettingsAPI.get("ldap.server.password"),
                     BoxSettingsAPI.get("ldap.server.domain"))
-                    .setServerIp(BoxSettingsAPI.get("ldap.server.ip"))
+                    //.setServerIp(BoxSettingsAPI.get("ldap.server.ip"))
                     .build();
             LdapConfig.setReaders(ldapReader);
         } catch (LdapDomainException ex) {
