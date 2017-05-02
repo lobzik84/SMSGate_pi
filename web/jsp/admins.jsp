@@ -40,25 +40,6 @@
         <%}%>
         <%if (isRoot) {%>
 
-        <input class="btn btn_hide mt-20 mb-5" type="submit" value="Добавить нового администратора"/>
-
-        <form class="form_hide none" action="<%= baseUrl + "addadm"%>" method="post">
-            <div class="inline-b">
-                <label class="label mt-10">Login</label>
-                <input type="text" name="login" />
-            </div>
-            <div class="inline-b ml-10 mr-10 va-t wp-210">
-                <label class="label_inline_gen mt-10">Password</label>
-                <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass')">Сгенерировать</label>
-                <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
-                <br>
-                <label class='label__sub'>Доменная авторизация</label>
-                <input class='va-m' type="checkbox" value="1" name="auth_via_ldap"/>
-            </div>
-            <input hidden type="text" name="ADD_ME" value="1"/>
-            <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
-        </form>
-
         <table class="table mt-20">
             <thead>
                 <tr>
@@ -84,7 +65,7 @@
                         int id = Tools.parseInt(hm.get("admin_id"), -1);
                         String login = Tools.getStringValue(hm.get("login"), "");
                         int status = Tools.parseInt(hm.get("status"), -1);
-                        String auth_via_ldap = (Tools.parseInt(hm.get("auth_via_ldap"), -1)==1)?"checked":"";
+                        String auth_via_ldap = (Tools.parseInt(hm.get("auth_via_ldap"), -1) == 1) ? "checked" : "";
                 %>
                 <tr>
                     <td><%= id%></td>
@@ -114,6 +95,24 @@
                 <%}%>
             </tbody>
         </table>
+        <input class="btn btn_hide mt-20 mb-5" type="submit" value="Добавить нового администратора"/>
+
+        <form class="form_hide none" action="<%= baseUrl + "addadm"%>" method="post">
+            <div class="inline-b">
+                <label class="label mt-10">Login</label>
+                <input type="text" name="login" />
+            </div>
+            <div class="inline-b ml-10 mr-10 va-t wp-210">
+                <label class="label_inline_gen mt-10">Password</label>
+                <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass')">Сгенерировать</label>
+                <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
+                <br>
+                <label class='label__sub'>Доменная авторизация</label>
+                <input class='va-m' type="checkbox" value="1" name="auth_via_ldap"/>
+            </div>
+            <input hidden type="text" name="ADD_ME" value="1"/>
+            <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
+        </form>
     </div>
 
     <%} else {%>

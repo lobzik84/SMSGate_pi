@@ -33,9 +33,7 @@
         messageList = (ArrayList<HashMap>) Tools.isNull(JspData.get("messageList"), new ArrayList<HashMap>());
     }
 
-
     HashMap rusMsgType = new HashMap();
-
 
     rusMsgType.put("outbox", "Исходящее");
     rusMsgType.put("inbox", "Входящее");
@@ -59,7 +57,7 @@
     if (balM != null) {
         simBalanceHint = "Баланс проверен в " + Tools.getFormatedDate(new Date(balM.getTime()), "HH:mm dd MMM");
         simBalance = balM.toStringValue();
-        
+
     }
 
 %>
@@ -139,6 +137,7 @@
             </tbody>
         </table>
 
+            <p class="title mt-20">Журнал ошибок <a class="download js-tooltip" title="Скачать" href="#"></a></p>
         <div class="log">
             <%for (HashMap hm : logData) {
                     String moduleName = Tools.getStringValue(hm.get("module_name"), "");

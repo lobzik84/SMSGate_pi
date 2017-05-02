@@ -30,33 +30,6 @@
 
         <p class="title">Зарегистрированные пользователи шлюза</p>
 
-        <input class="btn btn_hide mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
-
-        <form class="form_hide none" action="<%= baseUrl + "addapp"%>" method="post">
-            <div>
-                <label class="label mt-10">Name</label>
-                <input type="text" name="name" />
-            </div>
-
-            <p class="mt-15 os-r">
-                <label class="label">Ключ RSA</label>
-            <p class="label__sub">Длина ключа 1024 бита, public exponent = 10001 (HEX)</p>
-            <p class="label__sub">PublicKey (modulus in HEX, 256 symbols)<span class="label_wrong pl-15">Input or Generate 256 SYMBOLS!</span></p>
-            <div class="inline-b">
-                <p class="label label_generate mb-5" onclick="generateKey()">Сгенерировать</p>
-            </div>
-            <textarea class="textarea__key" name="public_key" id="public_key"></textarea>
-
-            <div class="private_key mt-20">
-                <label class="label__sub">Generated PrivateKey (multiplicative inverse in HEX, 256 symbols)</label>
-                <textarea class="textarea__key mt-5" name="private_key" id="private_key"></textarea>
-            </div>
-            <input hidden type="text" name="REG_ME" value="1"/>
-
-            <input class="btn blbc white mt-20" type="submit" value="Добавить" name="submit" />
-
-        </form>
-
         <table class="table mt-20">
             <thead>
                 <tr>
@@ -64,13 +37,13 @@
                         ID
                     </td>
                     <td class="w-30">
-                        name
+                        Имя
                     </td>
                     <td class="w-50">
                         public_key
                     </td>
                     <td class="w-10">
-                        delete
+                        Удалить
                     </td>
                 </tr>
             </thead>
@@ -99,6 +72,34 @@
                 <%}%>
             </tbody>
         </table>
+            
+            
+            <input class="btn btn_hide mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
+
+        <form class="form_hide none" action="<%= baseUrl + "addapp"%>" method="post">
+            <div>
+                <label class="label mt-10">Name</label>
+                <input type="text" name="name" />
+            </div>
+
+            <p class="mt-15 os-r">
+                <label class="label">Ключ RSA</label>
+            <p class="label__sub">Длина ключа 1024 бита, public exponent = 10001 (HEX)</p>
+            <p class="label__sub">PublicKey (modulus in HEX, 256 symbols)<span class="label_wrong pl-15">Input or Generate 256 SYMBOLS!</span></p>
+            <div class="inline-b">
+                <p class="label label_generate mb-5" onclick="generateKey()">Сгенерировать</p>
+            </div>
+            <textarea class="textarea__key" name="public_key" id="public_key"></textarea>
+
+            <div class="private_key mt-20">
+                <label class="label__sub">Generated PrivateKey (multiplicative inverse in HEX, 256 symbols)</label>
+                <textarea class="textarea__key mt-5" name="private_key" id="private_key"></textarea>
+            </div>
+            <input hidden type="text" name="REG_ME" value="1"/>
+
+            <input class="btn blbc white mt-20" type="submit" value="Добавить" name="submit" />
+
+        </form>
     </div>
 </div>
 </body>
