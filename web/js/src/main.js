@@ -1,25 +1,29 @@
 $(function () {
-
+    var maxMsgLength = 70;
+    if ($('#max_msg_length') !== null && $('#max_msg_length').html() !== undefined) {
+        maxMsgLength = ($('#max_msg_length').html().trim());
+        console.log("Max length set to " + maxMsgLength);
+    }
+        
     $('.js-tooltip').tooltip();
 
     $('.label_blue').click(function () {
-        $('.textarea__message').val('Это тест');
-        var current = $('.textarea__message').val().length;
-        var max = '70';
-        max = max.toString();
+        $('.textarea__message').val('В вагоне отец попросил чай. Пока рассаживались, он вызвал помощника и попросил пригласить, как он выразился, отставших. Вскоре за столом сидели Кириченко, Брежнев, Кириленко, Устинов');
+        var current = $('.textarea__message').val().length;;
+        var max = maxMsgLength.toString();
         var left = max - current;
         $('.counter').text(left);
     });
 
     $('.textarea__message').keyup(function () {
         var current = this.value.length;
-        var max = '70';
+        //var max = '335';
         current = current.toString();
-        max = max.toString();
-        var left = max - current;
+        //max = max.toString();
+        var left = maxMsgLength - current;
         $('.counter').text(left);
-        if (this.value.length >= 70) {
-            this.value = this.value.substr(0, 70);
+        if (this.value.length >= maxMsgLength) {
+            this.value = this.value.substr(0, maxMsgLength);
             $('.counter').text('0');
         }
     });

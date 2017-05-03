@@ -1,3 +1,4 @@
+<%@page import="org.lobzik.smspi.pi.BoxSettingsAPI"%>
 <%@page import="org.lobzik.home_sapiens.entity.Measurement"%>
 <%@page import="org.lobzik.smspi.pi.MessageStatus"%>
 <%@page import="org.lobzik.home_sapiens.entity.Parameter"%>
@@ -164,7 +165,7 @@
             <input class="input_phone" type="text" name="recipient" placeholder="+7 (___) ___-__-__"/>
             <label class="label fl-l lgray mt-20">Текст</label>
             <label class="label label_blue">Тестовое сообщение</label>
-            <span class="counter">70</span>
+            <span class="counter" id="max_msg_length"><%=BoxSettingsAPI.getInt("MaxMessageLength")%></span>
             <textarea class="textarea__message" name="sms"></textarea>
             <input class="btn blbc white mt-20" type="submit" value="Отправить" name="submit" />
         </form>

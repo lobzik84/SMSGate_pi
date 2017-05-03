@@ -133,7 +133,7 @@ public class ModemModule extends Thread implements Module {
             for (String k : BoxSettingsAPI.getSettingsMap().keySet()) {
                 if (k.startsWith("CustomModemInit")) {
                     String customInitString = BoxSettingsAPI.get(k);
-                    waitForCommand(customInitString + "\r"); 
+                    waitForCommand(customInitString + "\r");
                 }
             }
 
@@ -206,13 +206,17 @@ public class ModemModule extends Thread implements Module {
 
             while (run) {
                 try {
-                    String sSQL = "select * from sms_outbox where status=" + MessageStatus.STATUS_NEW + " or status=" + MessageStatus.STATUS_ERROR_SENDING;
+                    String sSQL = "select * from sms_outbox "
+                            + "where status=" + MessageStatus.STATUS_NEW
+                            + " or status=" + MessageStatus.STATUS_ERROR_SENDING
+                            + " or status=" + MessageStatus.STATUS_PARTIALLY_SENT;
 
                     List<HashMap> smsToSendList = DBSelect.getRows(sSQL, conn);
 
                     while (!smsToSendList.isEmpty()) {
                         HashMap smsToSend = smsToSendList.remove(0);
-                        log.info("Processing SMS id " + smsToSend.get("id"));
+                        int msgId = Tools.parseInt(smsToSend.get("id"), 0);
+                        log.info("Processing SMS id " + msgId);
                         int tries = Tools.parseInt(smsToSend.get("tries_cnt"), 0);
                         tries++;
                         if (tries >= BoxSettingsAPI.getInt("MaxAttemptsToSend")) {
@@ -227,7 +231,7 @@ public class ModemModule extends Thread implements Module {
 
                         if ((validBefore != null && System.currentTimeMillis() > validBefore.getTime())
                                 || (System.currentTimeMillis() > BoxSettingsAPI.getInt("OutgoingMessageMaxAge") * 1000l + msgDate.getTime())) {
-                            log.error("Message " + smsToSend.get("id") + " is too old! :(");
+                            log.error("Message " + msgId + " is too old! :(");
                             smsToSend.put("status", MessageStatus.STATUS_ERROR_TOO_OLD);
                             smsToSend.put("tries_cnt", tries);
                             DBTools.updateRow("sms_outbox", smsToSend, conn);
@@ -237,43 +241,54 @@ public class ModemModule extends Thread implements Module {
                         smsToSend.put("status", MessageStatus.STATUS_SENDING);
                         smsToSend.put("tries_cnt", tries);
                         DBTools.updateRow("sms_outbox", smsToSend, conn);
-                        COutgoingMessage outMsg = new COutgoingMessage();
 
-                        outMsg.setMessageEncoding(CMessage.MESSAGE_ENCODING_UNICODE);
-                        outMsg.setRecipient((String) smsToSend.get("recipient"));
-                        outMsg.setText((String) smsToSend.get("message"));
-                        String pdu = outMsg.getPDU(smscNumber);
-                        int j = pdu.length();
-                        j /= 2;
-                        if (smscNumber.length() == 0) {
-                            j--;
-                        } else {
-                            j -= ((smscNumber.length() - 1) / 2);
-                            j -= 2;
+                        List<HashMap> pdus = getPDUMaps((String) smsToSend.get("message"), (String) smsToSend.get("recipient"), smscNumber);
+                        StringBuilder multipartStatus = new StringBuilder();
+                        String dbMultipartStatus = (String) smsToSend.get("multipart_status");
+
+                        for (int i = 0; i < pdus.size(); i++) {
+                            HashMap pduMap = pdus.get(i);
+                            multipartStatus.append("0");
+                            if (dbMultipartStatus == null || i < dbMultipartStatus.length()) {
+                                if (dbMultipartStatus != null && dbMultipartStatus.charAt(i) == '1') {
+                                    multipartStatus.setCharAt(i, '1'); //if part was sent already
+
+                                } else {
+                                    recievedLines.clear();
+                                    waitForCommand("AT+CMGS=" + pduMap.get("j") + "\r");
+                                    waitForCommand(pduMap.get("pdu") + "\032");
+                                    if (lastRecieved.equalsIgnoreCase("OK")) {
+                                        log.info("MSG id=" + msgId + " part " + (i + 1) + "/" + pdus.size() + " sent successfully");
+                                        multipartStatus.setCharAt(i, '1');
+                                    } else {
+                                        log.error("MSG id=" + msgId + " part " + (i + 1) + "/" + pdus.size() + " not sent: " + lastRecieved);
+                                        multipartStatus.setCharAt(i, '0');
+                                    }
+                                }
+                            }
                         }
-                        j--;
-                        recievedLines.clear();
+                        String mpss = multipartStatus.toString();
+                        smsToSend.put("multipart_status", mpss);
+                        if (mpss.contains("0") && mpss.contains("1")) { //contains 0 and 1
+                            smsToSend.put("status", MessageStatus.STATUS_PARTIALLY_SENT);
 
-                        waitForCommand("AT+CMGS=" + j + "\r");
-
-                        waitForCommand(pdu + "\032");
-
-                        if (lastRecieved.equalsIgnoreCase("OK")) {
+                            log.info("Partially sent SMS id=" + msgId);
+                        } else if (mpss.contains("0")) { //all 0
+                            smsToSend.put("status", MessageStatus.STATUS_ERROR_SENDING);
+                            log.error("Error sending SMS id=" + msgId);
+                        } else if (mpss.contains("1")) { //all 1
                             smsToSend.put("status", MessageStatus.STATUS_SENT);
                             smsToSend.put("date_sent", new Date());
-                            log.info("Successfully sent");
-                            DBTools.updateRow("sms_outbox", smsToSend, conn);
-                        } else {
-                            smsToSend.put("status", MessageStatus.STATUS_ERROR_SENDING);
-
-                            DBTools.updateRow("sms_outbox", smsToSend, conn);
-                            log.error("Error sending: " + lastRecieved);
+                            log.info("Successfully sent SMS id=" + msgId);
                         }
+
+                        DBTools.updateRow("sms_outbox", smsToSend, conn);
+
                     }
 
                     recievedLines.clear();
 
-                    if (doCheckBalance.get()) {//iter % CHECK_BALANCE_EVERY == 0) {
+                    if (doCheckBalance.get()) {
                         doCheckBalance.set(false);
                         Double myBalance = checkBalance();
                         myNumberparamId = AppData.parametersStorage.resolveAlias("MODEM_BALANCE");
@@ -343,6 +358,91 @@ public class ModemModule extends Thread implements Module {
             log.error(e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private List<HashMap> getPDUMaps(String message, String recipient, String smsCNumber) {
+        List<HashMap> pdus = new LinkedList();
+        if (message.length() > 70) {
+            int numParts = (int) (message.length() / 67) + (message.length() % 67 != 0 ? 1 : 0);
+
+            int beginIndex = 0;
+            int endIndex = 0;
+            Random randomGenerator = new Random();
+            byte referenceNum = (byte) randomGenerator.nextInt(255);
+            for (int i = 0; i < numParts; i++) {
+
+                endIndex = beginIndex + 67;
+                if (endIndex >= message.length()) {
+                    endIndex = message.length();
+                }
+                String msgPart = message.substring(beginIndex, endIndex);
+
+                byte[] udh = new byte[6];
+                // Field 1 (1 octet): Length of User Data Header, in this case 05.
+                udh[0] = (byte) 0x05;
+                // Field 2 (1 octet): Information Element Identifier, equal to 00 (Concatenated short messages, 8-bit reference number)
+                udh[1] = (byte) 0x00;
+                // Field 3 (1 octet): Length of the header, excluding the first two fields; equal to 03
+                udh[2] = (byte) 0x03;
+                // Field 4 (1 octet): 00-FF, CSMS reference number, must be same for all the SMS parts in the CSMS
+                udh[3] = referenceNum;
+                // Field 5 (1 octet): 00-FF, total number of parts. The value shall remain constant for every short message which makes up the concatenated short message. If the value is zero then the receiving entity shall ignore the whole information element
+                udh[4] = (byte) numParts;
+                // Field 6 (1 octet): 00-FF, this part's number in the sequence. The value shall start at 1 and increment for every short message which makes up the concatenated short message. If the value is zero or greater than the value in Field 5 then the receiving entity shall ignore the whole information element. [ETSI Specification: GSM 03.40 Version 5.3.0: July 1996]
+                udh[5] = (byte) (i + 1);
+
+                COutgoingMessage outMsg = new COutgoingMessage();
+
+                outMsg.setMessageEncoding(CMessage.MESSAGE_ENCODING_UNICODE);
+                outMsg.setRecipient(recipient);
+                outMsg.setText(msgPart);
+                outMsg.setUDH(udh);
+                String pdu = outMsg.getPDU(smsCNumber);
+
+                //pdu = sb.toString() + pdu;
+                int j = pdu.length();
+                j /= 2;
+                if (smscNumber.length() == 0) {
+                    j--;
+                } else {
+                    j -= ((smscNumber.length() - 1) / 2);
+                    j -= 2;
+                }
+                j--;
+
+                HashMap pduMap = new HashMap();
+                pduMap.put("j", j);
+                pduMap.put("pdu", pdu);
+
+                pdus.add(pduMap);
+
+                beginIndex = endIndex;
+            }
+
+        } else {
+            COutgoingMessage outMsg = new COutgoingMessage();
+
+            outMsg.setMessageEncoding(CMessage.MESSAGE_ENCODING_UNICODE);
+            outMsg.setRecipient(recipient);
+            outMsg.setText(message);
+            String pdu = outMsg.getPDU(smsCNumber);
+            int j = pdu.length();
+            j /= 2;
+            if (smscNumber.length() == 0) {
+                j--;
+            } else {
+                j -= ((smscNumber.length() - 1) / 2);
+                j -= 2;
+            }
+            j--;
+
+            HashMap pduMap = new HashMap();
+            pduMap.put("j", j);
+            pduMap.put("pdu", pdu);
+
+            pdus.add(pduMap);
+        }
+        return pdus;
     }
 
     private boolean waitForUSSD() {

@@ -24,7 +24,7 @@ import org.json.JSONObject;
  */
 public class SMSClientTest {
 
-    static String SMSGateUrl = "http://192.168.11.22:8080/smspi/json";
+    static String SMSGateUrl = "http://172.31.41.4:8080/smspi/json";
     static String username = "mobility";
     static String privateKeyString = "61832d2f4e3032863f3b1957d5cc0a4e5bdf3f26cb3995bac83fd50f7da4eab282cf6af34aa52ab95da0961f5ee28980c36cf141605120c907cbc63e92a21cf1f72ca32e7ceb9fb4fe5a3245d4e136ee57a88e26fbefcac331a8bb8230cd8794759489782bdd385fa05efcde0f14b0b12784c93ae463531cbdf9831edf778171";
     static String publicKeyString = "844af8350323d29b7bf760245eec4298491e9c144c813493e2d315669de4c5f67ac6eb2117c539d3334db9bd64322d5950fd6160fe4d328d5c3db23f9bc7d84d82847fce176223b9d514a33067096e80f832f00661798d44949ce5fc01d48bbe1e216e236f05af2f7b692d1bbf9fba5e1dfc4c7a3c438a42b7a0a598b2390f33";
@@ -55,7 +55,7 @@ public class SMSClientTest {
                     byte[] digestRaw = digest.sign();
                     String digestHex = DatatypeConverter.printHexBinary(digestRaw);
 
-                    long validBefore = System.currentTimeMillis() + 1 * 60 * 1000l;//expires in 1 min 
+                    long validBefore = System.currentTimeMillis() + 30 * 60 * 1000l;//expires in 1 min 
 
                     JSONObject requestJson = new JSONObject();
                     requestJson.put("valid_before", validBefore);

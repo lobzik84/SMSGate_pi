@@ -104,7 +104,7 @@ public class XMLAPI {
         if (!recipient.matches("\\+[0-9]{7,15}")) {
             throw new Exception("Invalid recipient (must be like +71234567890)"); //TODO regex check
         }
-        if (text.length() == 0 || text.length() > 160) {
+        if (text.length() == 0 || text.length() > BoxSettingsAPI.getInt("MaxMessageLength")) {
             throw new Exception("Text is missing or too long");
         }
         int msgId = 0;

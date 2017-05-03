@@ -20,6 +20,7 @@ public class MessageStatus {
     public static final int STATUS_ERROR_TOO_OLD = -2;
     public static final int STATUS_ERROR_ATTEMPTS_EXCEEDED = -3;
     public static final int STATUS_SENDING = 3;
+    public static final int STATUS_PARTIALLY_SENT = 4;
 
     int statusInt;
 
@@ -48,6 +49,8 @@ public class MessageStatus {
                 return "Превышено количество попыток отправки";
             case STATUS_SENDING:
                 return "Отправляется";
+            case STATUS_PARTIALLY_SENT:
+                return "Частично Отправлено";
             default:
                 return "";
         }
@@ -70,6 +73,8 @@ public class MessageStatus {
                 return "Send Attempts Exceeded";
             case STATUS_SENDING:
                 return "Sending";
+            case STATUS_PARTIALLY_SENT:
+                return "Partially Sent";
             default:
                 return "";
         }
@@ -92,6 +97,8 @@ public class MessageStatus {
                 return "exceeded";
             case STATUS_SENDING:
                 return "sending";
+            case STATUS_PARTIALLY_SENT:
+                return "sending";      // TODO STUB          
             default:
                 return "";
         }
