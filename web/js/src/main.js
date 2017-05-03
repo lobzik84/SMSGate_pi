@@ -8,7 +8,9 @@ $(function () {
     $('.js-tooltip').tooltip();
 
     $('.label_blue').click(function () {
-        $('.textarea__message').val('В вагоне отец попросил чай. Пока рассаживались, он вызвал помощника и попросил пригласить, как он выразился, отставших. Вскоре за столом сидели Кириченко, Брежнев, Кириленко, Устинов');
+        var dt = new Date();
+        var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+        $('.textarea__message').val('Это тест в ' + time);
         var current = $('.textarea__message').val().length;;
         var max = maxMsgLength.toString();
         var left = max - current;
