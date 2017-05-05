@@ -32,7 +32,7 @@
 <div class="content__layout">
     <div class="content__table">
 
-        <p class="title">Администраторы шлюза</p>
+        <p class="title">Учетные записи, допущенные к администрированию службы коротких сообщений</p>
         <%if (isPassChanged) {%>
         <h2>Пароль успешно изменён</h2>
         <%} else if (isAccessError) {%>
@@ -42,21 +42,15 @@
 
         <table class="table mt-20">
             <thead>
-                <tr>
-                    <td class="w-10">
-                        ID
+                <tr class="ta-c">
+                    <td class="bold w-10">
+                        №
                     </td>
-                    <td class="w-30">
-                        login
-                    </td>
-                    <td class="w-20">
-                        status
-                    </td>
-                    <td class="w-30">
-                        edit
+                    <td class="w-80">
+                        Наименование
                     </td>
                     <td class="w-10">
-                        delete
+                        Управление
                     </td>
                 </tr>
             </thead>
@@ -68,11 +62,10 @@
                         String auth_via_ldap = (Tools.parseInt(hm.get("auth_via_ldap"), -1) == 1) ? "checked" : "";
                 %>
                 <tr>
-                    <td><%= id%></td>
-                    <td><%= login%></td>
-                    <td><%= status%></td>
+                    <td class="ta-r"><%= id%></td>
                     <td>
-                        <input class="btn btn_hide-table" type="submit" value="Редактировать пароль"/>
+                        <%= login%>
+                    <input class="btn btn_hide-table" type="submit" value="Ред."/>
                         <form class="form_hide-table none" id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
                             <div class="va-t wp-240">
                                 <label class="label_inline_gen mt-10">Новый пароль</label>
@@ -93,26 +86,41 @@
                     </td>
                 </tr>
                 <%}%>
+                <tr>
+
+            <form class="form_hide none" action="<%= baseUrl + "addadm"%>" method="post">
+                <td class="ta-r">#</td>
+                <td>
+                    <input type="text" name="login" />
+                    <input class='va-m auth_rtrn' type="checkbox" checked value="1" name="auth_via_ldap"/>
+                    <label class='label__sub'>Доменная авторизация РТРС</label>
+                    <div class="auth_rtrn_pass inline-b">
+                        <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass')">Сгенерировать</label>
+                        <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
+                    </div>
+                    <td>
+                    <input hidden type="text" name="ADD_ME" value="1"/>
+                    <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
+                </td>
+            </form>
+
+            </tr>
             </tbody>
         </table>
-        <input class="btn btn_hide mt-20 mb-5" type="submit" value="Добавить нового администратора"/>
 
-        <form class="form_hide none" action="<%= baseUrl + "addadm"%>" method="post">
-            <div class="inline-b">
-                <label class="label mt-10">Login</label>
-                <input type="text" name="login" />
-            </div>
-            <div class="inline-b ml-10 mr-10 va-t wp-210">
-                <label class="label_inline_gen mt-10">Password</label>
-                <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass')">Сгенерировать</label>
-                <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
-                <br>
-                <label class='label__sub'>Доменная авторизация</label>
-                <input class='va-m' type="checkbox" value="1" name="auth_via_ldap"/>
-            </div>
-            <input hidden type="text" name="ADD_ME" value="1"/>
-            <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
-        </form>
+        <script type="text/javascript">
+            $(function () {
+                $('.auth_rtrn_pass').hide();
+                $('.auth_rtrn').click(function () {
+                    if ($(this).is(':checked')) {
+                        $('.auth_rtrn_pass').hide();
+                    } else {
+                        $('.auth_rtrn_pass').show();
+                    }
+                });
+            });
+        </script>
+
     </div>
 
     <%} else {%>

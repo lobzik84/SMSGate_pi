@@ -1200,6 +1200,7 @@ body {
   display: block;
   cursor: pointer;
   vertical-align: middle;
+  margin: auto;
   width: 18px;
   height: 18px;
   background: url('/smspi/img/icons.png') no-repeat -36px 0px;

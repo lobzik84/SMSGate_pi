@@ -28,7 +28,7 @@
 <div class="content__layout">
     <div class="content__table">
 
-        <p class="title">Зарегистрированные пользователи шлюза</p>
+        <p class="title">Информационные системы - клиенты службы коротких сообщений</p>
 
         <table class="table mt-20">
             <thead>
@@ -55,7 +55,7 @@
                         String name = Tools.getStringValue(hm.get("name"), "");
                 %>
                 <tr>
-                    <td><%= id%></td>
+                    <td class="ta-r"><%= id%></td>
                     <td><%= name%></td>
                     <td>
                         <p class="publicKey_copy" title="Скопировать" data-key="">
