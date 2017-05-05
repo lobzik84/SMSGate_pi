@@ -138,7 +138,7 @@
             </tbody>
         </table>
 
-            <p class="title mt-20">Журнал ошибок <a class="download js-tooltip" title="Скачать" href="#"></a></p>
+            <p class="title mt-20">Журнал службы <a class="download js-tooltip" title="Скачать" href="<%=request.getContextPath()%>/file/sms_service.log"></a></p>
         <div class="log">
             <%for (HashMap hm : logData) {
                     String moduleName = Tools.getStringValue(hm.get("module_name"), "");
