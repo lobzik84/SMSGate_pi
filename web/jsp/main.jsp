@@ -88,7 +88,10 @@
                 <span class="radio-group__label">По месяцам</span>
             </label>
         </div>
-        <div id="container1" class="chart"></div>
+        <div class="chart">
+            <div id="container2" class="w-35 inline-b"></div>
+            <div id="container1" class="w-60 inline-b"></div>
+        </div>
         <div>
             <form id="pie_data" action="#" method="POST">
                 <input id="start" name="start" type="text" hidden>
@@ -199,11 +202,11 @@
     </div>
 </div>
 
-<div id="container2" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+
 
 <script type="text/javascript">
 
-    
+
 
     $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet/smsbydate"%>", function (data) {
 
