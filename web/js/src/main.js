@@ -1,17 +1,20 @@
 $(function () {
+    
+    $(".input_phone").mask("+7 (999) 999-99-99");
+    
     var maxMsgLength = 70;
     if ($('#max_msg_length') !== null && $('#max_msg_length').html() !== undefined) {
         maxMsgLength = ($('#max_msg_length').html().trim());
         console.log("Max length set to " + maxMsgLength);
     }
-        
+
     $('.js-tooltip').tooltip();
 
     $('.label_blue').click(function () {
         var dt = new Date();
         var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
         $('.textarea__message').val('Это тест в ' + time);
-        var current = $('.textarea__message').val().length;;
+        var current = $('.textarea__message').val().length;
         var max = maxMsgLength.toString();
         var left = max - current;
         $('.counter').text(left);
@@ -28,6 +31,48 @@ $(function () {
             this.value = this.value.substr(0, maxMsgLength);
             $('.counter').text('0');
         }
+    });
+
+    function inputCheckHighlight() {
+        if ($('.auth_rtrn_checkValue').val() != 0) {
+            $('.auth_rtrn_checkValue').removeClass('auth_rtrn_red');
+        } else {
+            $('.auth_rtrn_checkValue').addClass('auth_rtrn_red');
+        }
+    }
+
+    inputCheckHighlight();
+
+    $('.auth_rtrn_checkValue').keyup(function () {
+        inputCheckHighlight();
+    });
+
+    function authRtrn() {
+        $('.auth_rtrn').click(function () {
+            if ($(this).is(':checked')) {
+                $(this).siblings('.auth_rtrn_pass').hide();
+            } else {
+                $(this).siblings('.auth_rtrn_pass').show();
+            }
+        });
+    }
+
+    authRtrn();
+
+    $('.auth_rtrn_pass').hide();
+
+    $('.btn_hide-table').click(function () {
+        var authRtrnShow = $(this).siblings('.form_hide-table').find('.auth_rtrn');
+        if (authRtrnShow.is(':checked')) {
+            authRtrnShow.siblings('.auth_rtrn_pass').hide();
+        } else {
+            authRtrnShow.siblings('.auth_rtrn_pass').show();
+        }
+        authRtrn();
+    });
+
+    $('.btn_add').click(function () {
+        $('.btn_add_mech').toggleClass('block');
     });
 
     $('.btn_hide').click(function () {

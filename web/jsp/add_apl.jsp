@@ -33,17 +33,17 @@
         <table class="table mt-20">
             <thead>
                 <tr>
-                    <td class="w-10">
-                        ID
+                    <td class="bold ta-c w-10">
+                        №
                     </td>
                     <td class="w-30">
-                        Имя
+                        Наименование
                     </td>
-                    <td class="w-50">
-                        public_key
+                    <td class="w-40">
+                        Ключ доступа<span class="hint_i js-tooltip" title="Используется ключ RSA-1024, public exponent = 10001 (HEX) PublicKey(modulus in HEX, 256 symbols)">i</span>
                     </td>
-                    <td class="w-10">
-                        Удалить
+                    <td class="w-20 ta-c">
+                        Управление
                     </td>
                 </tr>
             </thead>
@@ -70,36 +70,43 @@
                     </td>
                 </tr>
                 <%}%>
+                <tr>
+                    <td></td>
+            <form class="form_hide none" action="<%= baseUrl + "addapp"%>" method="post">
+                <td> 
+                    <div class="btn_add_mech none">
+                        <input class="auth_rtrn_checkValue" type="text" name="name" />
+                    </div>
+                </td>
+                <td>
+                    <div class="btn_add_mech none">
+                        <p class="icon icon-genKey js-tooltip mt-5 mr-10 va-t" title="Сгенерировать ключ доступа" onclick="generateKey()"></p>
+                        <div class="inline-b w-90">   
+                            <label class="label__sub">Generated PublicKey</label>
+                            <textarea class="textarea__key" name="public_key" id="public_key"></textarea>
+                            <div class="private_key mt-20">
+                                <label class="label__sub">Generated PrivateKey (multiplicative inverse in HEX, 256 symbols)</label>
+                                <textarea class="textarea__key mt-5" name="private_key" id="private_key"></textarea>
+                            </div>
+                        </div>
+                    </div>
+            </form>
+            </td>
+            <td class="ta-c">
+                <div class="btn_add icon icon-add"></div>
+                <div class="btn_add_mech none">
+                    <input hidden type="text" name="REG_ME" value="1"/>
+                    <input class="icon icon-save js-tooltip mt-15" title="Сохранить" type="submit" value="" name="submit" />
+                </div>
+            </td>
+            </tr>
             </tbody>
         </table>
-            
-            
-            <input class="btn btn_hide mt-20 mb-5" type="submit" value="Добавить нового пользователя"/>
 
-        <form class="form_hide none" action="<%= baseUrl + "addapp"%>" method="post">
-            <div>
-                <label class="label mt-10">Name</label>
-                <input type="text" name="name" />
-            </div>
 
-            <p class="mt-15 os-r">
-                <label class="label">Ключ RSA</label>
-            <p class="label__sub">Длина ключа 1024 бита, public exponent = 10001 (HEX)</p>
-            <p class="label__sub">PublicKey (modulus in HEX, 256 symbols)<span class="label_wrong pl-15">Input or Generate 256 SYMBOLS!</span></p>
-            <div class="inline-b">
-                <p class="label label_generate mb-5" onclick="generateKey()">Сгенерировать</p>
-            </div>
-            <textarea class="textarea__key" name="public_key" id="public_key"></textarea>
 
-            <div class="private_key mt-20">
-                <label class="label__sub">Generated PrivateKey (multiplicative inverse in HEX, 256 symbols)</label>
-                <textarea class="textarea__key mt-5" name="private_key" id="private_key"></textarea>
-            </div>
-            <input hidden type="text" name="REG_ME" value="1"/>
 
-            <input class="btn blbc white mt-20" type="submit" value="Добавить" name="submit" />
 
-        </form>
     </div>
 </div>
 </body>

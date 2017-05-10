@@ -64,7 +64,7 @@
 %>
 
 <jsp:include page="header.jsp" />
-<script src="http://code.highcharts.com/modules/no-data-to-display.js"></script> <!--todo - перенести в место подключения hightChatrts-->
+
 <div class="content__layout_main">
     <div class="content__top">
         <label>
@@ -203,7 +203,7 @@
 
 <script type="text/javascript">
 
-    $(".input_phone").mask("+7 (999) 999-99-99");
+    
 
     $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet/smsbydate"%>", function (data) {
 

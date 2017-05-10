@@ -8,7 +8,7 @@ var paths = {
     scripts: [
         'web/js/**/**/*.js',
         'web/js/**/*.js',        
-        'web/js/*.js',
+        'web/js/*.js'
     ]
 };
 var orders = {
@@ -18,7 +18,8 @@ var orders = {
         'libs/jquery-migrate/*.js',
         'libs/*.js',
         'common/commonData.js',
-        'plugins/highstock/*.js',
+        'plugins/highstock/highstock.js',
+        'plugins/highstock/highstock_nodata.js',
         'plugins/exporting/*.js',
         'plugins/**/*.js',
         'crypto/*.js',

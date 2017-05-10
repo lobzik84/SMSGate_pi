@@ -4,6 +4,7 @@
     .ml-5;
     width: 18px;
     height: 18px;
+    
     &_new { //новое
     }
     &_sent { //отправлено
@@ -47,5 +48,35 @@
     }
     &-read { //прочитано
         background: url('@{img_path}/icons.png') no-repeat -18px -54px;
+    }
+}
+
+/*
+    icons
+*/
+
+.icon {
+    .inline-b;
+    .pointer;
+    border: none;
+    width: 18px;
+    height: 18px;
+    &-add {
+        background: url('@{img_path}/icons2.png') no-repeat 0px 0px;
+    }
+    &-save {
+        background: url('@{img_path}/icons2.png') no-repeat -18px 0px;
+    }
+    &-download {
+        background: url('@{img_path}/icons2.png') no-repeat -36px 0px;
+    }
+    &-edit {
+        background: url('@{img_path}/icons2.png') no-repeat -54px 0px;
+    }
+    &-genPass {
+        background: url('@{img_path}/icons2.png') no-repeat -72px 0px;
+    }
+    &-genKey {
+        background: url('@{img_path}/icons2.png') no-repeat -90px 0px;
     }
 }

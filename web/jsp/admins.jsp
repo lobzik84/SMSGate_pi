@@ -34,7 +34,7 @@
 
         <p class="title">Учетные записи, допущенные к администрированию службы коротких сообщений</p>
         <%if (isPassChanged) {%>
-        <h2>Пароль успешно изменён</h2>
+        <p class="title mt-15">Пароль успешно изменён!</p>
         <%} else if (isAccessError) {%>
         <h2>Вы можете изменить только свой пароль. Изменять пароль других администроторов может только root администратор</h2>
         <%}%>
@@ -42,14 +42,15 @@
 
         <table class="table mt-20">
             <thead>
-                <tr class="ta-c">
+                <tr>
                     <td class="bold w-10">
                         №
                     </td>
-                    <td class="w-80">
+                    <td class="w-20">
                         Наименование
                     </td>
-                    <td class="w-10">
+                    <td class="w-50"></td>
+                    <td class="w-20">
                         Управление
                     </td>
                 </tr>
@@ -65,21 +66,23 @@
                     <td class="ta-r"><%= id%></td>
                     <td>
                         <%= login%>
-                    <input class="btn btn_hide-table" type="submit" value="Ред."/>
-                        <form class="form_hide-table none" id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
-                            <div class="va-t wp-240">
-                                <label class="label_inline_gen mt-10">Новый пароль</label>
-                                <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass_<%=id%>')">Сгенерировать</label>
-                                <input class="wp-210 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
-                                <br>
-                                <label class='label__sub'>Доменная авторизация</label>
-                                <input class='va-m' type="checkbox" value="1" name="auth_via_ldap" <%=auth_via_ldap%>/>
-                            </div>
-                            <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
-                            <input class="btn blbc white mt-15" type="submit" value="Изменить" name="submit" />
-                        </form>
                     </td>
                     <td>
+                        <input class="btn_hide-table icon icon-edit js-tooltip" title="Изменить пароль" type="submit" value=""/>
+                        <form class="form_hide-table none" id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
+                            <div class="va-t wp-240">
+                                <input class='va-m auth_rtrn' type="checkbox" value="1" name="auth_via_ldap" <%=auth_via_ldap%>/>
+                                <label class='label__sub'>Доменная авторизация РТРС</label>
+                                <div class="auth_rtrn_pass mt-10">
+                                    <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass_<%=id%>')"></label>
+                                    <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
+                                </div>
+                            </div>
+                            <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
+                            <input class="icon icon-save js-tooltip mt-15" title="Сохранить" type="submit" value="" name="submit" />
+                        </form>
+                    </td>
+                    <td class="ta-c">
                         <%if (id != 1) {%>
                         <a class="btn_delete" onclick="return confirm('Удалить администратора?');" href="<%= baseUrl + "addadm?removeAdm=1&id=" + id%>"></a>
                         <%}%>
@@ -87,40 +90,35 @@
                 </tr>
                 <%}%>
                 <tr>
-
             <form class="form_hide none" action="<%= baseUrl + "addadm"%>" method="post">
-                <td class="ta-r">#</td>
+                <td class="ta-r"></td>
                 <td>
-                    <input type="text" name="login" />
-                    <input class='va-m auth_rtrn' type="checkbox" checked value="1" name="auth_via_ldap"/>
-                    <label class='label__sub'>Доменная авторизация РТРС</label>
-                    <div class="auth_rtrn_pass inline-b">
-                        <label class="label_inline_gen label_generate" onclick="generatePass('#admin_pass')">Сгенерировать</label>
-                        <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
+                    <div class="btn_add_mech none">
+                        <input class="auth_rtrn_checkValue" type="text" name="login" />
                     </div>
-                    <td>
-                    <input hidden type="text" name="ADD_ME" value="1"/>
-                    <input class="btn blbc white" type="submit" value="Добавить" name="submit" />
+                </td>
+                <td>
+                    <div class="btn_add_mech none">
+                        <input class='va-m auth_rtrn' type="checkbox" checked value="1" name="auth_via_ldap"/>
+                        <label class='label__sub'>Доменная авторизация РТРС</label>
+
+                        <div class="auth_rtrn_pass mt-10">
+                            <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass')"></label>
+                            <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
+                        </div>
+                    </div>
+                </td>
+                <td class="ta-c">
+                    <div class="btn_add icon icon-add"></div>
+                    <div class="btn_add_mech none">
+                        <input hidden type="text" name="ADD_ME" value="1"/>
+                        <input class="icon icon-save js-tooltip mt-15" type="submit" value="" title="Сохранить" name="submit" />
+                    </div>
                 </td>
             </form>
-
             </tr>
             </tbody>
         </table>
-
-        <script type="text/javascript">
-            $(function () {
-                $('.auth_rtrn_pass').hide();
-                $('.auth_rtrn').click(function () {
-                    if ($(this).is(':checked')) {
-                        $('.auth_rtrn_pass').hide();
-                    } else {
-                        $('.auth_rtrn_pass').show();
-                    }
-                });
-            });
-        </script>
-
     </div>
 
     <%} else {%>
