@@ -64,10 +64,37 @@
 %>
 
 <jsp:include page="header.jsp" />
-
+<script src="http://code.highcharts.com/modules/no-data-to-display.js"></script> <!--todo - перенести в место подключения hightChatrts-->
 <div class="content__layout_main">
     <div class="content__top">
-        <div id="container" class="chart"></div><!--
+        <label>
+            <span>Группировка: </span>
+        </label>
+        <div class="radio-group">
+            <input id="grouping_hour" class="none" type="radio" name="grouping" value="hour"/>
+            <label class="radio-group__item" for="grouping_hour">
+                <span class="radio-group__label">По часам</span>
+            </label>   
+            <input id="grouping_day" class="none" type="radio" name="grouping" value="day" checked/>
+            <label class="radio-group__item" for="grouping_day">
+                <span class="radio-group__label">По дням</span>
+            </label>   
+            <input id="grouping_week" class="none" type="radio" name="grouping" value="week"/>
+            <label class="radio-group__item " for="grouping_week">
+                <span class="radio-group__label">По неделям</span>
+            </label>    
+            <input id="grouping_month" class="none" type="radio" name="grouping" value="month"/>
+            <label class="radio-group__item " for="grouping_month">
+                <span class="radio-group__label">По месяцам</span>
+            </label>
+        </div>
+        <div id="container1" class="chart"></div>
+        <div>
+            <form id="pie_data" action="#" method="POST">
+                <input id="start" name="start" type="text" hidden>
+                <input id="end" name="end" type="text" hidden>
+            </form>
+        </div><!--
         --><div class="chart__total">
             <div class="chart__mb">
                 <div class="mb__top">
@@ -138,7 +165,7 @@
             </tbody>
         </table>
 
-            <p class="title mt-20">Журнал службы <a class="download js-tooltip" title="Скачать" href="<%=request.getContextPath()%>/file/sms_service.log"></a></p>
+        <p class="title mt-20">Журнал службы <a class="download js-tooltip" title="Скачать" href="<%=request.getContextPath()%>/file/sms_service.log"></a></p>
         <div class="log">
             <%for (HashMap hm : logData) {
                     String moduleName = Tools.getStringValue(hm.get("module_name"), "");
@@ -172,11 +199,13 @@
     </div>
 </div>
 
+<div id="container2" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+
 <script type="text/javascript">
 
     $(".input_phone").mask("+7 (999) 999-99-99");
 
-    $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet"%>", function (data) {
+    $.getJSON("<%= request.getContextPath() + "/HighchartsJsonServlet/smsbydate"%>", function (data) {
 
         Highcharts.setOptions({
             lang: {
@@ -200,9 +229,10 @@
             }
         });
 
-        Highcharts.stockChart('container', {
+        var _chart = new Highcharts.stockChart({
             chart: {
-                alignTicks: false
+                alignTicks: false,
+                renderTo: 'container1'
             },
             rangeSelector: {
                 buttons: [{
@@ -235,22 +265,27 @@
             title: {
                 text: 'Количество SMS'
             },
+            xAxis: {
+                events: {
+                    afterSetExtremes: function () {
+                        min = this.min;
+                        max = this.max;
+                        $('#start').attr('value', min);
+                        $('#end').attr('value', max);
+                        getDataAndDrowPie(min, max);
+                    }
+                }
+            },
             series: [{
                     type: 'column',
                     name: 'Отправлено',
                     data: data.data1,
                     dataGrouping: {
-                        approximation: "sum",
                         enabled: true,
                         forced: true,
+                        dateTimeLabelFormats: {day: ['За день - %A, %b %e, %Y']},
                         units: [[
-                                'hour', // unit name
-                                [1] // allowed multiples
-                            ], [
-                                'day', // unit name
-                                [1] // allowed multiples
-                            ], [
-                                'month',
+                                'day',
                                 [1]
                             ]]
                     }
@@ -259,22 +294,123 @@
                     name: 'Принято',
                     data: data.data2,
                     dataGrouping: {
-                        approximation: "sum",
                         enabled: true,
                         forced: true,
+                        dateTimeLabelFormats: {day: ['За день - %A, %b %e, %Y']},
                         units: [[
-                                'hour', // unit name
-                                [1] // allowed multiples
-                            ], [
                                 'day', // unit name
                                 [1] // allowed multiples
-                            ], [
-                                'month',
-                                [1]
                             ]]
                     }
                 }]
         });
+
+        //работа с группировками
+        $('input[name=grouping]').change(function () {
+            var unit = $(this).val();
+            _chart.series.forEach(function (ser) {
+                if (unit === "week") {
+                    ser.update({
+                        dataGrouping: {
+                            forced: true,
+                            dateTimeLabelFormats: {week: ['Неделя с %A, %b %e, %Y', '%A, %b %e', '-%A, %b %e, %Y']},
+                            units: [[unit, [1]]]
+                        }
+                    }, false);
+                } else {
+                    ser.update({
+                        dataGrouping: {
+                            forced: true,
+                            units: [[unit, [1]]]
+                        }
+                    }, false);
+                }
+            });
+            _chart.redraw();
+        });
+
+        //Пирог
+        min = _chart.xAxis[0].getExtremes().min;
+        max = _chart.xAxis[0].getExtremes().max;
+        $('#start').attr('value', min);
+        $('#end').attr('value', max);
+
+        function getDataAndDrowPie(min, max) {
+
+            $.ajax({
+                type: 'POST',
+                url: '<%=request.getContextPath()%>/HighchartsJsonServlet/smsbyusers',
+                data: {start: min, end: max},
+                dataType: 'json'
+            }).done(function (data) {
+                console.log(data.SC);
+                console.log(data.RESULT);
+
+                Highcharts.chart('container2', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie',
+//                        events: {
+//                            load: function (event) {
+//                                var total = 0;
+//                                for (var i = 0, len = this.series[0].yData.length; i < len; i++) {
+//                                    total += this.series[0].yData[i];
+//                                }
+//                                var text = this.renderer.text(
+//                                        'Всего задач: ' + total,
+//                                        this.plotLeft + 480,
+//                                        this.plotTop + 30
+//                                        ).attr({
+//                                    zIndex: 5
+//                                }).add()
+//                            }
+//                        }
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    title: {
+                        text: 'Распределение исходящих sms по пользователям'
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}% ({point.y})</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                }
+                            }
+                        }
+                    },
+                    series: [{
+                            name: 'Сообщений',
+                            colorByPoint: true,
+                            data: data.RESULT
+                        }],
+                    lang: {
+                        noData: "Нет данных для отображения"
+                    },
+                    noData: {
+                        style: {
+                            fontWeight: 'bold',
+                            fontSize: '15px',
+                            color: '#303030'
+                        }
+                    }
+                });
+            });
+        }
+
+        getDataAndDrowPie($('#start').val(), $('#end').val());
+
     });
 </script>
 </body>

@@ -8,6 +8,8 @@ package org.lobzik.smspi.pi;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -15,6 +17,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.lobzik.tools.Tools;
 import org.lobzik.tools.db.mysql.DBSelect;
@@ -22,24 +25,54 @@ import org.lobzik.tools.db.mysql.DBTools;
 
 /**
  *
- * @author konstantin
+ * @author konstantin makarov
  */
-@WebServlet(name = "HighchartsJsonServlet", urlPatterns = {"/HighchartsJsonServlet"})
+@WebServlet(name = "HighchartsJsonServlet", urlPatterns = {"/HighchartsJsonServlet", "/HighchartsJsonServlet/*"})
 public class HighchartsJsonServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    private static final List<String> PATHINFO_ACTIONS = Arrays.asList(
+            "/smsbydate",
+            "/smsbyusers"
+    );
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        StringBuilder jsonData = new StringBuilder();
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+        response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+        response.setDateHeader("Expires", 0); // Proxies.
+
+        if (request.getContentType() != null && request.getContentType().toLowerCase().contains("utf-8")) {
+            request.setCharacterEncoding("UTF-8");
+        } else {
+            request.setCharacterEncoding("windows-1251");
+        }
+
+        int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
+        if (loginAdmin < 0) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        }
+
+        String path = Tools.getStringValue(request.getPathInfo(), "");
+        JSONObject result;
+        switch (getActionId(path)) {
+            case 0:
+                result = getSmsByDate(request);
+                break;
+            case 1:
+                result = getSmsByUsers(request);
+                break;
+            default:
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+        }
+
+        try (PrintWriter out = response.getWriter()) {
+            result.write(out);
+        }
+    }
+
+    private JSONObject getSmsByDate(HttpServletRequest request) {
         JSONObject json = new JSONObject();
         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
             String inboxSql = "select c.epoch*1000 as epoch, count(*) as cnt from\n"
@@ -95,13 +128,69 @@ public class HighchartsJsonServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        try (PrintWriter out = response.getWriter()) {
-            json.write(out);
-        }
+        return json;
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    private int getActionId(String pathInfo) {
+        pathInfo = pathInfo.toLowerCase();
+        for (int j = 0; j < PATHINFO_ACTIONS.size(); j++) {
+            String action = PATHINFO_ACTIONS.get(j);
+            action = (action.startsWith("/") ? action : ("/" + action)).toLowerCase();
+            if (pathInfo.startsWith(action)) {
+                return j;
+            }
+        }
+        return -1;
+    }
+
+    private JSONObject getSmsByUsers(HttpServletRequest request) {
+        double start = Tools.parseDouble(request.getParameter("start"), 0.0) / 1000;//параметры из запроса начала и конца периода по которому требуется статистика, в unix времени
+        double end = Tools.parseDouble(request.getParameter("end"), 0.0) / 1000; // делим на 1000 тк hightcharts выдает время в мс
+
+        List argList = new ArrayList();
+        argList.add(start);
+        argList.add(end);
+
+        JSONObject result = new JSONObject();
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            String sqlQuerry = "select d.sender_name, count(*) as y from (select \n"
+                    + "    so.id, \n"
+                    + "    coalesce (so.date_sent, \"01.03.2017 01:00:00\") as sent_date , \n"
+                    + "    coalesce (a.admin_id,u.id, -2) as sender_id, \n"
+                    + "    coalesce (a.login, u.name, \"Local\" ) as sender_name \n"
+                    + "from sms_outbox so\n"
+                    + "left join admins a on a.admin_id = so.admin_id\n"
+                    + "left join users u on u.id = so.user_id\n"
+                    + ") d\n"
+                    + "where  d.sent_date between FROM_UNIXTIME(?) and FROM_UNIXTIME(?)\n"
+                    + "group by d.sender_name";
+            List<HashMap> list = DBSelect.getRows(sqlQuerry, argList, conn);
+
+            JSONArray data = new JSONArray();
+
+            list.stream().forEach((hm) -> {
+                HashMap cur = new HashMap();
+                cur.put("name", Tools.getStringValue(hm.get("sender_name"), ""));
+                cur.put("y", Tools.parseInt(hm.get("y"), -1));
+                data.put(new JSONObject(cur));
+            });
+
+            if (data.length() > 0) {
+                result.put("RESULT", data);
+                result.put("SC", HttpServletResponse.SC_OK);
+            } else {
+                result.put("SC", HttpServletResponse.SC_NO_CONTENT);
+            }
+
+        } catch (Exception e) {
+            result.put("SC", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            result.put("ERROR", e.getMessage());
+            e.printStackTrace(System.err);
+        }
+        return result;
+    }
+
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
