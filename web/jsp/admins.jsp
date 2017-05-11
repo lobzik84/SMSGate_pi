@@ -43,10 +43,10 @@
         <table class="table mt-20">
             <thead>
                 <tr>
-                    <td class="bold w-10">
+                    <td class="bold w-5">
                         №
                     </td>
-                    <td class="w-20">
+                    <td class="w-25">
                         Наименование
                     </td>
                     <td class="w-50"></td>
@@ -63,7 +63,7 @@
                         String auth_via_ldap = (Tools.parseInt(hm.get("auth_via_ldap"), -1) == 1) ? "checked" : "";
                 %>
                 <tr>
-                    <td class="ta-r"><%= id%></td>
+                    <td class="ta-c"><%= id%></td>
                     <td>
                         <%= login%>
                     </td>
@@ -71,13 +71,17 @@
                         <input class="btn_hide-table icon icon-edit js-tooltip" title="Изменить пароль" type="submit" value=""/>
                         <form class="form_hide-table none" id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
                             <div class="va-t wp-240">
+                                
                                 <input class='va-m auth_rtrn' type="checkbox" value="1" name="auth_via_ldap" <%=auth_via_ldap%>/>
                                 <label class='label__sub'>Доменная авторизация РТРС</label>
-                                <div class="auth_rtrn_pass mt-10">
-                                    <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass_<%=id%>')"></label>
-                                    <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
-                                    <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
-                                    <input class="icon icon-save js-tooltip ml-10 va-m" title="Сохранить" type="submit" value="" name="submit" />
+                                <input class="icon icon-save js-tooltip ml-10 va-m" title="Сохранить" type="submit" value="" name="submit" />
+
+                                    <div class="auth_rtrn_pass mt-10">
+                                        <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass_<%=id%>')"></label>
+                                        <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
+                                        <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
+                          
+                                    
                                 </div>
                             </div>
                         </form>
@@ -91,7 +95,7 @@
                 <%}%>
                 <tr>
             <form class="form_hide none" action="<%= baseUrl + "addadm"%>" method="post">
-                <td class="ta-r"></td>
+                <td class="ta-c"></td>
                 <td>
                     <div class="btn_add_mech none">
                         <input class="auth_rtrn_checkValue" type="text" name="login" />

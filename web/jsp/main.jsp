@@ -67,30 +67,30 @@
 
 <div class="content__layout_main">
     <div class="content__top">
-        <div class="mt-15 ml-20">
-            <label class="inline-b os-r">
-                <span>Группировать: </span>
-            </label>
-            <div class="radio-group">
-                <input id="grouping_hour" class="input__radio none" type="radio" name="grouping" value="hour"/>
-                <label class="radio-group__item" for="grouping_hour">
-                    <span class="radio-group__label">По часам</span>
-                </label>   
-                <input id="grouping_day" class="input__radio none" type="radio" name="grouping" value="day" checked/>
-                <label class="radio-group__item" for="grouping_day">
-                    <span class="radio-group__label">По дням</span>
-                </label>   
-                <input id="grouping_week" class="input__radio none" type="radio" name="grouping" value="week"/>
-                <label class="radio-group__item " for="grouping_week">
-                    <span class="radio-group__label">По неделям</span>
-                </label>    
-                <input id="grouping_month" class="input__radio none" type="radio" name="grouping" value="month"/>
-                <label class="radio-group__item " for="grouping_month">
-                    <span class="radio-group__label">По месяцам</span>
-                </label>
-            </div>
-        </div>
         <div class="chart">
+            <div class="mt-15 ml-20 ta-c">
+                <label class="inline-b os-r">
+                    <span>Группировать: </span>
+                </label>
+                <div class="radio-group">
+                    <input id="grouping_hour" class="input__radio none" type="radio" name="grouping" value="hour"/>
+                    <label class="radio-group__item" for="grouping_hour">
+                        <span class="radio-group__label">По часам</span>
+                    </label>   
+                    <input id="grouping_day" class="input__radio none" type="radio" name="grouping" value="day" checked/>
+                    <label class="radio-group__item" for="grouping_day">
+                        <span class="radio-group__label">По дням</span>
+                    </label>   
+                    <input id="grouping_week" class="input__radio none" type="radio" name="grouping" value="week"/>
+                    <label class="radio-group__item " for="grouping_week">
+                        <span class="radio-group__label">По неделям</span>
+                    </label>    
+                    <input id="grouping_month" class="input__radio none" type="radio" name="grouping" value="month"/>
+                    <label class="radio-group__item " for="grouping_month">
+                        <span class="radio-group__label">По месяцам</span>
+                    </label>
+                </div>
+            </div>
             <div id="container2" class="w-25 inline-b"></div>
             <div id="container1" class="w-70 inline-b"></div>
         </div>
@@ -170,7 +170,7 @@
             </tbody>
         </table>
 
-        <p class="title mt-20">Журнал службы <a class="download js-tooltip" title="Скачать" href="<%=request.getContextPath()%>/file/sms_service.log"></a></p>
+        <p class="title mt-20">Журнал службы <a class="icon icon-download ml-5 js-tooltip" title="Скачать" href="<%=request.getContextPath()%>/file/sms_service.log"></a></p>
         <div class="log">
             <%for (HashMap hm : logData) {
                     String moduleName = Tools.getStringValue(hm.get("module_name"), "");

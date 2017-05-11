@@ -33,13 +33,13 @@
         <table class="table mt-20">
             <thead>
                 <tr>
-                    <td class="bold ta-c w-10">
+                    <td class="bold ta-c w-5">
                         №
                     </td>
                     <td class="w-30">
                         Наименование
                     </td>
-                    <td class="w-40">
+                    <td class="w-45">
                         Ключ доступа<span class="hint_i js-tooltip" title="Используется ключ RSA-1024, public exponent = 10001 (HEX) PublicKey(modulus in HEX, 256 symbols)">i</span>
                     </td>
                     <td class="w-20 ta-c">
@@ -55,7 +55,7 @@
                         String name = Tools.getStringValue(hm.get("name"), "");
                 %>
                 <tr>
-                    <td class="ta-r"><%= id%></td>
+                    <td class="ta-c"><%= id%></td>
                     <td><%= name%></td>
                     <td>
                         <p class="publicKey_copy" title="Скопировать" data-key="">
@@ -90,14 +90,14 @@
                             </div>
                         </div>
                     </div>
+                </td>
+                <td class="ta-c">
+                    <div class="btn_add icon icon-add"></div>
+                    <div class="btn_add_mech none">
+                        <input hidden type="text" name="REG_ME" value="1"/>
+                        <input class="icon icon-save js-tooltip mt-15" title="Сохранить" type="submit" value="" name="submit" />
+                    </div>
             </form>
-            </td>
-            <td class="ta-c">
-                <div class="btn_add icon icon-add"></div>
-                <div class="btn_add_mech none">
-                    <input hidden type="text" name="REG_ME" value="1"/>
-                    <input class="icon icon-save js-tooltip mt-15" title="Сохранить" type="submit" value="" name="submit" />
-                </div>
             </td>
             </tr>
             </tbody>
