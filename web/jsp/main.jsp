@@ -268,7 +268,7 @@
                 selected: 5
             },
             title: {
-                text: 'Количество SMS'
+                text: ''
             },
             xAxis: {
                 events: {
@@ -377,8 +377,7 @@
                         enabled: false
                     },
                     title: {
-                        text: 'Кто отправлял SMS',
-                        style: {"font-size": "16px"}
+                        text: ''
                     },
                     tooltip: {
                         pointFormat: '{series.name}: <b>{point.percentage:.1f}% ({point.y})</b>'
