@@ -67,30 +67,32 @@
 
 <div class="content__layout_main">
     <div class="content__top">
-        <label>
-            <span>Группировка: </span>
-        </label>
-        <div class="radio-group">
-            <input id="grouping_hour" class="none" type="radio" name="grouping" value="hour"/>
-            <label class="radio-group__item" for="grouping_hour">
-                <span class="radio-group__label">По часам</span>
-            </label>   
-            <input id="grouping_day" class="none" type="radio" name="grouping" value="day" checked/>
-            <label class="radio-group__item" for="grouping_day">
-                <span class="radio-group__label">По дням</span>
-            </label>   
-            <input id="grouping_week" class="none" type="radio" name="grouping" value="week"/>
-            <label class="radio-group__item " for="grouping_week">
-                <span class="radio-group__label">По неделям</span>
-            </label>    
-            <input id="grouping_month" class="none" type="radio" name="grouping" value="month"/>
-            <label class="radio-group__item " for="grouping_month">
-                <span class="radio-group__label">По месяцам</span>
+        <div class="mt-15 ml-20">
+            <label class="inline-b os-r">
+                <span>Группировать: </span>
             </label>
+            <div class="radio-group">
+                <input id="grouping_hour" class="input__radio none" type="radio" name="grouping" value="hour"/>
+                <label class="radio-group__item" for="grouping_hour">
+                    <span class="radio-group__label">По часам</span>
+                </label>   
+                <input id="grouping_day" class="input__radio none" type="radio" name="grouping" value="day" checked/>
+                <label class="radio-group__item" for="grouping_day">
+                    <span class="radio-group__label">По дням</span>
+                </label>   
+                <input id="grouping_week" class="input__radio none" type="radio" name="grouping" value="week"/>
+                <label class="radio-group__item " for="grouping_week">
+                    <span class="radio-group__label">По неделям</span>
+                </label>    
+                <input id="grouping_month" class="input__radio none" type="radio" name="grouping" value="month"/>
+                <label class="radio-group__item " for="grouping_month">
+                    <span class="radio-group__label">По месяцам</span>
+                </label>
+            </div>
         </div>
         <div class="chart">
-            <div id="container2" class="w-35 inline-b"></div>
-            <div id="container1" class="w-60 inline-b"></div>
+            <div id="container2" class="w-25 inline-b"></div>
+            <div id="container1" class="w-70 inline-b"></div>
         </div>
         <div>
             <form id="pie_data" action="#" method="POST">
@@ -375,7 +377,8 @@
                         enabled: false
                     },
                     title: {
-                        text: 'Распределение исходящих sms по пользователям'
+                        text: 'Кто отправлял SMS',
+                        style: {"font-size": "16px"}
                     },
                     tooltip: {
                         pointFormat: '{series.name}: <b>{point.percentage:.1f}% ({point.y})</b>'
@@ -385,7 +388,7 @@
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
-                                enabled: false,//отображает надписи с палками
+                                enabled: false, //отображает надписи с палками
                                 format: '<b>{point.name}</b>: {point.percentage:.1f} %',
                                 style: {
                                     color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'

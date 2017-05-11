@@ -2,25 +2,31 @@
     .w-100;
     .relative;
     border-bottom: 2px solid @white;
-    min-height: 114px;
+    min-height: 94px;
+    clear: both;
+    zoom: 1;
 }
 .message__block {
     .ta-l;
     .os-r;
     .inline-b;
+    .mb-10;
     .rounded-corners(15px);
-    word-break: break-all;
+    //word-break: break-all;
     width: 43%;
     font-size: 14px;
     line-height: 21px;
     padding: 10px 15px;
+    clear: both;
+    zoom: 1;
     &_outbox {
-        .absolute;
+        .fl-r;
         .mr-15;
-        right: 0px;
+        .w-70;
         background-color: rgba(33, 150, 243, 0.2);
     }
     &_inbox {
+        .w-40;
         background-color: rgba(77, 182, 172, 0.2);
     }
 }
@@ -34,9 +40,7 @@
     .mt-10;
     font-size: 13px;
 }
-.message__text {
-    height: 42px;
-}
+
 .message__icon {
     .inline-b;
     .va-m;

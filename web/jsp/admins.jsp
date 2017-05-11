@@ -76,10 +76,10 @@
                                 <div class="auth_rtrn_pass mt-10">
                                     <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass_<%=id%>')"></label>
                                     <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
+                                    <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
+                                    <input class="icon icon-save js-tooltip ml-10 va-m" title="Сохранить" type="submit" value="" name="submit" />
                                 </div>
                             </div>
-                            <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
-                            <input class="icon icon-save js-tooltip mt-15" title="Сохранить" type="submit" value="" name="submit" />
                         </form>
                     </td>
                     <td class="ta-c">

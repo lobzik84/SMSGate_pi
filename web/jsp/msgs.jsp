@@ -63,7 +63,7 @@
             </div>
             <input hidden type="text" name="FLTR_DATA" value="1"/>
             <br>
-            <input id="analytics-submit--true" class="btn blbc white mr-15" type="submit" name="filter_submit" value="Фильтровать"/>
+            <input id="analytics-submit--true" class="btn blbc white mr-15" type="submit" name="filter_submit" value="Найти"/>
             <a class="btn_a" onclick="return confirm('Сбросить фильтры?');" href="<%= baseUrl + "msgs"%>">Сбросить фильтры</a>
         </form>
 
