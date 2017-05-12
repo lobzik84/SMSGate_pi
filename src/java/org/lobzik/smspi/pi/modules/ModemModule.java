@@ -203,6 +203,7 @@ public class ModemModule extends Thread implements Module {
                 AppData.eventManager.newEvent(event);
 
             }
+            
 
             while (run) {
                 try {
@@ -554,12 +555,21 @@ public class ModemModule extends Thread implements Module {
                 break;
 
             case SYSTEM_EVENT:
-                if (e.name.equals("check_number")) {
-                    checkNumber();
+                switch (e.name) {
+                    case "check_number":
+                        checkNumber();
+                        break;
+                        
+                    case "check_balance":
+                        checkBalance();
+                        break;
+                        
+                    case "req_lk_passw":
+                        checkLKPassw();
+                        break;
                 }
-                if (e.name.equals("check_balance")) {
-                    checkBalance();
-                }
+
+            
                 break;
 
         }
@@ -875,6 +885,26 @@ public class ModemModule extends Thread implements Module {
         }
         modemBusy.set(false);
         return myNumber;
+
+    }
+
+    public String checkLKPassw() {
+        String pass = "";
+        try {
+            modemBusy.set(true);
+            log.debug("Checking number");
+            waitForCommand("AT^USSDMODE=0\r");
+            recievedLines.clear();
+            waitForCommand("AT+CUSD=1,\"*105*00#\",15\r"); //MEGAFON-specific!!
+            if (waitForUSSD()) {
+                pass = parseUSSDUCS2numReply(recievedLines);
+
+                log.debug("Recieved lk pass " + pass);
+            }
+        } catch (Exception eee) {
+        }
+        modemBusy.set(false);
+        return pass;
 
     }
 
