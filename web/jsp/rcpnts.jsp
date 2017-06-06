@@ -49,7 +49,7 @@
                 %>
                 <tr>
                     <td class="ta-c"><%= Tools.parseInt(hm.get("id"), -1)%></td>
-                    <td>
+                    <td id="rc_num_<%= Tools.parseInt(hm.get("id"), -1)%>">
                         <%= Tools.getStringValue(hm.get("number"), "")%>
                     </td>
                     <td>
