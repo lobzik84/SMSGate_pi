@@ -39,6 +39,9 @@
                     <td class="w-50">
                         Группа
                     </td>
+                    <td class="w-20 ta-c">
+                        Управление
+                    </td>
                 </tr>
             </thead>
             <tbody>
@@ -64,6 +67,10 @@
                              <option value="<%= Tools.parseInt(gr.get("id"), 0)%>" <%=selected%>><%= Tools.getStringValue(gr.get("name"), "")%></option>
                              <%}%>
                          </select>
+                    </td>
+                    <td>
+                        <input class="btn_hide-table icon icon-edit js-tooltip" title="Редактировать" type="submit" value=""/>
+                        <a class="btn_delete" onclick="return confirm('Удалить получателя?');" href="<%= baseUrl + "dogroup?removeGrp=1&id=" + hm.get("id")%>"></a>
                     </td>
                 </tr>
                 <%}%>

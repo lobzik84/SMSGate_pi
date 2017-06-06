@@ -34,7 +34,9 @@
                     <td class="w-50">
                         Описание
                     </td>
-
+                    <td class="w-20 ta-c">
+                        Управление
+                    </td>
                 </tr>
             </thead>
             <tbody>
@@ -47,6 +49,10 @@
                     </td>
                     <td>
                         <%= Tools.getStringValue(hm.get("description"), "")%>
+                    </td>
+                    <td>
+                        <input class="btn_hide-table icon icon-edit js-tooltip" title="Редактировать" type="submit" value=""/>
+                        <a class="btn_delete" onclick="return confirm('Удалить группу?');" href="<%= baseUrl + "dogroup?removeGrp=1&id=" + hm.get("id")%>"></a>
                     </td>
                 </tr>
                 <%}%>
