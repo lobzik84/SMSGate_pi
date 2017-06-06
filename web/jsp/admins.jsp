@@ -49,6 +49,9 @@
                     <td class="w-25">
                         Логин
                     </td>
+                    <td class="w-25">
+                        Телефон
+                    </td>
                     <td class="w-50">
                         Пароль
                     </td>
@@ -61,6 +64,7 @@
                 <%for (HashMap hm : admList) {
                         int id = Tools.parseInt(hm.get("admin_id"), -1);
                         String login = Tools.getStringValue(hm.get("login"), "");
+                        String phone = Tools.getStringValue(hm.get("phone_number"), "");                        
                         int status = Tools.parseInt(hm.get("status"), -1);
                         String auth_via_ldap = (Tools.parseInt(hm.get("auth_via_ldap"), -1) == 1) ? "checked" : "";
                 %>
@@ -68,6 +72,9 @@
                     <td class="ta-c"><%= id%></td>
                     <td>
                         <%= login%>
+                    </td>
+                    <td>
+                        <%= phone%>
                     </td>
                     <td>
                         <input class="btn_hide-table icon icon-edit js-tooltip" title="Изменить пароль" type="submit" value=""/>
@@ -100,6 +107,11 @@
                 <td>
                     <div class="btn_add_mech none">
                         <input class="auth_rtrn_checkValue" type="text" name="login" />
+                    </div>
+                </td>
+                <td>
+                    <div class="btn_add_mech none">
+                        <input class="auth_rtrn_checkValue" type="text" name="phone_number" />
                     </div>
                 </td>
                 <td>

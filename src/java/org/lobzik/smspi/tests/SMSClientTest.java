@@ -24,11 +24,11 @@ import org.json.JSONObject;
  */
 public class SMSClientTest {
 
-    static String SMSGateUrl = "http://smsity.rtrn.ru:8080/smspi/json";
-    static String username = "mobility";
-    static String privateKeyString = "61832d2f4e3032863f3b1957d5cc0a4e5bdf3f26cb3995bac83fd50f7da4eab282cf6af34aa52ab95da0961f5ee28980c36cf141605120c907cbc63e92a21cf1f72ca32e7ceb9fb4fe5a3245d4e136ee57a88e26fbefcac331a8bb8230cd8794759489782bdd385fa05efcde0f14b0b12784c93ae463531cbdf9831edf778171";
-    static String publicKeyString = "844af8350323d29b7bf760245eec4298491e9c144c813493e2d315669de4c5f67ac6eb2117c539d3334db9bd64322d5950fd6160fe4d328d5c3db23f9bc7d84d82847fce176223b9d514a33067096e80f832f00661798d44949ce5fc01d48bbe1e216e236f05af2f7b692d1bbf9fba5e1dfc4c7a3c438a42b7a0a598b2390f33";
-    static String text = "Вы были назначены исполнителем заявки №6330. СДК: Разработка интерфейса TCP/IP для модуля управления кондиционером";//Это тест отправки sms:";// + System.currentTimeMillis();
+    static String SMSGateUrl = "http://smspi.molnet.ru/smspi/json";
+    static String username = "supertt";
+    static String privateKeyString = "a4cac7b1904641014f1159acd3bcac57fc5468d5e946e8a551c88741fe6d7c2fd195379420de98132302e7c3bb482bdeb2cfe37e1dab2aa29e2403056931f220eebb85e07b5a23037d66e6cb28adb842b6cbd166e28b2ea14bd00df642c23a3684209a25284111cb1b3e6fde2ce0cdfaf23ae72fffed1ef16e201937a4b6873d";
+    static String publicKeyString = "bd96fa4a28de14a4b6c5ffdb63ab7ed3e99a8ed69d89325445ef4bc8d247c343df2505ae94777455ab555de54f777ca06def3f6ec2715011831683feabb65e142d68877fca6c5bee6ed83adbf426f8c533d2a6e2921622dfd7da025a8509e60479dbfed55b9bb8dd9108dc981debccf7e7be7ae459257bffd93fb307ce121765";
+    static String text = "Тест супертт";//Это тест отправки sms:";// + System.currentTimeMillis();
     static String recipient = "+79263357107";
     static final String CHARSET = "UTF-8";
 

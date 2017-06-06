@@ -41,7 +41,7 @@ public class BoxCommonData {
     public static final String SERIAL_PORT;
     public static final String MODEM_INFO_PORT;
     public static final BigInteger RSA_E;
-            
+    public static final boolean ON_PI = System.getProperty("os.arch").equalsIgnoreCase("arm");
 
     
     private BoxCommonData() {

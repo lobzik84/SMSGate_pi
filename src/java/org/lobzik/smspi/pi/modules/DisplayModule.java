@@ -87,7 +87,7 @@ public class DisplayModule implements Module {
     public void start() {
         try {
             try {
-                if (AppData.onPi) {//pi is sudoer
+                if (BoxCommonData.ON_PI) {//pi is sudoer
                     Tools.sysExec("sudo killall -9 fbi", new File("/"));
                 }
             } catch (Throwable t) {
@@ -275,7 +275,7 @@ public class DisplayModule implements Module {
     public static void finish() {
         try {
             instance.fbiRunner.finish();
-            if (AppData.onPi) {//pi is sudoer
+            if (BoxCommonData.ON_PI) {//pi is sudoer
                 Tools.sysExec("sudo killall -9 fbi", new File("/"));
             }
         } catch (Throwable t) {

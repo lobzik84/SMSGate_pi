@@ -35,7 +35,6 @@ public class AppData {
     public static final HashMap<Integer, Notification> emailNotification = new HashMap();
     public static final ParametersStorage parametersStorage; //launches BEFORE AppListener called
     public static final MeasurementsCache measurementsCache;
-    public static final boolean onPi;
     private static File graphicsWorkDir = null;
 
 
@@ -46,7 +45,6 @@ public class AppData {
     static {
         BasicDataSource ds = null;
         ParametersStorage ps = null;
-        onPi = "tomcat7".equals(System.getProperty("user.name"));
         try {
             Context initCtx = new InitialContext();
             Context envCtx = (Context) initCtx.lookup("java:comp/env");

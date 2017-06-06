@@ -49,7 +49,7 @@ public class ConnJDBCAppender extends JDBCAppender {
         jdbcAppender.setSql("insert into logs values (0,'" + moduleName + "','%d{yyyy-MM-dd HH:mm:ss.SSS}','%p','%m') \n");
         AsyncAppender asyncAppender = new AsyncAppender();
         asyncAppender.setBufferSize(1000);
-        asyncAppender.addAppender(jdbcAppender);
+        if (BoxCommonData.ON_PI) asyncAppender.addAppender(jdbcAppender);
         asyncAppender.setThreshold(Level.INFO);
         return asyncAppender;
     }

@@ -22,6 +22,7 @@ import org.lobzik.smspi.pi.modules.DBCleanerModule;
 import org.lobzik.smspi.pi.modules.DisplayModule;
 import org.lobzik.smspi.pi.modules.InternalSensorsModule;
 import org.lobzik.smspi.pi.modules.DBDataWriterModule;
+import org.lobzik.smspi.pi.modules.GroupRelayModule;
 
 import org.lobzik.smspi.pi.modules.ModemModule;
 import org.lobzik.smspi.pi.modules.PBDDataWriterModule;
@@ -50,17 +51,18 @@ public class AppListener implements ServletContextListener {
             BoxSettingsAPI.initBoxSettings();
             initLdapSettings();
             AppData.setGraphicsWorkDir(new File(sce.getServletContext().getRealPath("img")));
-            DisplayModule.getInstance().start();
-            InternalSensorsModule.getInstance().start();
-            ModemModule.getInstance().start();
+            if (BoxCommonData.ON_PI) DisplayModule.getInstance().start();
+            if (BoxCommonData.ON_PI) InternalSensorsModule.getInstance().start();
+            if (BoxCommonData.ON_PI) ModemModule.getInstance().start();
             ActualDataStorageModule.getInstance().start();
             TimerModule.getInstance().start();
-            DBDataWriterModule.getInstance().start();
+            if (BoxCommonData.ON_PI) DBDataWriterModule.getInstance().start();
             SystemModule.getInstance().start();
-            DBCleanerModule.getInstance().start();
+            if (BoxCommonData.ON_PI) DBCleanerModule.getInstance().start();
             ChartModule.getInstance().start();
-            PBDDataWriterModule.getInstance().start();
-
+            if (BoxCommonData.ON_PI) PBDDataWriterModule.getInstance().start();
+            GroupRelayModule.getInstance().start();
+            
         } catch (Throwable ex) {
             ex.printStackTrace();
         }
