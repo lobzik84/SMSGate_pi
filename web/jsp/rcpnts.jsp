@@ -22,7 +22,6 @@
 
 <div class="content__layout">
     <div class="content__table">
-
         <p class="title">Получатели рассылок коротких сообщений</p>
         <table class="table mt-20">
             <thead>
@@ -55,25 +54,56 @@
                     <td>
                         <%= Tools.getStringValue(hm.get("name"), "")%>
                     </td>
-                     <td>
-                         <select name="group_id">
-                             <option value="">---></option>
-                             <%for (HashMap gr : groups) { 
-                                String selected = "";
-                                if (Tools.parseInt(gr.get("id"), 0) == Tools.parseInt(hm.get("group_id"), 0)) {
-                                    selected = "selected";
-                                }
-                             %>                
-                             <option value="<%= Tools.parseInt(gr.get("id"), 0)%>" <%=selected%>><%= Tools.getStringValue(gr.get("name"), "")%></option>
-                             <%}%>
-                         </select>
-                    </td>
                     <td>
+                        <select name="group_id">
+                            <option value="">---></option>
+                            <%for (HashMap gr : groups) {
+                                    String selected = "";
+                                    if (Tools.parseInt(gr.get("id"), 0) == Tools.parseInt(hm.get("group_id"), 0)) {
+                                        selected = "selected";
+                                    }
+                            %>                
+                            <option value="<%= Tools.parseInt(gr.get("id"), 0)%>" <%=selected%>><%= Tools.getStringValue(gr.get("name"), "")%></option>
+                            <%}%>
+                        </select>
+                    </td>
+                    <td class="ta-c">
                         <input class="btn_hide-table icon icon-edit js-tooltip" title="Редактировать" type="submit" value=""/>
                         <a class="btn_delete" onclick="return confirm('Удалить получателя?');" href="<%= baseUrl + "dogroup?removeGrp=1&id=" + hm.get("id")%>"></a>
                     </td>
                 </tr>
                 <%}%>
+                <tr>
+            <form class="form_hide none" action="" method="post">
+                <td class="ta-c"></td>
+                <td>
+                    <div class="btn_add_mech none">
+                        <input class="auth_rtrn_checkValue" type="text" name="login" />
+                    </div>
+                </td>
+                <td>
+                    <div class="btn_add_mech none">
+                        <input class="auth_rtrn_checkValue" type="text" name="phone_number" />
+                    </div>
+                </td>
+                <td>
+                    <div class="btn_add_mech none">
+                        <select name="group_id">
+                            <option value="1">----></option>
+                            <option value="2">123</option>
+                            <option value="2">321</option>
+                        </select>
+                    </div>
+                </td>
+                <td class="ta-c">
+                    <p class="btn_add_mech va-t mr-5 none">
+                        <input hidden type="text" name="ADD_ME" value="1"/>
+                        <input class="btn_add_mech va-t mr-5 none icon icon-save va-m js-tooltip" type="submit" value="" title="Сохранить" name="submit" />
+                    </p>
+                    <div class="btn_add icon va-m icon-add"></div>
+                </td>
+            </form>
+            </tr>
             </tbody>
         </table>
     </div>

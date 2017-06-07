@@ -1,6 +1,6 @@
 $(function () {
-    
-    $(".input_phone").mask("+7 (999) 999-99-99");
+
+    $(".phone__mask").mask("+7 (999) 999-99-99");
     
     var maxMsgLength = 70;
     if ($('#max_msg_length') !== null && $('#max_msg_length').html() !== undefined) {
@@ -62,7 +62,7 @@ $(function () {
     $('.auth_rtrn_pass').hide();
 
     $('.btn_hide-table').click(function () {
-        var authRtrnShow = $(this).siblings('.form_hide-table').find('.auth_rtrn');
+        var authRtrnShow = $(this).parent('.btn_hide-parent').siblings('.form_hide-assist').find('.auth_rtrn');
         if (authRtrnShow.is(':checked')) {
             authRtrnShow.siblings('.auth_rtrn_pass').hide();
         } else {
@@ -72,7 +72,7 @@ $(function () {
     });
 
     $('.btn_add').click(function () {
-        $('.btn_add_mech').toggleClass('block');
+        $('.btn_add_mech').toggleClass('inline-b');
     });
 
     $('.btn_hide').click(function () {
@@ -82,7 +82,9 @@ $(function () {
 
     $('.btn_hide-table').click(function () {
         $(this).toggleClass('btn_on-table');
-        $(this).siblings('.form_hide-table').toggleClass('block');
+        $(this).parent('.btn_hide-parent').siblings('.form_hide-assist').children('.form_hide-table').toggleClass('block');
+        $(this).siblings('div').toggleClass('inline-b');
+        $(this).parent('.btn_hide-parent').siblings('.form_hide-assist').children('.form_hide').toggleClass('none');
     });
 
     $('.publicKey_copy').click(function () {

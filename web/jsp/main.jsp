@@ -194,7 +194,7 @@
         <p class="title">Отправить сообщение</p>
         <form class="block w-100" action="<%= baseUrl + "sendmsg"%>" method="post">
             <label class="label lgray mt-20">Номер телефона</label>
-            <input class="input_phone" type="text" name="recipient" placeholder="+7 (___) ___-__-__"/>
+            <input class="input_phone phone__mask" type="text" name="recipient" placeholder="+7 (___) ___-__-__"/>
             <label class="label fl-l lgray mt-20">Текст</label>
             <label class="label label_blue">Тестовое сообщение</label>
             <span class="counter" id="max_msg_length"><%=BoxSettingsAPI.getInt("MaxMessageLength")%></span>

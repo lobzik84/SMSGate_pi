@@ -49,11 +49,8 @@
                     <td class="w-25">
                         Логин
                     </td>
-                    <td class="w-25">
-                        Телефон
-                    </td>
                     <td class="w-50">
-                        Пароль
+                        Телефон
                     </td>
                     <td class="w-20 ta-c">
                         Управление
@@ -64,7 +61,7 @@
                 <%for (HashMap hm : admList) {
                         int id = Tools.parseInt(hm.get("admin_id"), -1);
                         String login = Tools.getStringValue(hm.get("login"), "");
-                        String phone = Tools.getStringValue(hm.get("phone_number"), "");                        
+                        String phone = Tools.getStringValue(hm.get("phone_number"), "");
                         int status = Tools.parseInt(hm.get("status"), -1);
                         String auth_via_ldap = (Tools.parseInt(hm.get("auth_via_ldap"), -1) == 1) ? "checked" : "";
                 %>
@@ -73,35 +70,36 @@
                     <td>
                         <%= login%>
                     </td>
-                    <td>
-                        <%= phone%>
-                    </td>
-                    <td>
-                        <input class="btn_hide-table icon icon-edit js-tooltip" title="Изменить пароль" type="submit" value=""/>
-                        <form class="form_hide-table none" id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
-                            <div class="va-t wp-240">
-
-                                <input class='va-m auth_rtrn' type="checkbox" value="1" name="auth_via_ldap" <%=auth_via_ldap%>/>
-                                <label class='label__sub'>Доменная авторизация РТРС</label>
-
-                                <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
-                                <input class="icon icon-save js-tooltip ml-10 va-m" title="Сохранить" type="submit" value="" name="submit" />
-
-                                <div class="auth_rtrn_pass mt-10">
-                                    <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass_<%=id%>')"></label>
-                                    <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
-                                </div>
+            <form id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
+                <td class="form_hide-assist">
+                    <p class="form_hide"><%= phone%></p>
+                    <div class="form_hide-table none">
+                        <input type="text" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" value="<%= phone%>">
+                        <div class="va-t wp-240 inline-b">
+                            <input class='va-m auth_rtrn' type="checkbox" value="1" name="auth_via_ldap" <%=auth_via_ldap%>/>
+                            <label class='label__sub'>Доменная авторизация РТРС</label>
+                            <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
+                            <div class="auth_rtrn_pass mt-10">
+                                <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass_<%=id%>')"></label>
+                                <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
                             </div>
-                        </form>
-                    </td>
-                    <td class="ta-c">
-                        <%if (id != 1) {%>
-                        <a class="btn_delete" onclick="return confirm('Удалить администратора?');" href="<%= baseUrl + "addadm?removeAdm=1&id=" + id%>"></a>
-                        <%}%>
-                    </td>
-                </tr>
-                <%}%>
-                <tr>
+                        </div>
+                    </div>
+                </td>
+                <td class="ta-c btn_hide-parent">
+                    <div class="btn_hide-table va-m icon icon-edit js-tooltip inline-b" title="Редактировать"></div>
+                    <div class="none">
+                        <input class="icon icon-save js-tooltip ml-5 mr-5 va-m" title="Сохранить" type="submit" value="" name="submit" />
+                    </div>
+            </form>
+            <%if (id != 1) {%>
+            <a class="btn_delete inline-b" onclick="return confirm('Удалить администратора?');" href="<%= baseUrl + "addadm?removeAdm=1&id=" + id%>"></a>
+            <%}%>
+            </td>
+
+            </tr>
+            <%}%>
+            <tr>
             <form class="form_hide none" action="<%= baseUrl + "addadm"%>" method="post">
                 <td class="ta-c"></td>
                 <td>
@@ -111,26 +109,25 @@
                 </td>
                 <td>
                     <div class="btn_add_mech none">
-                        <input class="auth_rtrn_checkValue" type="text" name="phone_number" />
-                    </div>
-                </td>
-                <td>
-                    <div class="btn_add_mech none">
-                        <input class='va-m auth_rtrn' type="checkbox" checked value="1" name="auth_via_ldap"/>
-                        <label class='label__sub'>Доменная авторизация РТРС</label>
-
-                        <div class="auth_rtrn_pass mt-10">
-                            <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass')"></label>
-                            <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
+                        <div class="inline-b va-t mr-15">
+                            <input class="auth_rtrn_checkValue" type="text" name="phone_number" />
+                        </div>
+                        <div class="inline-b">
+                            <input class='va-m auth_rtrn' type="checkbox" checked value="1" name="auth_via_ldap"/>
+                            <label class='label__sub'>Доменная авторизация РТРС</label>
+                            <div class="auth_rtrn_pass mt-10">
+                                <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass')"></label>
+                                <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
+                            </div>
                         </div>
                     </div>
                 </td>
                 <td class="ta-c">
-                    <div class="btn_add icon icon-add"></div>
-                    <div class="btn_add_mech none">
+                    <p class="btn_add_mech va-t mr-5 none">
                         <input hidden type="text" name="ADD_ME" value="1"/>
-                        <input class="icon icon-save js-tooltip mt-15" type="submit" value="" title="Сохранить" name="submit" />
-                    </div>
+                        <input class="btn_add_mech va-t mr-5 none icon icon-save va-m js-tooltip" type="submit" value="" title="Сохранить" name="submit" />
+                    </p>
+                    <div class="btn_add icon va-m icon-add"></div>
                 </td>
             </form>
             </tr>
@@ -141,7 +138,7 @@
     <%} else {%>
 
     <p class="label_wrong">Только root администратор может добавлять новых администраторов!</p>
-    
+
     <p class="label mt-30">Вы можете изменить свой пароль:</p>
 
     <form id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">

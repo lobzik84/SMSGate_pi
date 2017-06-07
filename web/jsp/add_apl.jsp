@@ -65,7 +65,7 @@
                             <%= fullPublicKey%>
                         </p>
                     </td>
-                    <td>
+                    <td class="ta-c">
                         <a class="btn_delete" onclick="return confirm('Удалить пользователя?');" href="<%= baseUrl + "addapp?removeApp=1&id=" + id%>"></a>
                     </td>
                 </tr>
@@ -79,7 +79,7 @@
                     </div>
                 </td>
                 <td>
-                    <div class="btn_add_mech none">
+                    <div class="btn_add_mech none w-100">
                         <p class="icon icon-genKey js-tooltip mt-5 mr-10 va-t" title="Сгенерировать ключ доступа" onclick="generateKey()"></p>
                         <div class="inline-b w-90">   
                             <label class="label__sub">Generated PublicKey</label>
@@ -92,21 +92,16 @@
                     </div>
                 </td>
                 <td class="ta-c">
-                    <div class="btn_add icon icon-add"></div>
-                    <div class="btn_add_mech none">
-                        <input hidden type="text" name="REG_ME" value="1"/>
-                        <input class="icon icon-save js-tooltip mt-15" title="Сохранить" type="submit" value="" name="submit" />
+                    <div class="btn_add_mech va-t mr-5 none">
+                        <input hidden type="text" name="ADD_ME" value="1"/>
+                        <input class="btn_add_mech va-t mr-5 none icon icon-save va-m js-tooltip" title="Сохранить" type="submit" value="" name="submit" />
                     </div>
+                    <div class="btn_add icon va-m icon-add"></div>
             </form>
             </td>
             </tr>
             </tbody>
         </table>
-
-
-
-
-
     </div>
 </div>
 </body>
