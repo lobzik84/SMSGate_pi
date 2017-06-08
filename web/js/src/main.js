@@ -178,17 +178,17 @@ $(function () {
         Infinity: -1
     });
 
-    $('.icon-save').click(function () {
-        var checkPass = $('#admin_pass').val().length;
-        checkPass = checkPass.toString();
-        console.log(checkPass);
-        if (checkPass > 5) {
-            $(this).children('.icon-save').prop('disabled', false);
-        } else {
-            $(this).children('.icon-save').prop('disabled', true);
-            alert('Пароль должен состоять из минимум пяти символов!')
-            return false;
-        }
-    });
+//    $('.icon-save').click(function () {
+//        var checkPass = $('input[name=password]').val().length;
+//        checkPass = checkPass.toString();
+//        console.log(checkPass);
+//        if (checkPass > 5) {
+//            $(this).children('.icon-save').prop('disabled', false);
+//        } else {
+//            $(this).children('.icon-save').prop('disabled', true);
+//            alert('Пароль должен состоять из минимум пяти символов!')
+//            return false;
+//        }
+//    });
 
 });
