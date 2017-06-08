@@ -49,10 +49,10 @@
                     <td class="w-25">
                         Логин
                     </td>
-                    <td class="w-50">
+                    <td class="w-65">
                         Телефон
                     </td>
-                    <td class="w-20 ta-c">
+                    <td class="w-5 ta-c" colspan="3">
                         Управление
                     </td>
                 </tr>
@@ -81,20 +81,24 @@
                             <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=id%>"/>
                             <div class="auth_rtrn_pass mt-10">
                                 <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass_<%=id%>')"></label>
-                                <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass_<%=id%>"/>
+                                <input id="admin_pass_<%=id%>" class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" placeholder="Пароль"/>
                             </div>
                         </div>
                     </div>
                 </td>
-                <td class="ta-c btn_hide-parent">
+                <td class="btn_hide-parent ta-c">
                     <div class="btn_hide-table va-m icon icon-edit js-tooltip inline-b" title="Редактировать"></div>
-                    <div class="none">
-                        <input class="icon icon-save js-tooltip ml-5 mr-5 va-m" title="Сохранить" type="submit" value="" name="submit" />
+                </td>
+                <td class="btn_hide-save ta-c">
+                    <div class="none btn__save">
+                        <input class="icon icon-save js-tooltip va-m" title="Сохранить" type="submit" value="" name="submit" />
                     </div>
+                </td>
             </form>
-            <%if (id != 1) {%>
-            <a class="btn_delete inline-b" onclick="return confirm('Удалить администратора?');" href="<%= baseUrl + "addadm?removeAdm=1&id=" + id%>"></a>
-            <%}%>
+            <td class="ta-c">
+                <%if (id != 1) {%>
+                <a class="btn_delete inline-b" onclick="return confirm('Удалить администратора?');" href="<%= baseUrl + "addadm?removeAdm=1&id=" + id%>"></a>
+                <%}%>
             </td>
 
             </tr>
@@ -110,23 +114,27 @@
                 <td>
                     <div class="btn_add_mech none">
                         <div class="inline-b va-t mr-15">
-                            <input class="auth_rtrn_checkValue" type="text" name="phone_number" />
+                            <input class="wp-170 phone__mask auth_rtrn_checkValue" type="text" placeholder="+7 (___) ___-__-__" name="phone_number" />
                         </div>
                         <div class="inline-b">
                             <input class='va-m auth_rtrn' type="checkbox" checked value="1" name="auth_via_ldap"/>
                             <label class='label__sub'>Доменная авторизация РТРС</label>
                             <div class="auth_rtrn_pass mt-10">
                                 <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass')"></label>
-                                <input class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" id="admin_pass"/>
+                                <input id="admin_pass" class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" placeholder="Пароль"/>
                             </div>
                         </div>
                     </div>
+
+                </td>
+                <td></td>
+                <td class="ta-c">
+                    <p class="btn_add_mech btn__save va-t none">
+                        <input hidden type="text" name="ADD_ME" value="1"/>
+                        <input class="btn_add_mech va-t none icon icon-save va-m js-tooltip" type="submit" value="" title="Сохранить" name="submit" />
+                    </p>
                 </td>
                 <td class="ta-c">
-                    <p class="btn_add_mech va-t mr-5 none">
-                        <input hidden type="text" name="ADD_ME" value="1"/>
-                        <input class="btn_add_mech va-t mr-5 none icon icon-save va-m js-tooltip" type="submit" value="" title="Сохранить" name="submit" />
-                    </p>
                     <div class="btn_add icon va-m icon-add"></div>
                 </td>
             </form>

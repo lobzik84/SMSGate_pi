@@ -83,7 +83,7 @@ $(function () {
     $('.btn_hide-table').click(function () {
         $(this).toggleClass('btn_on-table');
         $(this).parent('.btn_hide-parent').siblings('.form_hide-assist').children('.form_hide-table').toggleClass('block');
-        $(this).siblings('div').toggleClass('inline-b');
+        $(this).parent('.btn_hide-parent').siblings('.btn_hide-save').children('div').toggleClass('inline-b');
         $(this).parent('.btn_hide-parent').siblings('.form_hide-assist').children('.form_hide').toggleClass('none');
     });
 
@@ -171,4 +171,24 @@ $(function () {
     });
 
     $('.private_key').hide();
+
+
+    $('select').select2({
+        dropdownCssClass: 'message__text',
+        Infinity: -1
+    });
+
+    $('.icon-save').click(function () {
+        var checkPass = $('#admin_pass').val().length;
+        checkPass = checkPass.toString();
+        console.log(checkPass);
+        if (checkPass > 5) {
+            $(this).children('.icon-save').prop('disabled', false);
+        } else {
+            $(this).children('.icon-save').prop('disabled', true);
+            alert('Пароль должен состоять из минимум пяти символов!')
+            return false;
+        }
+    });
+
 });

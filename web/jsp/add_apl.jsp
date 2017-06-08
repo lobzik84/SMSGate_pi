@@ -61,7 +61,7 @@
                         <p class="publicKey_copy" title="Скопировать" data-key="">
                             <%= shortPublicKey.length() > 0 ? shortPublicKey : fullPublicKey%>
                         </p>
-                        <p class="publicKey_full none">
+                        <p class="publicKey_full wb-all none">
                             <%= fullPublicKey%>
                         </p>
                     </td>
