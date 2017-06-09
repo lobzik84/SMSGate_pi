@@ -114,15 +114,39 @@ public class PiServlet extends HttpServlet {
                                 break;
 
                             case "chpass":
-                                changePassw(request, response);
+                                updAdmin(request, response);
                                 break;
 
                             case "groups":
                                 doGroups(request, response);
                                 break;
 
+                            case "addgroup":
+                                addGroup(request, response);
+                                break;
+
+                            case "editgroup":
+                                editGroup(request, response);
+                                break;
+
+                            case "delgroup":
+                                deleteGroup(request, response);
+                                break;
+
                             case "rcpnts":
                                 doRcpnts(request, response);
+                                break;
+
+                            case "addrcpnt":
+                                addRcpnt(request, response);
+                                break;
+
+                            case "editrcpnt":
+                                editRcpnt(request, response);
+                                break;
+
+                            case "delrcpnt":
+                                deleteRcpnt(request, response);
                                 break;
 
                             default:
@@ -194,6 +218,45 @@ public class PiServlet extends HttpServlet {
         disp.include(request, response);
     }
 
+    private void addGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
+        String baseUrl = request.getContextPath() + request.getServletPath();
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            HashMap reqData = Tools.replaceTags(getRequestParameters(request));
+            reqData.put("admin_id", loginAdmin);
+            DBTools.insertRow("groups", reqData, conn);
+        }
+        response.sendRedirect(baseUrl + "/groups");
+    }
+
+    private void editGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
+        String baseUrl = request.getContextPath() + request.getServletPath();
+        HashMap reqData = Tools.replaceTags(getRequestParameters(request));
+        int groupId = Tools.parseInt(reqData.get("id"), -1);
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            String sSQL = "select id from groups where id=" + groupId + " and admin_id="+loginAdmin;
+            if (DBSelect.getRows(sSQL, conn).size() > 0) {
+                DBTools.updateRow("groups", reqData, conn);
+            }
+        }
+        response.sendRedirect(baseUrl + "/groups");
+    }
+
+    private void deleteGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
+        String baseUrl = request.getContextPath() + request.getServletPath();
+        HashMap reqData = Tools.replaceTags(getRequestParameters(request));
+        int removeId = Tools.parseInt(reqData.get("id"), -1);
+        if (removeId < 0) {
+            return;
+        }
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            DBSelect.executeStatement("delete from groups where id=" + removeId + " and admin_id=" + loginAdmin, null, conn);
+        }
+        response.sendRedirect(baseUrl + "/groups");
+    }
+
     private void doRcpnts(HttpServletRequest request, HttpServletResponse response) throws Exception {
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
         String baseUrl = request.getContextPath() + request.getServletPath();
@@ -213,6 +276,27 @@ public class PiServlet extends HttpServlet {
         RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/rcpnts.jsp");
         request.setAttribute("JspData", jspData);
         disp.include(request, response);
+    }
+
+    private void addRcpnt(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
+        String baseUrl = request.getContextPath() + request.getServletPath();
+
+        response.sendRedirect(baseUrl + "/rcpnts");
+    }
+
+    private void editRcpnt(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
+        String baseUrl = request.getContextPath() + request.getServletPath();
+
+        response.sendRedirect(baseUrl + "/rcpnts");
+    }
+
+    private void deleteRcpnt(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
+        String baseUrl = request.getContextPath() + request.getServletPath();
+
+        response.sendRedirect(baseUrl + "/rcpnts");
     }
 
     private void doMsgs(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -302,16 +386,18 @@ public class PiServlet extends HttpServlet {
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
         String baseUrl = request.getContextPath() + request.getServletPath();
         HashMap jspData = (HashMap) request.getAttribute("JspData");
-        if (loginAdmin == BoxCommonData.ROOT_ADMIN_ID ) {
+        if (loginAdmin == BoxCommonData.ROOT_ADMIN_ID) {
             HashMap reqData = Tools.replaceTags(getRequestParameters(request));
             String password = Tools.getStringValue(reqData.get("password"), "");
             int ldapAuth = Tools.parseInt(reqData.get("auth_via_ldap"), 0) == 1 ? 1 : 0;
             if (reqData.containsKey("ADD_ME") && Tools.parseInt(reqData.get("ADD_ME"), -1) > 0 && Tools.getStringValue(reqData.get("login"), "").trim().length() > 3 && (password.trim().length() > 3 || ldapAuth == 1)) {
                 try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                    String phone = Tools.unmaskPhone(Tools.getStringValue(reqData.get("phone_number"), ""));
                     String salt = getSalt();
                     MessageDigest digest = MessageDigest.getInstance("SHA-256");
                     byte[] hash = digest.digest((password + ":" + salt).getBytes("UTF-8"));
                     String saltedHash = DatatypeConverter.printHexBinary(hash);
+                    reqData.put("phone_number", phone);
                     reqData.put("salt", salt);
                     reqData.put("hash", saltedHash);
                     reqData.put("status", 1);
@@ -331,27 +417,21 @@ public class PiServlet extends HttpServlet {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } else {
-                List<HashMap> admList = new ArrayList<>();
-                try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                    String appListSQL = "select * from admins\n"
-                            + "order by admin_id";
-                    admList = DBSelect.getRows(appListSQL, conn);
-                    jspData.put("ADM_LIST", admList);
-                    jspData.put("head_url", "addadm");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/admins.jsp");
-                request.setAttribute("JspData", jspData);
-                disp.include(request, response);
             }
-        } else {
-            RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/admins.jsp");
-            jspData.put("NOT_ROOT_ADMIN", 1);
-            request.setAttribute("JspData", jspData);
-            disp.include(request, response);
         }
+        List<HashMap> admList = new ArrayList<>();
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            String appListSQL = "select * from admins\n"
+                    + "order by admin_id";
+            admList = DBSelect.getRows(appListSQL, conn);
+            jspData.put("ADM_LIST", admList);
+            jspData.put("head_url", "addadm");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        RequestDispatcher disp = request.getSession().getServletContext().getRequestDispatcher("/jsp/admins.jsp");
+        request.setAttribute("JspData", jspData);
+        disp.include(request, response);
     }
 
     private void addApp(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -524,36 +604,55 @@ public class PiServlet extends HttpServlet {
 
     }
 
-    private void changePassw(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private void updAdmin(HttpServletRequest request, HttpServletResponse response) throws Exception {
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
         String baseUrl = request.getContextPath() + request.getServletPath();
         HashMap reqData = Tools.replaceTags(getRequestParameters(request));
         int targetAdminId = Tools.parseInt(reqData.get("TARGET_ADMIN_ID"), -1);
         String password = Tools.getStringValue(reqData.get("password"), "");
+        String phone = Tools.unmaskPhone(Tools.getStringValue(reqData.get("phone_number"), ""));
         int ldapAuth = Tools.parseInt(reqData.get("auth_via_ldap"), 0) == 1 ? 1 : 0;
-        if ((loginAdmin == BoxCommonData.ROOT_ADMIN_ID || loginAdmin == targetAdminId) && (password.trim().length() > 5 || ldapAuth == 1)) { // меняем пароль, если сидим по root'ом или если id залогиненого админа совпадает  с id целевого админа для изменения пароля
-            try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+        if (loginAdmin == BoxCommonData.ROOT_ADMIN_ID || loginAdmin == targetAdminId) { // меняем пароль или телефон, если сидим по root'ом или если id залогиненого админа совпадает  с id целевого админа для изменения пароля
+            if (password.trim().length() > 5 || ldapAuth == 1) { //проверка длины
+                try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
 
-                String salt = getSalt();
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                byte[] hash = digest.digest((password + ":" + salt).getBytes("UTF-8"));
-                String saltedHash = DatatypeConverter.printHexBinary(hash);
-                if (targetAdminId > 0) {
-                    reqData.put("salt", salt);
-                    reqData.put("hash", saltedHash);
-                    reqData.put("admin_id", targetAdminId);
-                    reqData.put("auth_via_ldap", ldapAuth);
-                    DBTools.updateRow("admins", reqData, conn);
+                    String salt = getSalt();
+                    HashMap dbMap = new HashMap();
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    byte[] hash = digest.digest((password + ":" + salt).getBytes("UTF-8"));
+                    String saltedHash = DatatypeConverter.printHexBinary(hash);
+                    if (targetAdminId > 0) {
+                        dbMap.put("admin_id", targetAdminId);
+                        dbMap.put("phone_number", phone);
+                        dbMap.put("salt", salt);
+                        dbMap.put("hash", saltedHash);
+
+                        dbMap.put("auth_via_ldap", ldapAuth);
+                        DBTools.updateRow("admins", dbMap, conn);
+                    }
+                    request.getSession().setAttribute("PASS_CHANGED", 1);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                request.getSession().setAttribute("PASS_CHANGED", 1);
+            }
+
+            try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                HashMap dbMap = new HashMap();
+                if (targetAdminId > 0) {
+                    dbMap.put("admin_id", targetAdminId);
+                    dbMap.put("phone_number", phone);
+                    dbMap.put("auth_via_ldap", ldapAuth);
+                    DBTools.updateRow("admins", dbMap, conn);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            response.sendRedirect(baseUrl + "/addadm");
+
         } else {
             request.getSession().setAttribute("ACCESS_ERROR", 1);
-            response.sendRedirect(baseUrl + "/addadm");
+
         }
+        response.sendRedirect(baseUrl + "/addadm");
     }
 
     private void showMainPage(HttpServletRequest request, HttpServletResponse response) throws Exception {

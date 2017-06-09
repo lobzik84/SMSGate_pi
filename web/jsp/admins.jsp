@@ -74,7 +74,7 @@
                 <td class="form_hide-assist">
                     <p class="form_hide"><%= phone%></p>
                     <div class="form_hide-table none">
-                        <input type="text" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" value="<%= phone%>">
+                        <input type="text" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" name="phone_number" value="<%= phone%>">
                         <div class="va-t wp-240 inline-b">
                             <input class='va-m auth_rtrn' type="checkbox" value="1" name="auth_via_ldap" <%=auth_via_ldap%>/>
                             <label class='label__sub'>Доменная авторизация РТРС</label>
@@ -144,15 +144,28 @@
         </table>
     </div>
 
-    <%} else {%>
+    <%} else {
+        String phone = "";
+        String auth_via_ldap = "";
+        for (HashMap hm : admList) {
+
+            //String login = Tools.getStringValue(hm.get("login"), "");
+            phone = Tools.maskPhone(Tools.getStringValue(hm.get("phone_number"), ""), BoxCommonData.PHONE_MASK);
+            //int status = Tools.parseInt(hm.get("status"), -1);
+            auth_via_ldap = (Tools.parseInt(hm.get("auth_via_ldap"), -1) == 1) ? "checked" : "";
+            if (Tools.parseInt(hm.get("admin_id"), -1) == adminId) {
+                break;
+            }
+        }
+    %>
 
     <p class="label_wrong">Только root администратор может добавлять новых администраторов!</p>
 
     <p class="label mt-30">Вы можете изменить свои данные:</p>
 
     <form id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
-
-        <input class='va-m auth_rtrn' checked type="checkbox" value="1" name="auth_via_ldap" />
+        Телефон <input type="text" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" name="phone_number" value="<%=phone%>"><br>
+        <input class='va-m auth_rtrn' <%=auth_via_ldap%> type="checkbox" name="auth_via_ldap" />
         <label class='label__sub'>Доменная авторизация РТРС</label>
 
         <input hidden type="text" name="TARGET_ADMIN_ID" value="<%=adminId%>"/>

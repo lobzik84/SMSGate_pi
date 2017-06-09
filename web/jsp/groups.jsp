@@ -41,19 +41,21 @@
             </thead>
             <tbody>
                 <%for (HashMap hm : groups) {
+                    int grId= Tools.parseInt(hm.get("id"), -1);
                 %>
-            <form id="" action="">
-                <td class="ta-c"><%= Tools.parseInt(hm.get("id"), -1)%></td>
+            <form action="<%= baseUrl + "editgroup"%>" method="post">
+                <input type="hidden" name="id" value="<%=grId%>" />
+                <td class="ta-c"><%= grId%></td>
                 <td id="" class="form_hide-assist">
                     <p class="form_hide"><%= Tools.getStringValue(hm.get("group_name"), "")%></p>
                     <div class="form_hide-table none">
-                        <input type="text" class="wp-170 mr-15 inline-b" value="<%= Tools.getStringValue(hm.get("group_name"), "")%>">
+                        <input type="text" class="wp-170 mr-15 inline-b" name="group_name" value="<%= Tools.getStringValue(hm.get("group_name"), "")%>">
                     </div>
                 </td>
                 <td class="form_hide-assist">
                     <p class="form_hide"><%= Tools.getStringValue(hm.get("description"), "")%></p>
                     <div class="form_hide-table none">
-                        <textarea name="" id="" cols="30" rows="10"><%= Tools.getStringValue(hm.get("description"), "")%></textarea>
+                        <textarea name="description" id="" cols="30" rows="10"><%= Tools.getStringValue(hm.get("description"), "")%></textarea>
                     </div>
                 </td>
                 <td class="ta-c btn_hide-parent">
@@ -65,7 +67,7 @@
                     </div>
                 </td>
                 <td class="ta-c">
-                    <a class="btn_delete" onclick="return confirm('Удалить?');" href="#"></a>
+                    <a class="btn_delete" onclick="return confirm('Удалить?');" href="<%= baseUrl + "delgroup?id=" + grId%>"></a>
                 </td>
             </form>
             </tr>
@@ -73,16 +75,16 @@
 
 
             <tr>
-            <form class="form_hide none" action="" method="post">
+            <form class="form_hide none" action="<%= baseUrl + "addgroup"%>" method="post">
                 <td class="ta-c"></td>
                 <td>
                     <div class="btn_add_mech none">
-                        <input class="wp-170 auth_rtrn_checkValue" type="text" name="login" />
+                        <input class="wp-170 auth_rtrn_checkValue" type="text" name="group_name" />
                     </div>
                 </td>
                 <td>
                     <div class="btn_add_mech w-100 none">
-                        <textarea name="" id="" cols="30" rows="10"></textarea>
+                        <textarea name="description" id="" cols="30" rows="10"></textarea>
                     </div>
                 </td>
                 <td></td>
