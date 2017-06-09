@@ -9,9 +9,9 @@
         return;
     }
     String baseUrl = request.getContextPath() + request.getServletPath() + "/";
-    
+
     ArrayList<HashMap> groups = new ArrayList();
-    
+
     if (JspData != null) {
         groups = (ArrayList<HashMap>) Tools.isNull(JspData.get("GROUPS"), new ArrayList());
     }
@@ -42,37 +42,18 @@
             <tbody>
                 <%for (HashMap hm : groups) {
                 %>
-                <tr>
-                    <td class="ta-c"><%= Tools.parseInt(hm.get("id"), -1)%></td>
-                    <td>
-                        <%= Tools.getStringValue(hm.get("name"), "")%>
-                    </td>
-                    <td>
-                        <%= Tools.getStringValue(hm.get("description"), "")%>
-                    </td>
-                    <td class="ta-c">
-                        <input class="btn_hide-table icon icon-edit js-tooltip" title="Редактировать" type="submit" value=""/>
-                        <a class="btn_delete" onclick="return confirm('Удалить группу?');" href="<%= baseUrl + "dogroup?removeGrp=1&id=" + hm.get("id")%>"></a>
-                    </td>
-                </tr>
-                <%}%>
-
-
-                <!--hardcode-->
-
-                <tr>
             <form id="" action="">
-                <td class="ta-c">23</td>
+                <td class="ta-c"><%= Tools.parseInt(hm.get("id"), -1)%></td>
                 <td id="" class="form_hide-assist">
-                    <p class="form_hide">Group1</p>
+                    <p class="form_hide"><%= Tools.getStringValue(hm.get("group_name"), "")%></p>
                     <div class="form_hide-table none">
-                        <input type="text" class="wp-170 mr-15 inline-b" value="Group1">
+                        <input type="text" class="wp-170 mr-15 inline-b" value="<%= Tools.getStringValue(hm.get("group_name"), "")%>">
                     </div>
                 </td>
                 <td class="form_hide-assist">
-                    <p class="form_hide">Тестовая группа</p>
+                    <p class="form_hide"><%= Tools.getStringValue(hm.get("description"), "")%></p>
                     <div class="form_hide-table none">
-                        <textarea name="" id="" cols="30" rows="10">Тестовая группа</textarea>
+                        <textarea name="" id="" cols="30" rows="10"><%= Tools.getStringValue(hm.get("description"), "")%></textarea>
                     </div>
                 </td>
                 <td class="ta-c btn_hide-parent">
@@ -88,8 +69,8 @@
                 </td>
             </form>
             </tr>
+            <%}%>
 
-            <!--hardcode end-->
 
             <tr>
             <form class="form_hide none" action="" method="post">

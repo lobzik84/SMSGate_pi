@@ -203,7 +203,10 @@ public class PiServlet extends HttpServlet {
             List<HashMap> groups = DBSelect.getRows(sSQL, conn);
             jspData.put("GROUPS", groups);
 
-            sSQL = "select * from group_recipients where admin_id=" + loginAdmin;
+            sSQL = "select g_rp.id id, g_rp.group_id group_id, g_rp.number number, g_rp.name, gr.group_name "
+                    + " from group_recipients g_rp "
+                    + " left join groups gr on gr.id = g_rp.group_id "
+                    + " where g_rp.admin_id=" + loginAdmin;
             List<HashMap> rcpnts = DBSelect.getRows(sSQL, conn);
             jspData.put("RCPNTS", rcpnts);
         }
@@ -299,7 +302,7 @@ public class PiServlet extends HttpServlet {
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
         String baseUrl = request.getContextPath() + request.getServletPath();
         HashMap jspData = (HashMap) request.getAttribute("JspData");
-        if (loginAdmin == 1) {
+        if (loginAdmin == BoxCommonData.ROOT_ADMIN_ID ) {
             HashMap reqData = Tools.replaceTags(getRequestParameters(request));
             String password = Tools.getStringValue(reqData.get("password"), "");
             int ldapAuth = Tools.parseInt(reqData.get("auth_via_ldap"), 0) == 1 ? 1 : 0;
@@ -402,7 +405,7 @@ public class PiServlet extends HttpServlet {
         String recipient = Tools.getStringValue(request.getParameter("recipient"), "");
         sms = Tools.replaceTags(sms);
         recipient = Tools.replaceTags(recipient);
-        recipient = recipient.replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("\\-", "").replaceAll(" ", "");
+        recipient = Tools.unmaskPhone(recipient);
         if (request.getMethod().equalsIgnoreCase("POST") && sms.trim().length() > 0 && recipient.trim().length() > 0) {
 
             HashMap data = new HashMap();
@@ -528,7 +531,7 @@ public class PiServlet extends HttpServlet {
         int targetAdminId = Tools.parseInt(reqData.get("TARGET_ADMIN_ID"), -1);
         String password = Tools.getStringValue(reqData.get("password"), "");
         int ldapAuth = Tools.parseInt(reqData.get("auth_via_ldap"), 0) == 1 ? 1 : 0;
-        if (loginAdmin == 1 || loginAdmin == targetAdminId && (password.trim().length() > 3 || ldapAuth == 1)) { // меняем пароль, если сидим по root'ом или если id залогиненого админа совпадает  с id целевого админа для изменения пароля
+        if ((loginAdmin == BoxCommonData.ROOT_ADMIN_ID || loginAdmin == targetAdminId) && (password.trim().length() > 5 || ldapAuth == 1)) { // меняем пароль, если сидим по root'ом или если id залогиненого админа совпадает  с id целевого админа для изменения пароля
             try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
 
                 String salt = getSalt();

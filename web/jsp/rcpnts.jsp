@@ -1,3 +1,4 @@
+<%@page import="org.lobzik.smspi.pi.BoxCommonData"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="org.lobzik.tools.Tools"%>
@@ -45,59 +46,38 @@
             </thead>
             <tbody>
                 <%for (HashMap hm : rcpnts) {
+                    String number = Tools.maskPhone(Tools.getStringValue(hm.get("number"), ""), BoxCommonData.PHONE_MASK);
                 %>
                 <tr>
-                    <td class="ta-c"><%= Tools.parseInt(hm.get("id"), -1)%></td>
-                    <td id="rc_num_<%= Tools.parseInt(hm.get("id"), -1)%>">
-                        <%= Tools.getStringValue(hm.get("number"), "")%>
-                    </td>
-                    <td>
-                        <%= Tools.getStringValue(hm.get("name"), "")%>
-                    </td>
-                    <td>
-                        <select name="group_id">
-                            <option value="">---></option>
+            <form id="" action="">
+                <td class="ta-c"><%= Tools.parseInt(hm.get("id"), -1)%></td>
+                <td id="rc_num_<%= Tools.parseInt(hm.get("id"), -1)%>" class="form_hide-assist">
+                    <p class="form_hide"> <%=number%></p>
+                    <div class="form_hide-table none">
+                        <input type="text" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" value=" <%= number%>">
+                    </div>
+                </td>
+                <td class="form_hide-assist">
+                    <p class="form_hide"><%= Tools.getStringValue(hm.get("name"), "")%></p>
+                    <div class="form_hide-table none">
+                        <input type="text" class="wp-170 mr-15 inline-b" value="<%= Tools.getStringValue(hm.get("name"), "")%>">
+                    </div>
+                </td>
+                <td class="form_hide-assist">
+                    <p class="form_hide"><%= Tools.getStringValue(hm.get("group_name"), "")%></p>
+                    <div class="form_hide-table none">
+                        <select class="select wp-100" name="group_id">
+                            <option value="">---</option>
                             <%for (HashMap gr : groups) {
                                     String selected = "";
                                     if (Tools.parseInt(gr.get("id"), 0) == Tools.parseInt(hm.get("group_id"), 0)) {
                                         selected = "selected";
                                     }
                             %>                
-                            <option value="<%= Tools.parseInt(gr.get("id"), 0)%>" <%=selected%>><%= Tools.getStringValue(gr.get("name"), "")%></option>
+                            <option value="<%= Tools.parseInt(gr.get("id"), 0)%>" <%=selected%>><%= Tools.getStringValue(gr.get("group_name"), "")%></option>
                             <%}%>
                         </select>
-                    </td>
-                    <td class="ta-c">
-                        <input class="btn_hide-table icon icon-edit js-tooltip" title="Редактировать" type="submit" value=""/>
-                        <a class="btn_delete" onclick="return confirm('Удалить получателя?');" href="<%= baseUrl + "dogroup?removeGrp=1&id=" + hm.get("id")%>"></a>
-                    </td>
-                </tr>
-                <%}%>
 
-                <!--hardcode-->
-
-                <tr>
-            <form id="" action="">
-                <td class="ta-c">23</td>
-                <td id="" class="form_hide-assist">
-                    <p class="form_hide">+79253584839</p>
-                    <div class="form_hide-table none">
-                        <input type="text" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" value="+79253584839">
-                    </div>
-                </td>
-                <td class="form_hide-assist">
-                    <p class="form_hide">Людвиг Аристархович</p>
-                    <div class="form_hide-table none">
-                        <input type="text" class="wp-170 mr-15 inline-b" value="Людвиг Аристархович">
-                    </div>
-                </td>
-                <td class="form_hide-assist">
-                    <p class="form_hide">545</p>
-                    <div class="form_hide-table none">
-                        <select class="select wp-100" name="group_id">
-                            <option value="" >545</option>
-                            <option value="" >78789</option>
-                        </select>
                     </div>
                 </td>
                 <td class="ta-c btn_hide-parent">
@@ -113,7 +93,7 @@
                 </td>
             </form>
             </tr>
-
+            <%}%>
             <!--hardcode end-->
 
             <tr>

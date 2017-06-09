@@ -1,3 +1,4 @@
+<%@page import="org.lobzik.smspi.pi.BoxCommonData"%>
 <%@page import="org.lobzik.smspi.pi.MessageStatus"%>
 <%@page import="org.lobzik.smspi.pi.modules.ModemModule"%>
 <%@page import="java.util.ArrayList"%>
@@ -72,7 +73,7 @@
             <%for (HashMap hm : msgsList) {
                     int id = Tools.parseInt(hm.get("id"), -1);
                     String curMessage = Tools.getStringValue(hm.get("message"), "");
-                    String curTelNo = Tools.getStringValue(hm.get("tel_no"), "");
+                    String curTelNo = Tools.maskPhone(Tools.getStringValue(hm.get("tel_no"), ""), BoxCommonData.PHONE_MASK);
                     if (hm.get("name") != null) {curTelNo = hm.get("name") + " &#10148; " + curTelNo;}
                     else if (hm.get("login") != null) {curTelNo = hm.get("login") + " &#10148; " + curTelNo;}
                     else if ("outbox".equals(hm.get("type")) ){curTelNo = "smsity &#10148; " + curTelNo;}

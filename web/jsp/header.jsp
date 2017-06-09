@@ -1,3 +1,4 @@
+<%@page import="org.lobzik.smspi.pi.BoxCommonData"%>
 <%@page import="org.lobzik.tools.Tools"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <jsp:useBean id="JspData" class="java.util.HashMap" scope="request"/>
@@ -28,7 +29,7 @@
 
                 <div class="header__right">
                     <div class="header__user">
-                        <div class="header__user_root <%= adminId == 1 ? "header__user_root_on" : ""%>"></div>
+                        <div class="header__user_root <%= adminId == BoxCommonData.ROOT_ADMIN_ID  ? "header__user_root_on" : ""%>"></div>
                         <p class="header__user_id"><%= adminLogin%></p>
                         <a class="header__user_logout" href="<%= baseUrl + "logout"%>"></a>
                     </div>

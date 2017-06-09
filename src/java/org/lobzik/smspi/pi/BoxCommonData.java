@@ -20,8 +20,8 @@ public class BoxCommonData {
     public static final String SERIAL_PORT = "/dev/ttyS0";
     public static final BigInteger RSA_E = new BigInteger("65537");
     public static final boolean ON_PI = System.getProperty("os.arch").equalsIgnoreCase("arm");
-
-    
+    public static final int ROOT_ADMIN_ID = 1;
+    public static final String PHONE_MASK = "+7 (___) ___-__-__";
     private BoxCommonData() {
     }
 

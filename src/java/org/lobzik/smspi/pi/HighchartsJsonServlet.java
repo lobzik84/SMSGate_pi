@@ -157,7 +157,7 @@ public class HighchartsJsonServlet extends HttpServlet {
                     + "    so.id, \n"
                     + "    coalesce (so.date_sent, \"01.03.2017 01:00:00\") as sent_date , \n"
                     + "    coalesce (a.admin_id,u.id, -2) as sender_id, \n"
-                    + "    coalesce (a.login, u.name, \"Local\" ) as sender_name \n"
+                    + "    coalesce (a.login, u.name, \"smsity\" ) as sender_name \n"
                     + "from sms_outbox so\n"
                     + "left join admins a on a.admin_id = so.admin_id\n"
                     + "left join users u on u.id = so.user_id\n"

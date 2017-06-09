@@ -1,3 +1,4 @@
+<%@page import="org.lobzik.smspi.pi.BoxCommonData"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="org.lobzik.tools.Tools"%>
@@ -11,11 +12,10 @@
     String baseUrl = request.getContextPath() + request.getServletPath() + "/";
 
     ArrayList<HashMap> admList = new ArrayList<HashMap>();
-    boolean isRoot = true;
+    boolean isRoot = (adminId == BoxCommonData.ROOT_ADMIN_ID);
     boolean isPassChanged = false;
     boolean isAccessError = false;
     if (JspData != null) {
-        isRoot = Tools.parseInt(JspData.get("NOT_ROOT_ADMIN"), -1) < 0;
         admList = (ArrayList<HashMap>) Tools.isNull(JspData.get("ADM_LIST"), new ArrayList<HashMap>());
         if (Tools.parseInt(request.getSession().getAttribute("PASS_CHANGED"), -1) > 0) {
             isPassChanged = true;
@@ -34,9 +34,9 @@
 
         <p class="title">Учетные записи, допущенные к администрированию службы коротких сообщений</p>
         <%if (isPassChanged) {%>
-        <p class="title mt-15">Пароль успешно изменён!</p>
+        <p class="title mt-15">Данные изменены!</p>
         <%} else if (isAccessError) {%>
-        <h2>Вы можете изменить только свой пароль. Изменять пароль других администроторов может только root администратор</h2>
+        <h2>Вы можете изменить только свои данные. Изменять данные других администраторов может только root администратор</h2>
         <%}%>
         <%if (isRoot) {%>
 
@@ -61,7 +61,7 @@
                 <%for (HashMap hm : admList) {
                         int id = Tools.parseInt(hm.get("admin_id"), -1);
                         String login = Tools.getStringValue(hm.get("login"), "");
-                        String phone = Tools.getStringValue(hm.get("phone_number"), "");
+                        String phone = Tools.maskPhone(Tools.getStringValue(hm.get("phone_number"), ""), BoxCommonData.PHONE_MASK);
                         int status = Tools.parseInt(hm.get("status"), -1);
                         String auth_via_ldap = (Tools.parseInt(hm.get("auth_via_ldap"), -1) == 1) ? "checked" : "";
                 %>
@@ -83,6 +83,7 @@
                                 <label class="icon icon-genPass js-tooltip va-m" title="Сгенерировать пароль" onclick="generatePass('#admin_pass_<%=id%>')"></label>
                                 <input id="admin_pass_<%=id%>" class="wp-170 js-tooltip mb-5" title="Пароль не должен содержать символы &quot;, ', <, >," type="text" name="password" placeholder="Пароль"/>
                             </div>
+
                         </div>
                     </div>
                 </td>
@@ -147,7 +148,7 @@
 
     <p class="label_wrong">Только root администратор может добавлять новых администраторов!</p>
 
-    <p class="label mt-30">Вы можете изменить свой пароль:</p>
+    <p class="label mt-30">Вы можете изменить свои данные:</p>
 
     <form id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
 
