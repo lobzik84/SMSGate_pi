@@ -46,15 +46,17 @@
             </thead>
             <tbody>
                 <%for (HashMap hm : rcpnts) {
+                    int rcId= Tools.parseInt(hm.get("id"), -1);
                     String number = Tools.maskPhone(Tools.getStringValue(hm.get("number"), ""), BoxCommonData.PHONE_MASK);
                 %>
                 <tr>
-            <form id="" action="">
-                <td class="ta-c"><%= Tools.parseInt(hm.get("id"), -1)%></td>
-                <td id="rc_num_<%= Tools.parseInt(hm.get("id"), -1)%>" class="form_hide-assist">
+            <form action="<%= baseUrl + "editrcpnt"%>" method="post">
+                <input type="hidden" name="id" value="<%=rcId%>" />
+                <td class="ta-c"><%=rcId%></td>
+                <td id="rc_num_<%=rcId%>" class="form_hide-assist">
                     <p class="form_hide"> <%=number%></p>
                     <div class="form_hide-table none">
-                        <input type="text" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" value=" <%= number%>">
+                        <input type="text" name="number" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" value="<%= number%>">
                     </div>
                 </td>
                 <td class="form_hide-assist">
@@ -89,32 +91,33 @@
                     </div>
                 </td>
                 <td class="ta-c">
-                    <a class="btn_delete" onclick="return confirm('Удалить?');" href="#"></a>
+                    <a class="btn_delete" onclick="return confirm('Удалить?');" href="<%= baseUrl + "delrcpnt?id=" + rcId%>"></a>
                 </td>
             </form>
             </tr>
             <%}%>
-            <!--hardcode end-->
 
             <tr>
-            <form class="form_hide none" action="" method="post">
+            <form class="form_hide none" action="<%= baseUrl + "addrcpnt"%>" method="post">
                 <td class="ta-c"></td>
                 <td>
                     <div class="btn_add_mech none">
-                        <input class="wp-170 phone__mask auth_rtrn_checkValue" placeholder="+7 (___) ___-__-__" type="text" name="" />
+                        <input class="wp-170 phone__mask auth_rtrn_checkValue" placeholder="+7 (___) ___-__-__" type="text" name="number" />
                     </div>
                 </td>
                 <td>
                     <div class="btn_add_mech none">
-                        <input class="wp-170 auth_rtrn_checkValue" type="text" name="" />
+                        <input class="wp-170 auth_rtrn_checkValue" type="text" name="name" />
                     </div>
                 </td>
                 <td>
                     <div class="btn_add_mech none">
                         <select class="select wp-100" name="group_id">
-                            <option value="1">----></option>
-                            <option value="2">123</option>
-                            <option value="2">321</option>
+                            <option value="">---</option>
+                            <%for (HashMap gr : groups) {
+                            %>                
+                            <option value="<%= Tools.parseInt(gr.get("id"), 0)%>" ><%= Tools.getStringValue(gr.get("group_name"), "")%></option>
+                            <%}%>
                         </select>
                     </div>
                 </td>

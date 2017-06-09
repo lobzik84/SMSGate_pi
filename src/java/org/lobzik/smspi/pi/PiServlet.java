@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -76,7 +75,7 @@ public class PiServlet extends HttpServlet {
             switch (localPathInfo) {
                 case "login":
                     if (loginAdmin < 0) {
-                        loginAdmin = loginAdmin(request, response);
+                        loginAdmin(request, response);
                     } else {
                         log.info("Session is alive for admin: " + loginAdmin);
                         response.sendRedirect(baseUrl + "/main");
@@ -91,6 +90,7 @@ public class PiServlet extends HttpServlet {
 
                 default:
                     if (loginAdmin > 0) {
+                        jspData.put("head_url", localPathInfo);
                         switch (localPathInfo) {
 
                             case "main":
@@ -206,7 +206,6 @@ public class PiServlet extends HttpServlet {
 
     private void doGroups(HttpServletRequest request, HttpServletResponse response) throws Exception {
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
-        String baseUrl = request.getContextPath() + request.getServletPath();
         HashMap jspData = (HashMap) request.getAttribute("JspData");
         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
             String sSQL = "select * from groups where admin_id=" + loginAdmin;
@@ -235,7 +234,7 @@ public class PiServlet extends HttpServlet {
         HashMap reqData = Tools.replaceTags(getRequestParameters(request));
         int groupId = Tools.parseInt(reqData.get("id"), -1);
         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-            String sSQL = "select id from groups where id=" + groupId + " and admin_id="+loginAdmin;
+            String sSQL = "select id from groups where id=" + groupId + " and admin_id=" + loginAdmin;
             if (DBSelect.getRows(sSQL, conn).size() > 0) {
                 DBTools.updateRow("groups", reqData, conn);
             }
@@ -259,7 +258,6 @@ public class PiServlet extends HttpServlet {
 
     private void doRcpnts(HttpServletRequest request, HttpServletResponse response) throws Exception {
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
-        String baseUrl = request.getContextPath() + request.getServletPath();
         HashMap jspData = (HashMap) request.getAttribute("JspData");
         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
             String sSQL = "select * from groups where admin_id=" + loginAdmin;
@@ -281,21 +279,43 @@ public class PiServlet extends HttpServlet {
     private void addRcpnt(HttpServletRequest request, HttpServletResponse response) throws Exception {
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
         String baseUrl = request.getContextPath() + request.getServletPath();
-
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            HashMap reqData = Tools.replaceTags(getRequestParameters(request));
+            reqData.put("admin_id", loginAdmin);
+            String number = Tools.unmaskPhone(Tools.getStringValue(reqData.get("number"), ""));
+            reqData.put("number", number);
+            DBTools.insertRow("group_recipients", reqData, conn);
+        }
         response.sendRedirect(baseUrl + "/rcpnts");
     }
 
     private void editRcpnt(HttpServletRequest request, HttpServletResponse response) throws Exception {
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
         String baseUrl = request.getContextPath() + request.getServletPath();
-
+        HashMap reqData = Tools.replaceTags(getRequestParameters(request));
+        int rcpntId = Tools.parseInt(reqData.get("id"), -1);
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            String sSQL = "select id from group_recipients where id=" + rcpntId + " and admin_id=" + loginAdmin;
+            if (DBSelect.getRows(sSQL, conn).size() > 0) {
+                String number = Tools.unmaskPhone(Tools.getStringValue(reqData.get("number"), ""));
+                reqData.put("number", number);
+                DBTools.updateRow("group_recipients", reqData, conn);
+            }
+        }
         response.sendRedirect(baseUrl + "/rcpnts");
     }
 
     private void deleteRcpnt(HttpServletRequest request, HttpServletResponse response) throws Exception {
         int loginAdmin = Tools.parseInt(request.getSession().getAttribute("AdminID"), -1);
         String baseUrl = request.getContextPath() + request.getServletPath();
-
+        HashMap reqData = Tools.replaceTags(getRequestParameters(request));
+        int removeId = Tools.parseInt(reqData.get("id"), -1);
+        if (removeId < 0) {
+            return;
+        }
+        try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+            DBSelect.executeStatement("delete from group_recipients where id=" + removeId + " and admin_id=" + loginAdmin, null, conn);
+        }
         response.sendRedirect(baseUrl + "/rcpnts");
     }
 
@@ -350,13 +370,12 @@ public class PiServlet extends HttpServlet {
 
             jspData.put("FILTER_LIST", filterList);
 
-            List<HashMap> msgsList = new ArrayList<>();
             try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
 
                 msgsListSQL += whereString + "\n" + "order by a.date desc\n";
-                msgsList = DBSelect.getRows(msgsListSQL, args, conn);
+                List<HashMap> msgsList = DBSelect.getRows(msgsListSQL, args, conn);
                 jspData.put("MSGS_LIST", msgsList);
-                jspData.put("head_url", "msgs");
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -365,13 +384,11 @@ public class PiServlet extends HttpServlet {
             disp.include(request, response);
 
         } else {
-            List<HashMap> msgsList = new ArrayList<>();
             try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
                 msgsListSQL += "order by a.date desc\n"
                         + "limit 200";
-                msgsList = DBSelect.getRows(msgsListSQL, conn);
+                List<HashMap> msgsList = DBSelect.getRows(msgsListSQL, conn);
                 jspData.put("MSGS_LIST", msgsList);
-                jspData.put("head_url", "msgs");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -402,7 +419,7 @@ public class PiServlet extends HttpServlet {
                     reqData.put("hash", saltedHash);
                     reqData.put("status", 1);
                     reqData.put("auth_via_ldap", ldapAuth);
-                    int newAdminId = DBTools.insertRow("admins", reqData, conn);
+                    DBTools.insertRow("admins", reqData, conn);
                     response.sendRedirect(baseUrl + "/addadm");
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -419,13 +436,11 @@ public class PiServlet extends HttpServlet {
                 }
             }
         }
-        List<HashMap> admList = new ArrayList<>();
         try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
             String appListSQL = "select * from admins\n"
                     + "order by admin_id";
-            admList = DBSelect.getRows(appListSQL, conn);
+            List<HashMap> admList = DBSelect.getRows(appListSQL, conn);
             jspData.put("ADM_LIST", admList);
-            jspData.put("head_url", "addadm");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -462,13 +477,11 @@ public class PiServlet extends HttpServlet {
                 e.printStackTrace();
             }
         } else {
-            List<HashMap> appList = new ArrayList<>();
             try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
                 String appListSQL = "select * from users\n"
                         + "order by id";
-                appList = DBSelect.getRows(appListSQL, conn);
+                List<HashMap> appList = DBSelect.getRows(appListSQL, conn);
                 jspData.put("APP_LIST", appList);
-                jspData.put("head_url", "addapp");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -495,15 +508,12 @@ public class PiServlet extends HttpServlet {
             data.put("recipient", recipient);
             data.put("date", new Date());
             data.put("status", MessageStatus.STATUS_NEW);
-            try {
-                try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
-                    int msgId = DBTools.insertRow("sms_outbox", data, conn);
-                    log.info("New SMS id=" + msgId + " from admin id=" + loginAdmin);
-                    Event e = new Event("check_outbox", null, Event.Type.USER_ACTION);
-                    AppData.eventManager.newEvent(e);
-                }
-            } catch (Exception e) {
-                log.error(e.getMessage());
+
+            try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                int msgId = DBTools.insertRow("sms_outbox", data, conn);
+                log.info("New SMS id=" + msgId + " from admin id=" + loginAdmin);
+                Event e = new Event("check_outbox", null, Event.Type.USER_ACTION);
+                AppData.eventManager.newEvent(e);
             }
 
             response.sendRedirect(baseUrl + "/main");
@@ -677,7 +687,6 @@ public class PiServlet extends HttpServlet {
                     + "limit 100";
             List<HashMap> logData = DBSelect.getRows(logSql, null, conn);
             jspData.put("logData", logData);
-            jspData.put("head_url", "main");
             String messageListSql = "select a.*, u.name from \n"
                     + "(select si.id, si.message, si.sender as tel_no, 'inbox' as type, si.date, si.status, null as user_id from sms_inbox si\n"
                     + "union \n"
