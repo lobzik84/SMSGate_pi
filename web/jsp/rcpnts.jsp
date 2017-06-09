@@ -62,7 +62,7 @@
                 <td class="form_hide-assist">
                     <p class="form_hide"><%= Tools.getStringValue(hm.get("name"), "")%></p>
                     <div class="form_hide-table none">
-                        <input type="text" class="wp-170 mr-15 inline-b" value="<%= Tools.getStringValue(hm.get("name"), "")%>">
+                        <input type="text" class="wp-170 mr-15 inline-b" name="name" value="<%= Tools.getStringValue(hm.get("name"), "")%>">
                     </div>
                 </td>
                 <td class="form_hide-assist">
