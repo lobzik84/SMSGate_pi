@@ -41,7 +41,7 @@
             </thead>
             <tbody>
                 <%for (HashMap hm : groups) {
-                    int grId= Tools.parseInt(hm.get("id"), -1);
+                        int grId = Tools.parseInt(hm.get("id"), -1);
                 %>
             <form action="<%= baseUrl + "editgroup"%>" method="post">
                 <input type="hidden" name="id" value="<%=grId%>" />
@@ -58,13 +58,13 @@
                         <textarea name="description" id="" cols="30" rows="10"><%= Tools.getStringValue(hm.get("description"), "")%></textarea>
                     </div>
                 </td>
-                <td class="ta-c btn_hide-parent">
-                    <div class="btn_hide-table va-m icon icon-edit js-tooltip inline-b" title="Редактировать"></div>
-                </td>
                 <td class="ta-c btn_hide-save">
                     <div class="none">
                         <input class="icon icon-save js-tooltip va-m" title="Сохранить" type="submit" value="" name="submit" />
                     </div>
+                </td>
+                <td class="ta-c btn_hide-parent">
+                    <div class="btn_hide-table va-m icon icon-edit js-tooltip inline-b" title="Редактировать"></div>
                 </td>
                 <td class="ta-c">
                     <a class="btn_delete" onclick="return confirm('Удалить?');" href="<%= baseUrl + "delgroup?id=" + grId%>"></a>

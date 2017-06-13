@@ -46,8 +46,8 @@
             </thead>
             <tbody>
                 <%for (HashMap hm : rcpnts) {
-                    int rcId= Tools.parseInt(hm.get("id"), -1);
-                    String number = Tools.maskPhone(Tools.getStringValue(hm.get("number"), ""), BoxCommonData.PHONE_MASK);
+                        int rcId = Tools.parseInt(hm.get("id"), -1);
+                        String number = Tools.maskPhone(Tools.getStringValue(hm.get("number"), ""), BoxCommonData.PHONE_MASK);
                 %>
                 <tr>
             <form action="<%= baseUrl + "editrcpnt"%>" method="post">
@@ -79,16 +79,15 @@
                             <option value="<%= Tools.parseInt(gr.get("id"), 0)%>" <%=selected%>><%= Tools.getStringValue(gr.get("group_name"), "")%></option>
                             <%}%>
                         </select>
-
                     </div>
-                </td>
-                <td class="ta-c btn_hide-parent">
-                    <div class="btn_hide-table va-m icon icon-edit js-tooltip inline-b" title="Редактировать"></div>
                 </td>
                 <td class="ta-c btn_hide-save">
                     <div class="none">
                         <input class="icon icon-save js-tooltip va-m" title="Сохранить" type="submit" value="" name="submit" />
                     </div>
+                </td>
+                <td class="ta-c btn_hide-parent">
+                    <div class="btn_hide-table va-m icon icon-edit js-tooltip inline-b" title="Редактировать"></div>
                 </td>
                 <td class="ta-c">
                     <a class="btn_delete" onclick="return confirm('Удалить?');" href="<%= baseUrl + "delrcpnt?id=" + rcId%>"></a>
