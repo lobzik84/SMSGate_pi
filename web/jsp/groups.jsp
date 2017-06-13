@@ -20,7 +20,6 @@
 
 <div class="content__layout">
     <div class="content__table">
-
         <p class="title">Группы получателей рассылок коротких сообщений</p>
         <table class="table mt-20">
             <thead>
@@ -43,6 +42,7 @@
                 <%for (HashMap hm : groups) {
                         int grId = Tools.parseInt(hm.get("id"), -1);
                 %>
+                <tr>
             <form action="<%= baseUrl + "editgroup"%>" method="post">
                 <input type="hidden" name="id" value="<%=grId%>" />
                 <td class="ta-c"><%= grId%></td>
@@ -58,21 +58,21 @@
                         <textarea name="description" id="" cols="30" rows="10"><%= Tools.getStringValue(hm.get("description"), "")%></textarea>
                     </div>
                 </td>
-                <td class="ta-c btn_hide-save">
+                <td class="ta-c btn_hide-save wp-30">
                     <div class="none">
                         <input class="icon icon-save js-tooltip va-m" title="Сохранить" type="submit" value="" name="submit" />
                     </div>
                 </td>
-                <td class="ta-c btn_hide-parent">
+                <td class="ta-c btn_hide-parent wp-30">
                     <div class="btn_hide-table va-m icon icon-edit js-tooltip inline-b" title="Редактировать"></div>
                 </td>
-                <td class="ta-c">
+                <td class="ta-c wp-30">
                     <a class="btn_delete" onclick="return confirm('Удалить?');" href="<%= baseUrl + "delgroup?id=" + grId%>"></a>
                 </td>
             </form>
             </tr>
-            <%}%>
 
+            <%}%>
 
             <tr>
             <form class="form_hide none" action="<%= baseUrl + "addgroup"%>" method="post">
@@ -87,14 +87,14 @@
                         <textarea name="description" id="" cols="30" rows="10"></textarea>
                     </div>
                 </td>
-                <td></td>
-                <td class="ta-c">
+                <td class="ta-c wp-30">
                     <p class="btn_add_mech va-t none">
                         <input hidden type="text" name="ADD_ME" value="1"/>
                         <input class="btn_add_mech va-t none icon icon-save va-m js-tooltip" type="submit" value="" title="Сохранить" name="submit" />
                     </p>
                 </td>
-                <td class="ta-c">
+                <td class="wp-30"></td>
+                <td class="ta-c wp-30">
                     <div class="btn_add icon va-m icon-add"></div>
                 </td>
             </form>

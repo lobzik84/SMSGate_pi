@@ -36,13 +36,13 @@
                     <td class="bold ta-c w-5">
                         №
                     </td>
-                    <td class="w-30">
+                    <td class="w-25">
                         Наименование
                     </td>
-                    <td class="w-45">
+                    <td class="w-65">
                         Ключ доступа<span class="hint_i js-tooltip" title="Используется ключ RSA-1024, public exponent = 10001 (HEX) PublicKey(modulus in HEX, 256 symbols)">i</span>
                     </td>
-                    <td class="w-20 ta-c">
+                    <td class="w-5 ta-c" colspan="2">
                         Управление
                     </td>
                 </tr>
@@ -65,6 +65,7 @@
                             <%= fullPublicKey%>
                         </p>
                     </td>
+                    <td></td>
                     <td class="ta-c">
                         <a class="btn_delete" onclick="return confirm('Удалить пользователя?');" href="<%= baseUrl + "addapp?removeApp=1&id=" + id%>"></a>
                     </td>
@@ -91,14 +92,16 @@
                         </div>
                     </div>
                 </td>
-                <td class="ta-c">
+                <td class="ta-c wp-30">
                     <div class="btn_add_mech va-t mr-5 none">
                         <input hidden type="text" name="ADD_ME" value="1"/>
                         <input class="btn_add_mech va-t mr-5 none icon icon-save va-m js-tooltip" title="Сохранить" type="submit" value="" name="submit" />
                     </div>
+                </td>
+                <td class="ta-c wp-30">
                     <div class="btn_add icon va-m icon-add"></div>
+                </td>
             </form>
-            </td>
             </tr>
             </tbody>
         </table>

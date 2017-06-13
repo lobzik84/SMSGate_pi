@@ -86,16 +86,16 @@
                         </div>
                     </div>
                 </td>
-                <td class="btn_hide-save ta-c">
+                <td class="btn_hide-save ta-c wp-30">
                     <div class="none btn__save">
                         <input class="icon icon-save js-tooltip va-m" title="Сохранить" type="submit" value="" name="submit" />
                     </div>
                 </td>
-                <td class="btn_hide-parent ta-c">
+                <td class="btn_hide-parent ta-c wp-30">
                     <div class="btn_hide-table va-m icon icon-edit js-tooltip inline-b" title="Редактировать"></div>
                 </td>
             </form>
-            <td class="ta-c">
+            <td class="ta-c wp-30">
                 <%if (id != 1) {%>
                 <a class="btn_delete inline-b" onclick="return confirm('Удалить администратора?');" href="<%= baseUrl + "addadm?removeAdm=1&id=" + id%>"></a>
                 <%}%>
@@ -124,15 +124,15 @@
                             </div>
                         </div>
                     </div>
-
                 </td>
-                <td class="ta-c">
+                <td class="ta-c wp-30">
                     <p class="btn_add_mech btn__save va-t none">
                         <input hidden type="text" name="ADD_ME" value="1"/>
                         <input class="btn_add_mech va-t none icon icon-save va-m js-tooltip" type="submit" value="" title="Сохранить" name="submit" />
                     </p>
                 </td>
-                <td class="ta-c">
+                <td class="wp-30"></td>
+                <td class="ta-c wp-30">
                     <div class="btn_add icon va-m icon-add"></div>
                 </td>
             </form>
