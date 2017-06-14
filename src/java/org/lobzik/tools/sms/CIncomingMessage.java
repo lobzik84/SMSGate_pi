@@ -75,8 +75,6 @@ public class CIncomingMessage extends CMessage
 		index = j + k + 2;
 		str1 = "" + pdu.charAt(index) + pdu.charAt(index + 1);
 		protocol = Integer.parseInt(str1, 16);
-                str1 = decodeText(pdu.substring(index + 2), protocol & 0x0C);
-                setText(str1);
 
 		index += 2;
 		year = Integer.parseInt("" + pdu.charAt(index + 1) + pdu.charAt(index)); index += 2;
@@ -94,36 +92,37 @@ public class CIncomingMessage extends CMessage
 		cal.set(Calendar.SECOND, sec);
 		date = cal.getTime();
 		
-//		switch (protocol & 0x0C)
-//		{
-//			case 0:
-//				str1 = pduToText(pdu.substring(index + 2));
-//				str2 = "";
-//				for (i = 0; i < str1.length(); i ++) str2 += CGSMAlphabets.hex2Char((int) str1.charAt(i), CGSMAlphabets.GSM7BITDEFAULT);
-//				str1 = str2;
-//				break;
-//			case 4:
-//				index += 2;
-//				str1 = "";
-//				while (index < pdu.length())
-//				{
-//					i = Integer.parseInt("" + pdu.charAt(index) + pdu.charAt(index + 1), 16);
-//					str1 = str1 + (char) i;
-//					index += 2;
-//				}
-//				break;
-//			case 8:
-//				index += 2;
-//				str1 = "";
-//				while (index < pdu.length())
-//				{
-//					i = Integer.parseInt("" + pdu.charAt(index) + pdu.charAt(index + 1), 16);
-//					j = Integer.parseInt("" + pdu.charAt(index + 2) + pdu.charAt(index + 3), 16);
-//					str1 = str1 + (char) ((i * 256) + j);
-//					index += 4;
-//				}
-//				break;
-//		}
+		switch (protocol & 0x0C)
+		{
+			case 0:
+				str1 = super.pduToText(pdu.substring(index + 2));
+				String str2 = "";
+				for (i = 0; i < str1.length(); i ++) str2 += CGSMAlphabets.hex2Char((int) str1.charAt(i), CGSMAlphabets.GSM7BITDEFAULT);
+				str1 = str2;
+				break;
+			case 4:
+				index += 2;
+				str1 = "";
+				while (index < pdu.length())
+				{
+					i = Integer.parseInt("" + pdu.charAt(index) + pdu.charAt(index + 1), 16);
+					str1 = str1 + (char) i;
+					index += 2;
+				}
+				break;
+			case 8:
+				index += 2;
+				str1 = "";
+				while (index < pdu.length())
+				{
+					i = Integer.parseInt("" + pdu.charAt(index) + pdu.charAt(index + 1), 16);
+					j = Integer.parseInt("" + pdu.charAt(index + 2) + pdu.charAt(index + 3), 16);
+					str1 = str1 + (char) ((i * 256) + j);
+					index += 4;
+				}
+				break;
+		}
+                setText(str1);
 		setOriginator(originator);
 		setDate(date);
 	}
