@@ -142,10 +142,12 @@
 
         <%} else {
             String phone = "";
+            String login = "";
             String auth_via_ldap = "";
+            int id = 0;
             for (HashMap hm : admList) {
-
-                //String login = Tools.getStringValue(hm.get("login"), "");
+                id = Tools.parseInt(hm.get("admin_id"), -1);
+                login = Tools.getStringValue(hm.get("login"), "");
                 phone = Tools.maskPhone(Tools.getStringValue(hm.get("phone_number"), ""), BoxCommonData.PHONE_MASK);
                 //int status = Tools.parseInt(hm.get("status"), -1);
                 auth_via_ldap = (Tools.parseInt(hm.get("auth_via_ldap"), -1) == 1) ? "checked" : "";
@@ -177,16 +179,16 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="ta-c">id</td>
+                    <td class="ta-c"><%=adminId%></td>
                     <td>
-                        login
+                        <%=login%>
                     </td>
 
             <form id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
                 <td class="form_hide-assist">
-                    <p class="form_hide"><%= phone%></p>
+                    <p><%= phone%></p>
                     <div class="form_hide-table none">
-                        <input type="text" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" name="phone_number" value="<%=phone%>">
+                        <!--<input type="text" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" name="phone_number" value="<%=phone%>">-->
                         <div class="va-t wp-240 inline-b">
                             <input class='va-m auth_rtrn' <%=auth_via_ldap%> type="checkbox" name="auth_via_ldap" />
                             <label class='label__sub'>Доменная авторизация РТРС</label>

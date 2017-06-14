@@ -30,15 +30,16 @@
                     <td class="bold w-5 ta-c">
                         №
                     </td>
+                    <td class="w-15">
+                        Группа
+                    </td>
                     <td class="w-25">
                         Номер
                     </td>
                     <td class="w-50">
                         ФИО
                     </td>
-                    <td class="w-15">
-                        Группа
-                    </td>
+
                     <td class="w-5 ta-c" colspan="3">
                         Управление
                     </td>
@@ -53,18 +54,6 @@
             <form action="<%= baseUrl + "editrcpnt"%>" method="post">
                 <input type="hidden" name="id" value="<%=rcId%>" />
                 <td class="ta-c"><%=rcId%></td>
-                <td id="rc_num_<%=rcId%>" class="form_hide-assist">
-                    <p class="form_hide"> <%=number%></p>
-                    <div class="form_hide-table none">
-                        <input type="text" name="number" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" value="<%= number%>">
-                    </div>
-                </td>
-                <td class="form_hide-assist">
-                    <p class="form_hide"><%= Tools.getStringValue(hm.get("name"), "")%></p>
-                    <div class="form_hide-table none">
-                        <input type="text" class="wp-170 mr-15 inline-b" name="name" value="<%= Tools.getStringValue(hm.get("name"), "")%>">
-                    </div>
-                </td>
                 <td class="form_hide-assist">
                     <p class="form_hide"><%= Tools.getStringValue(hm.get("group_name"), "")%></p>
                     <div class="form_hide-table none">
@@ -79,6 +68,18 @@
                             <option value="<%= Tools.parseInt(gr.get("id"), 0)%>" <%=selected%>><%= Tools.getStringValue(gr.get("group_name"), "")%></option>
                             <%}%>
                         </select>
+                    </div>
+                </td>
+                <td id="rc_num_<%=rcId%>" class="form_hide-assist">
+                    <p class="form_hide"> <%=number%></p>
+                    <div class="form_hide-table none">
+                        <input type="text" name="number" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" value="<%= number%>">
+                    </div>
+                </td>
+                <td class="form_hide-assist">
+                    <p class="form_hide"><%= Tools.getStringValue(hm.get("name"), "")%></p>
+                    <div class="form_hide-table none">
+                        <input type="text" class="wp-170 mr-15 inline-b" name="name" value="<%= Tools.getStringValue(hm.get("name"), "")%>">
                     </div>
                 </td>
                 <td class="ta-c btn_hide-save wp-30">

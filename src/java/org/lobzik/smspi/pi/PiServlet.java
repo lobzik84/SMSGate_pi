@@ -654,7 +654,7 @@ public class PiServlet extends HttpServlet {
                 HashMap dbMap = new HashMap();
                 if (targetAdminId > 0) {
                     dbMap.put("admin_id", targetAdminId);
-                    dbMap.put("phone_number", phone);
+                    if (loginAdmin == BoxCommonData.ROOT_ADMIN_ID) dbMap.put("phone_number", phone);//только рут может обновить пароль
                     dbMap.put("auth_via_ldap", ldapAuth);
                     DBTools.updateRow("admins", dbMap, conn);
                 }
