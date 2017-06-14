@@ -103,16 +103,6 @@
                 <td class="ta-c"></td>
                 <td>
                     <div class="btn_add_mech none">
-                        <input class="wp-170 phone__mask auth_rtrn_checkValue" placeholder="+7 (___) ___-__-__" type="text" name="number" />
-                    </div>
-                </td>
-                <td>
-                    <div class="btn_add_mech none">
-                        <input class="wp-170 auth_rtrn_checkValue" type="text" name="name" />
-                    </div>
-                </td>
-                <td>
-                    <div class="btn_add_mech none">
                         <select class="select wp-100" name="group_id">
                             <option value="">---</option>
                             <%for (HashMap gr : groups) {
@@ -122,6 +112,17 @@
                         </select>
                     </div>
                 </td>
+                <td>
+                    <div class="btn_add_mech none">
+                        <input class="wp-170 phone__mask auth_rtrn_checkValue" placeholder="+7 (___) ___-__-__" type="text" name="number" />
+                    </div>
+                </td>
+                <td>
+                    <div class="btn_add_mech none">
+                        <input class="wp-170 auth_rtrn_checkValue" type="text" name="name" />
+                    </div>
+                </td>
+
                 <td class="ta-c wp-30">
                     <p class="btn_add_mech va-t none">
                         <input hidden type="text" name="ADD_ME" value="1"/>

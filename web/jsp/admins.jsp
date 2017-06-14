@@ -169,9 +169,10 @@
                     <td class="w-25">
                         Логин
                     </td>
-                    <td class="w-65">
+                    <td class="w-15">
                         Телефон
                     </td>
+                    <td class="w-50"></td>
                     <td class="w-5 ta-c" colspan="2">
                         Управление
                     </td>
@@ -185,10 +186,11 @@
                     </td>
 
             <form id="edit_form" action="<%= baseUrl + "chpass"%>" method="post">
+                <td>
+                <p><%= phone%></p>
+                </td>
                 <td class="form_hide-assist">
-                    <p><%= phone%></p>
                     <div class="form_hide-table none">
-                        <!--<input type="text" class="phone__mask wp-170 mr-15 inline-b" placeholder="+7 (___) ___-__-__" name="phone_number" value="<%=phone%>">-->
                         <div class="va-t wp-240 inline-b">
                             <input class='va-m auth_rtrn' <%=auth_via_ldap%> type="checkbox" name="auth_via_ldap" />
                             <label class='label__sub'>Доменная авторизация РТРС</label>
