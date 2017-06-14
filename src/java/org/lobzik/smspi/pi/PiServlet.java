@@ -284,6 +284,10 @@ public class PiServlet extends HttpServlet {
             reqData.put("admin_id", loginAdmin);
             String number = Tools.unmaskPhone(Tools.getStringValue(reqData.get("number"), ""));
             reqData.put("number", number);
+            int groupId = Tools.parseInt(reqData.remove("group_id"), 0);
+            if (groupId > 0 ) {
+                reqData.put("group_id", groupId);
+            }
             DBTools.insertRow("group_recipients", reqData, conn);
         }
         response.sendRedirect(baseUrl + "/rcpnts");

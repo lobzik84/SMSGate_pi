@@ -62,12 +62,13 @@
                     <li class="nav__item <%= headUrl.equals("msgs") ? "nav__item_active" : ""%> ">
                         <a class="nav__link" href="<%= baseUrl + "msgs"%>">Сообщения</a>
                     </li>
-                    <li class="nav__item <%= headUrl.equals("rcpnts") ? "nav__item_active" : ""%> ">
-                        <a class="nav__link" href="<%= baseUrl + "rcpnts"%>">Получатели рассылок</a>
-                    </li>
                     <li class="nav__item <%= headUrl.equals("groups") ? "nav__item_active" : ""%> ">
                         <a class="nav__link" href="<%= baseUrl + "groups"%>">Группы рассылок</a>
                     </li>
+                    <li class="nav__item <%= headUrl.equals("rcpnts") ? "nav__item_active" : ""%> ">
+                        <a class="nav__link" href="<%= baseUrl + "rcpnts"%>">Получатели рассылок</a>
+                    </li>
+
                 </ul>
             </nav>
         </header>
