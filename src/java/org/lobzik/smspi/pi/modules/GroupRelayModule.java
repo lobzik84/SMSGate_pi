@@ -81,7 +81,7 @@ public class GroupRelayModule implements Module {
                     if (index1 >= 0 && index2 - index1 > 0) {
                         String group = msg.substring(index1 + 1, index2);
                         String text = msg.substring(index2 + 1);
-                        sSQL = "select * from groups where admin_id=" + adminId + " and name=?";
+                        sSQL = "select * from groups where admin_id=" + adminId + " and group_name=?";
 
                         arg.clear();
                         arg.add(group);
