@@ -45,10 +45,11 @@ import org.w3c.dom.Element;
  */
 public class SMSClientTestXML {
 
-    static String SMSGateUrl = "http://192.168.11.22:8080/smspi/xml";
-    static String username = "mobility";
-    static String privateKeyString = "61832d2f4e3032863f3b1957d5cc0a4e5bdf3f26cb3995bac83fd50f7da4eab282cf6af34aa52ab95da0961f5ee28980c36cf141605120c907cbc63e92a21cf1f72ca32e7ceb9fb4fe5a3245d4e136ee57a88e26fbefcac331a8bb8230cd8794759489782bdd385fa05efcde0f14b0b12784c93ae463531cbdf9831edf778171";
-    static String publicKeyString = "844af8350323d29b7bf760245eec4298491e9c144c813493e2d315669de4c5f67ac6eb2117c539d3334db9bd64322d5950fd6160fe4d328d5c3db23f9bc7d84d82847fce176223b9d514a33067096e80f832f00661798d44949ce5fc01d48bbe1e216e236f05af2f7b692d1bbf9fba5e1dfc4c7a3c438a42b7a0a598b2390f33";
+    //static String SMSGateUrl = "http://smsity.rtrn.ru:8080/smspi/xml";
+    static String SMSGateUrl = "http://localhost:8083/smspi/xml";
+    static String username = "msk-hq-dms";
+    static String publicKeyString = "61b9ea96509090e80b17419f156e6981bc953060027cf8fc4fa20d9cf9a58cb14d0855ad8b347bd865ab0b40319b040790ac736e05cd3034cbeda58c843ba13c563000ab99c49e132b55b78e54786670c7b59d56680f27ecd7038a81dac3372bac4b6e96fc42f53028d82689d779fcb370aa00401e84460d165a14e6b6f87e71";
+    static String privateKeyString = "30264c00d79d02e8715e7a0489a8a6ef371d42826b776badd5068132908612b5e0c074865709fae2f9e4b65c609481fdc038577f23f89f01c46048aadd140c3272c68c073b2c71c62ea117ea078c46ece5b5a83f3d10f7527161891eb690565d433599edfcfbca273dc91c1d148a107c5602ac441b0df2faefc613dbf05bdae1";
     static String  publicExponentString = "10001";
     static String text = "Это тест отправки sms через XML:" + System.currentTimeMillis();
     static String recipient = "+79263357107";
