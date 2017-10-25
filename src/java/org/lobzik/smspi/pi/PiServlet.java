@@ -458,7 +458,7 @@ public class PiServlet extends HttpServlet {
         String baseUrl = request.getContextPath() + request.getServletPath();
         HashMap jspData = (HashMap) request.getAttribute("JspData");
         HashMap reqData = getRequestParameters(request);
-        if (reqData.containsKey("REG_ME") && Tools.parseInt(reqData.get("REG_ME"), -1) > 0 && Tools.getStringValue(reqData.get("name"), "").trim().length() > 0 && Tools.getStringValue(reqData.get("public_key"), "").trim().length() > 0) {
+        if (reqData.containsKey("ADD_ME") && Tools.parseInt(reqData.get("ADD_ME"), -1) > 0 && Tools.getStringValue(reqData.get("name"), "").trim().length() > 0 && Tools.getStringValue(reqData.get("public_key"), "").trim().length() > 0) {
             String publicKey = Tools.getStringValue(reqData.get("public_key"), "");
             if (publicKey.length() <= 256) {
                 try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {

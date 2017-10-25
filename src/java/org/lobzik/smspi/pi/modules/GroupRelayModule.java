@@ -64,7 +64,6 @@ public class GroupRelayModule implements Module {
     @Override
     public void handleEvent(Event e) {
         if (e.getType() == Event.Type.USER_ACTION && e.name.equals("sms_recieved")) {
-            //todo check if it is admin writing, select group and relay
             String sender = (String) e.data.get("sender");
             String sSQL = "select * from admins where phone_number=?";
             ArrayList arg = new ArrayList(1);
@@ -113,6 +112,45 @@ public class GroupRelayModule implements Module {
                         }
                     }
                 }
+            } catch (Exception ex) {
+                log.error(ex);
+            }
+
+        } else if (e.getType() == Event.Type.USER_ACTION && e.name.equals("send_group_sms")) {
+
+            try (Connection conn = DBTools.openConnection(BoxCommonData.dataSourceName)) {
+                String groupName = (String) e.data.get("group");
+                String adminName = (String) e.data.get("admin");
+                String text = (String) e.data.get("message");
+                Date validBefore = (Date) e.data.get("valid_before");
+
+                log.info("Sending group sms from admin " + adminName + " to group " + groupName);
+
+                String sSQL = "select gr.number from group_recipients gr\n"
+                        + "join groups g on g.id=gr.group_id\n"
+                        + "join admins a on a.admin_id=g.admin_id\n"
+                        + "where a.login=? and g.group_name=?";
+                List args = new LinkedList();
+                args.add(adminName);
+                args.add(groupName);
+                List<HashMap> rcpnts = DBSelect.getRows(sSQL, args, conn);
+                if (rcpnts.isEmpty()) {
+                    log.warn("No recipients found for admin " + adminName + " and group " + groupName);
+                }
+                for (HashMap rcpnt : rcpnts) {
+                    String number = (String) rcpnt.get("number");
+                    KnownRecipientsAPI.checkGreetings(number); //? do we need this
+                    HashMap data = new HashMap();
+
+                    data.put("message", text);
+                    data.put("recipient", number);
+                    data.put("date", new Date());
+                    data.put("status", MessageStatus.STATUS_NEW);
+                    data.put("valid_before", validBefore);
+                    DBTools.insertRow("sms_outbox", data, conn);
+                }
+                Event ce = new Event("check_outbox", null, Event.Type.USER_ACTION);
+                AppData.eventManager.newEvent(ce);
             } catch (Exception ex) {
                 log.error(ex);
             }

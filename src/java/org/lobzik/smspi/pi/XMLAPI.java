@@ -90,7 +90,18 @@ public class XMLAPI {
         }
 
         String text = req.getElementsByTagName("text").item(0).getTextContent();
-        String recipient = req.getElementsByTagName("recipient").item(0).getTextContent();
+        String recipient = null;
+        String group = null;
+        String admin = null;
+        if (req.getElementsByTagName("recipient").getLength() == 1) {
+            recipient = req.getElementsByTagName("recipient").item(0).getTextContent();
+            if (!recipient.matches("\\+[0-9]{7,15}")) {
+                throw new Exception("Invalid recipient (must be like +71234567890)");
+            }
+        } else {
+            group = req.getElementsByTagName("group").item(0).getTextContent();
+            admin = req.getElementsByTagName("admin").item(0).getTextContent();
+        }
 
         Date validBefore = null;
         NodeList validBeforeNL = req.getElementsByTagName("valid_before");
@@ -101,9 +112,6 @@ public class XMLAPI {
             }
         }
 
-        if (!recipient.matches("\\+[0-9]{7,15}")) {
-            throw new Exception("Invalid recipient (must be like +71234567890)"); //TODO regex check
-        }
         if (text.length() == 0 || text.length() > BoxSettingsAPI.getInt("MaxMessageLength")) {
             throw new Exception("Text is missing or too long");
         }
@@ -126,19 +134,30 @@ public class XMLAPI {
             if (coreInvalidity) {
                 throw new Exception("Invalid digest!");
             }
-            KnownRecipientsAPI.checkGreetings(recipient);
-            HashMap data = new HashMap();
-            data.put("user_id", Tools.parseInt(resList.get(0).get("id"), 0));
-            data.put("valid_before", validBefore);
-            data.put("message", text);
-            data.put("recipient", recipient);
-            data.put("date", new Date());
-            data.put("status", MessageStatus.STATUS_NEW);
-            msgId = DBTools.insertRow("sms_outbox", data, conn);
+            if (recipient != null) {
+                KnownRecipientsAPI.checkGreetings(recipient);
+                HashMap data = new HashMap();
+                data.put("user_id", Tools.parseInt(resList.get(0).get("id"), 0));
+                data.put("valid_before", validBefore);
+                data.put("message", text);
+                data.put("recipient", recipient);
+                data.put("date", new Date());
+                data.put("status", MessageStatus.STATUS_NEW);
+                msgId = DBTools.insertRow("sms_outbox", data, conn);
+                Event e = new Event("check_outbox", null, Event.Type.USER_ACTION);
+                AppData.eventManager.newEvent(e);
+            } else {
+                HashMap h = new HashMap();
+                h.put("admin", admin);
+                h.put("group", group);
+                h.put("valid_before", validBefore);
+                h.put("message", text);
+                Event e = new Event("send_group_sms", h, Event.Type.USER_ACTION);
+                AppData.eventManager.newEvent(e);
+            }
 
         }
-        Event e = new Event("check_outbox", null, Event.Type.USER_ACTION);
-        AppData.eventManager.newEvent(e);
+
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
